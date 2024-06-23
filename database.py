@@ -57,14 +57,13 @@ def init_db():
     cursor = connection.cursor()
     cursor.execute("PRAGMA foreign_keys = ON")
     # Subscribers Table
-    # we can change is_allowed_to_register with settings
+    # we can change is_banned with settings
     cursor.execute('''CREATE TABLE IF NOT EXISTS Subscribers (
-                      subscriber_id INTEGER PRIMARY KEY AUTOINCREMENT,
                       global_user_id VARCHAR(255),
                       guild_id VARCHAR(255),
                       default_penalty_description MEDIUMTEXT,
-                      is_activated BOOLEAN DEFAULT 1,
-                      is_allowed_to_register BOOLEAN DEFAULT 0
+                      is_banned BOOLEAN DEFAULT 0,
+                      PRIMARY KEY (global_user_id, guild_id)
                     )''')
     
     # Weeks Table 
@@ -80,9 +79,10 @@ def init_db():
                       description MEDIUMTEXT,
                       completion_percentage FLOAT DEFAULT 0.0,
                       week_number INTEGER,
-                      subscriber_id INTEGER,
+                      global_user_id VARCHAR(255),
+                      guild_id VARCHAR(255),
                       FOREIGN KEY (week_number) REFERENCES Weeks(week_number),
-                      FOREIGN KEY (subscriber_id) REFERENCES Subscribers(subscriber_id)
+                      FOREIGN KEY (global_user_id, guild_id) REFERENCES Subscribers(global_user_id, guild_id)
                     )''')
     
     # Penalties Table
@@ -92,9 +92,10 @@ def init_db():
                       is_done BOOLEAN DEFAULT 0,
                       is_yellow BOOLEAN DEFAULT 1,
                       week_number INTEGER,
-                      subscriber_id INTEGER,
+                      global_user_id VARCHAR(255),
+                      guild_id VARCHAR(255),
                       FOREIGN KEY (week_number) REFERENCES Weeks(week_number),
-                      FOREIGN KEY (subscriber_id) REFERENCES Subscribers(subscriber_id)
+                      FOREIGN KEY (global_user_id, guild_id) REFERENCES Subscribers(global_user_id, guild_id)
                     )''')
     
     connection.commit()
