@@ -5,6 +5,11 @@ import dotenv
 import os
 import database
 
+from models.subscriber import Subscriber
+from models.task import Task
+from models.week import Week
+from models.penalty import Penalty
+
 bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
 
 @bot.event
@@ -30,11 +35,22 @@ async def mention(interaction: discord.Interaction, who: str):
 async def show_tasks(interaction: discord.Interaction, who: str, task_num: int):
     pass
 
-@bot.tree.command(name="delete_task")
-@app_commands.describe(who="who")
-@app_commands.describe(task_num="task_num")
-async def delete_task(interaction: discord.Interaction, who: str, task_num: int):
-    await interaction.response.send_message(f"Hey Soldier {who}, You Deleted Task {task_num}")
+@bot.tree.command(name="register")
+async def greet(interaction: discord.Interaction):
+    user_id = interaction.user.id
+    guild_id = interaction.guild.id
+    new_subscriber = Subscriber(user_id, guild_id)
+
+    database.subscribe_user(new_subscriber)
+    await interaction.response.send_message(f"Be Proud, you are hard worker, you subscribed to the program succesfully {interaction.user.mention}", ephemeral=True)
+
+
+
+# @bot.tree.command(name="delete_task")
+# @app_commands.describe(who="who")
+# @app_commands.describe(task_num="task_num")
+# async def delete_task(interaction: discord.Interaction, who: str, task_num: int):
+#     await interaction.response.send_message(f"Hey Soldier {who}, You Deleted Task {task_num}")
 
 
 # TODO: Get Task Instructions
