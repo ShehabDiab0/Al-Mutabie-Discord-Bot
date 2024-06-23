@@ -8,7 +8,14 @@ connection = sqlite3.connect("tasks.db")
 
 # TODO: Insert User into Database
 def subscribe_user(new_subscriber: Subscriber):
-    pass
+    cursor = connection.cursor()
+
+    cursor.execute(f'''
+                    INSERT INTO Subscribers (global_user_id, guild_id) VALUES  ({new_subscriber.user_id}, {new_subscriber.guild_id})
+                   ''')
+
+    connection.commit()
+    cursor.close()
 
 
 # TODO: Insert User Task into Database
