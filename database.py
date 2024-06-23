@@ -2,52 +2,62 @@ import sqlite3
 
 connection = sqlite3.connect("tasks.db")
 cursor = connection.cursor()
+cursor.execute("PRAGMA foreign_keys = ON")
 
-# TODO: Initialize DB
 def init_db():
     # Subscribers Table
     # we can change is_allowed_to_register with settings
     cursor.execute('''CREATE TABLE IF NOT EXISTS Subscribers (
-                      subscriber_id INT NOT NULL AUTO_INCREMENT,
+                      subscriber_id INTEGER PRIMARY KEY AUTOINCREMENT,
                       global_user_id VARCHAR(255),
                       guild_id VARCHAR(255),
-                      is_activated BIT DEFAULT 0,
-                      is_allowed_to_register BIT DEFAULT 1,
-                      PRIMARY KEY(subscriber_id)
+                      is_activated BOOLEAN DEFAULT 0,
+                      is_allowed_to_register BOOLEAN DEFAULT 1
                     )''')
     
     # Weeks Table 
     cursor.execute('''CREATE TABLE IF NOT EXISTS Weeks (
-                      week_number INT NOT NULL AUTO_INCREMENT,
+                      week_number INTEGER PRIMARY KEY AUTOINCREMENT,
                       start_date DATETIME,
-                      end_date DATETIME,
-                      PRIMARY KEY(week_number)
+                      end_date DATETIME
                     )''')
     
     # Tasks Table
     cursor.execute('''CREATE TABLE IF NOT EXISTS Tasks (
-                      task_id INT NOT NULL AUTO_INCREMENT,
+                      task_id INTEGER PRIMARY KEY AUTOINCREMENT,
                       description MEDIUMTEXT,
                       completion_percentage FLOAT DEFAULT 0.0,
-                      PRIMARY KEY(task_id),
-                      week_number INT FOREIGN KEY REFERENCES Weeks(week_number),
-                      subscriber_id INT FOREIGN KEY REFERENCES Subscribers(subscriber_id)
+                      week_number INTEGER,
+                      subscriber_id INTEGER,
+                      FOREIGN KEY (week_number) REFERENCES Weeks(week_number),
+                      FOREIGN KEY (subscriber_id) REFERENCES Subscribers(subscriber_id)
                     )''')
     
-    # Penalty Table
+    # Penalties Table
     cursor.execute('''CREATE TABLE IF NOT EXISTS Penalties (
-                      penalty_id INT NOT NULL AUTO_INCREMENT,
+                      penalty_id INTEGER PRIMARY KEY AUTOINCREMENT,
                       description MEDIUMTEXT,
-                      is_done BIT DEFAULT 0,
-                      is_yellow BIT DEFAULT 1,
-                      PRIMARY KEY(penalty_id),
-                      week_number INT FOREIGN KEY REFERENCES Weeks(week_number),
-                      subscriber_id INT FOREIGN KEY REFERENCES Subscribers(subscriber_id)
+                      is_done BOOLEAN DEFAULT 0,
+                      is_yellow BOOLEAN DEFAULT 1,
+                      week_number INTEGER,
+                      subscriber_id INTEGER,
+                      FOREIGN KEY (week_number) REFERENCES Weeks(week_number),
+                      FOREIGN KEY (subscriber_id) REFERENCES Subscribers(subscriber_id)
                     )''')
+    
+    connection.commit()
+    def verify_init():
+        res = cursor.execute("SELECT name FROM sqlite_master")
+        tables = res.fetchall()
+        print("Tables in the database:", tables)
 
+    verify_init()
 
 
 # TODO: Insert User into Database
+def insert_user():
+    pass
+
 
 # TODO: Insert User Task into Database
 

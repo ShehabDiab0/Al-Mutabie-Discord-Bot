@@ -3,6 +3,7 @@ from discord.ext import commands
 from discord import app_commands 
 import dotenv
 import os
+import database
 
 bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
 
@@ -39,5 +40,6 @@ async def delete_task(interaction: discord.Interaction, who: str, task_num: int)
 # TODO: Get Task Instructions
 
 def run_bot():
+    database.init_db()
     dotenv.load_dotenv()
     bot.run(os.getenv("API_TOKEN"))
