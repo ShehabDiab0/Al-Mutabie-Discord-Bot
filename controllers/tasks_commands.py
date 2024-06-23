@@ -22,7 +22,7 @@ class TasksCog(commands.Cog):
     # @bot.tree.command(name="tasks")
     # @app_commands.describe(who="who")
     # @app_commands.describe(task_num="task_number")
-    # async def show_tasks(interaction: discord.Interaction, who: str, task_num: int):
+    # async def show_tasks(self, interaction: discord.Interaction, who: str, task_num: int):
     #     pass
 
     # TODO: Delete Tasks
