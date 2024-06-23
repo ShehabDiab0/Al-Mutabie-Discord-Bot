@@ -36,7 +36,7 @@ async def show_tasks(interaction: discord.Interaction, who: str, task_num: int):
     pass
 
 @bot.tree.command(name="register")
-async def greet(interaction: discord.Interaction):
+async def register(interaction: discord.Interaction):
     user_id = interaction.user.id
     guild_id = interaction.guild.id
     new_subscriber = Subscriber(user_id, guild_id)
