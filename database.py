@@ -4,6 +4,8 @@ from models.task import Task
 from models.week import Week
 from models.penalty import Penalty
 
+# modal
+
 connection = sqlite3.connect("tasks.db")
 
 # TODO: Insert User into Database
@@ -11,8 +13,8 @@ def subscribe_user(new_subscriber: Subscriber):
     cursor = connection.cursor()
 
     cursor.execute(f'''
-                    INSERT INTO Subscribers (global_user_id, guild_id) VALUES  ({new_subscriber.user_id}, {new_subscriber.guild_id})
-                   ''')
+                    INSERT INTO Subscribers (global_user_id, guild_id) VALUES  (?, ?)
+                   ''', (new_subscriber.user_id, new_subscriber.guild_id))
 
     connection.commit()
     cursor.close()
