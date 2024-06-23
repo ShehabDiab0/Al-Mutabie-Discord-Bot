@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from discord import app_commands 
-import dotenv
+import dotenv # type: ignore
 import os
 import database
 
