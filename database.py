@@ -1,18 +1,63 @@
 import sqlite3
+from models.subscriber import Subscriber
+from models.task import Task
+from models.week import Week
+from models.penalty import Penalty
 
 connection = sqlite3.connect("tasks.db")
-cursor = connection.cursor()
-cursor.execute("PRAGMA foreign_keys = ON")
 
+# TODO: Insert User into Database
+def subscribe_user(new_subscriber: Subscriber):
+    pass
+
+
+# TODO: Insert User Task into Database
+def add_task(new_task: Task):
+    pass
+
+# TODO: Insert User Penalty into Database
+def add_penalty(new_penalty: Penalty):
+    pass
+
+# TODO: Insert New Week
+def add_week(new_week: Week):
+    pass
+
+# TODO: Get User Week Tasks
+def get_subscriber_tasks(subscriber: Subscriber) -> list[Task]:
+    pass
+
+# TODO: Get User Penalty History
+def get_subscriber_penalty_history(subscriber: Subscriber) -> list[Penalty]:
+    pass
+
+# this returns old penalty
+# TODO: Update User Penalty
+def update_subscriber_penalty(new_penalty: Penalty) -> Penalty:
+    pass
+
+# this returns old task
+# TODO: Update User Tasks
+def update_subscriber_tasks(new_task: Task) -> Task:
+    pass
+
+# TODO: Change User Default Penalty
+
+
+
+# to initialize database
 def init_db():
+    cursor = connection.cursor()
+    cursor.execute("PRAGMA foreign_keys = ON")
     # Subscribers Table
     # we can change is_allowed_to_register with settings
     cursor.execute('''CREATE TABLE IF NOT EXISTS Subscribers (
                       subscriber_id INTEGER PRIMARY KEY AUTOINCREMENT,
                       global_user_id VARCHAR(255),
                       guild_id VARCHAR(255),
-                      is_activated BOOLEAN DEFAULT 0,
-                      is_allowed_to_register BOOLEAN DEFAULT 1
+                      default_penalty_description MEDIUMTEXT,
+                      is_activated BOOLEAN DEFAULT 1,
+                      is_allowed_to_register BOOLEAN DEFAULT 0
                     )''')
     
     # Weeks Table 
@@ -52,23 +97,4 @@ def init_db():
         print("Tables in the database:", tables)
 
     verify_init()
-
-
-# TODO: Insert User into Database
-def insert_user():
-    pass
-
-
-# TODO: Insert User Task into Database
-
-# TODO: Insert User Penalty into Database
-
-# TODO: Get User Week Tasks
-
-# TODO: Get User Penalty History
-
-# TODO: Update User Penalty
-
-# TODO: Update User Tasks
-
-# TODO: Change User Default Penalty
+    cursor.close()
