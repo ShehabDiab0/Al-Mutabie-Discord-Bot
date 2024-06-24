@@ -5,30 +5,23 @@ from discord import app_commands
 from client import bot
 import database
 
+
 from models.subscriber import Subscriber
 from models.task import Task
 from models.week import Week
 from models.penalty import Penalty
-
+import helpers
 
 class TasksCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-
-    # TODO: Show Tasks
-    # @bot.tree.command(name="tasks")
-    # @app_commands.describe(who="who")
-    # @app_commands.describe(task_num="task_number")
-    # async def show_tasks(self, interaction: discord.Interaction, who: str, task_num: int):
-    #     pass
-
     # TODO: Delete Tasks
-    @app_commands.command(name="delete_task")
-    @app_commands.describe(who="who to mention")
-    @app_commands.describe(task_number="task number")
-    async def delete_task(self, interaction: discord.Interaction, who: str, task_number: int):
-        await interaction.response.send_message(f"Hey Soldier {who}, You Deleted Task {task_number}")
+    # @app_commands.command(name="delete_task")
+    # @app_commands.describe(who="who to mention")
+    # @app_commands.describe(task_number="task number")
+    # async def delete_task(self, interaction: discord.Interaction, who: str, task_number: int):
+    #     await interaction.response.send_message(f"Hey Soldier {who}, You Deleted Task {task_number}")
 
     
     @app_commands.command(name="add_task")
@@ -52,6 +45,30 @@ class TasksCog(commands.Cog):
         except Exception as e:
             print(e)
             await interaction.response.send_message(f"Failed to add this task", ephemeral=True)
+
+    
+    @app_commands.command(name="show_tasks")
+    @app_commands.describe(who="mention a user to know their tasks")
+    @app_commands.describe(week_number="Type Tasks of which week? use 0 for current week")
+    async def show_tasks(self, interaction: discord.Interaction, who: str, week_number: int):
+        if week_number == 0: # special case for current week
+            week_number = database.get_current_week()
+
+        user_id = who[2:-1] # when u mention somebody in discord it uses the format <@user_id>
+        guild_id: str = str(interaction.guild.id)
+        subscriber: Subscriber = Subscriber(user_id, guild_id)
+
+        tasks = database.get_subscriber_tasks(subscriber, week_number)
+        formatted_tasks = helpers.convert_tasks_to_str(tasks)
+
+        member = interaction.guild.get_member(int(user_id))
+        embed = discord.Embed(title=f'{member.display_name} Tasks of Week {week_number}',
+                              description=formatted_tasks,
+                              color=member.color)
+        embed.set_thumbnail(url=str(member.avatar))
+        await interaction.response.send_message(embed=embed)
+        
+
 
 
 
