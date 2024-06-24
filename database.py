@@ -25,7 +25,14 @@ def subscribe_user(new_subscriber: Subscriber):
 
 # TODO: Insert User Task into Database
 def add_task(new_task: Task):
-    pass
+    cursor = connection.cursor()
+
+    cursor.execute(f'''
+                    INSERT INTO Tasks (description, week_number, global_user_id, guild_id) VALUES  (?, ?, ?, ?)
+                   ''', (new_task.description, new_task.week_number, new_task.owner_id, new_task.guild_id))
+
+    connection.commit()
+    cursor.close()
 
 # TODO: Insert User Penalty into Database
 def add_penalty(new_penalty: Penalty):
@@ -85,6 +92,7 @@ def update_subscriber_tasks(new_task: Task) -> Task:
 def init_db():
     cursor = connection.cursor()
     cursor.execute("PRAGMA foreign_keys = ON")
+    
     # Subscribers Table
     # we can change is_banned with settings
     cursor.execute('''CREATE TABLE IF NOT EXISTS Subscribers (
