@@ -99,8 +99,23 @@ def get_current_week():
     return None
 
 # TODO: Get User Week Tasks
-def get_subscriber_tasks(subscriber: Subscriber) -> list[Task]:
-    pass
+def get_subscriber_tasks(subscriber: Subscriber, week_number: int) -> list[Task]:
+    current_week = get_current_week()
+    if week_number > current_week or week_number < 0:
+        return []
+    
+    cursor = connection.cursor()
+    cursor.execute(f'''
+                    SELECT description, completion_percentage
+                    FROM Tasks
+                    WHERE week_number = ? AND global_user_id = ? AND guild_id = ?
+                   ''', (week_number, subscriber.user_id, subscriber.guild_id))
+    tasks = cursor.fetchall()
+    connection.commit()
+    cursor.close()
+    if tasks:
+        return tasks
+    return []
 
 # TODO: Get User Penalty History
 def get_subscriber_penalty_history(subscriber: Subscriber) -> list[Penalty]:
