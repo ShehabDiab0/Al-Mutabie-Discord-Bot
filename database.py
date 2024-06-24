@@ -23,6 +23,37 @@ def subscribe_user(new_subscriber: Subscriber):
     cursor.close()
 
 
+def is_banned_user(user_id: str, guild_id: str) -> bool:
+    cursor = connection.cursor()
+    cursor.execute(f'''SELECT is_banned 
+                    From 
+                    Subscribers 
+                    WHERE global_user_id = ? AND guild_id = ?''',
+                    (user_id, guild_id))
+    is_banned = cursor.fetchone()
+    connection.commit()
+    cursor.close()
+
+    if is_banned:
+        return is_banned[0]
+    return None
+
+def is_registered_user(user_id: str, guild_id: str) -> bool:
+    cursor = connection.cursor()
+    cursor.execute(f'''SELECT 1
+                    From 
+                    Subscribers 
+                    WHERE global_user_id = ? AND guild_id = ?''',
+                    (user_id, guild_id))
+    is_registered = cursor.fetchone()
+    connection.commit()
+    cursor.close()
+
+    if is_registered is None:
+        return False
+    return True
+
+
 # TODO: Insert User Task into Database
 def add_task(new_task: Task):
     cursor = connection.cursor()
@@ -56,15 +87,16 @@ def add_week():
 
 def get_current_week():
     cursor = connection.cursor()
-    current_week = cursor.execute(f'''
+    cursor.execute(f'''
                     SELECT week_number FROM Weeks ORDER BY week_number DESC LIMIT 1
-                   ''').fetchone()
+                   ''')
+    current_week = cursor.fetchone()
     connection.commit()
     cursor.close()
+
     if current_week:
         return current_week[0]
-    else:
-        None
+    return None
 
 # TODO: Get User Week Tasks
 def get_subscriber_tasks(subscriber: Subscriber) -> list[Task]:
