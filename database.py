@@ -3,10 +3,13 @@ from models.subscriber import Subscriber
 from models.task import Task
 from models.week import Week
 from models.penalty import Penalty
+import schedule
+import datetime
+import time
 
 # modal
 
-connection = sqlite3.connect("tasks.db")
+connection = sqlite3.connect("tasks.db", check_same_thread=False)
 
 # TODO: Insert User into Database
 def subscribe_user(new_subscriber: Subscriber):
@@ -29,8 +32,32 @@ def add_penalty(new_penalty: Penalty):
     pass
 
 # TODO: Insert New Week
-def add_week(new_week: Week):
-    pass
+@schedule.repeat(schedule.every().thursday.at('21:00'))
+def add_week():
+    print("INSERTED A NEW ONE HEHE")
+    cursor = connection.cursor()
+
+    start_date = datetime.datetime.now()
+    end_date = start_date + datetime.timedelta(weeks=1)
+
+    cursor.execute(f'''
+                    INSERT INTO Weeks (start_date, end_date) VALUES  (?, ?)
+                   ''', (start_date, end_date))
+
+    connection.commit()
+    cursor.close()
+
+def get_current_week():
+    cursor = connection.cursor()
+    current_week = cursor.execute(f'''
+                    SELECT week_number FROM Weeks ORDER BY week_number DESC LIMIT 1
+                   ''').fetchone()
+    connection.commit()
+    cursor.close()
+    if current_week:
+        return current_week[0]
+    else:
+        None
 
 # TODO: Get User Week Tasks
 def get_subscriber_tasks(subscriber: Subscriber) -> list[Task]:
