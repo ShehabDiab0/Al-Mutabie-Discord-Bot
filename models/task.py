@@ -1,6 +1,5 @@
 class Task:
-    def __init__(self, task_id: int, description: str, completion_percentage: float, week_number: float, owner_id: int):
-        self.task_id = task_id
+    def __init__(self, task_id: int, description: str, week_number: float, owner_id: int, completion_percentage: float = 0.0):
         self.discription = description
         self.completion_percentage = completion_percentage
         self.week_number = week_number
