@@ -15,8 +15,6 @@ class TasksCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    # TODO: Add Tasks
-
 
     # TODO: Show Tasks
     # @bot.tree.command(name="tasks")
@@ -31,6 +29,20 @@ class TasksCog(commands.Cog):
     @app_commands.describe(task_number="task number")
     async def delete_task(self, interaction: discord.Interaction, who: str, task_number: int):
         await interaction.response.send_message(f"Hey Soldier {who}, You Deleted Task {task_number}")
+
+    
+    @app_commands.command(name="add_task")
+    @app_commands.describe(task_description="Write Your task here")
+    async def add_task(self, interaction: discord.Interaction, task_description: str):
+        task_owner_id: str = str(interaction.user.id)
+        guild_id: str = str(interaction.guild.id)
+        new_task = Task(guild_id=guild_id, owner_id=task_owner_id, description=task_description, week_number=database.get_current_week())
+        try:
+            database.add_task(new_task)
+            await interaction.response.send_message(f"You added {task_description} to your Tasks SUCCESSFULLY! of Week {new_task.week_number}", ephemeral=True)
+        except Exception as e:
+            print(e)
+            await interaction.response.send_message(f"Failed to add this task", ephemeral=True)
 
 
 
