@@ -36,6 +36,15 @@ class TasksCog(commands.Cog):
     async def add_task(self, interaction: discord.Interaction, task_description: str):
         task_owner_id: str = str(interaction.user.id)
         guild_id: str = str(interaction.guild.id)
+        
+        if not database.is_registered_user(task_owner_id, guild_id):
+            await interaction.response.send_message(f"You have to register first before adding any tasks please use /register to register")
+            return
+
+        if database.is_banned_user(task_owner_id, guild_id):
+            await interaction.response.send_message(f"YOU ARE NOT ALLOWED TO USE THIS, YOU ARE BANNED")
+            return
+
         new_task = Task(guild_id=guild_id, owner_id=task_owner_id, description=task_description, week_number=database.get_current_week())
         try:
             database.add_task(new_task)
