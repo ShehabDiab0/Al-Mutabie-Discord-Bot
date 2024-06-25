@@ -10,7 +10,7 @@ import datetime
 
 
 connection = sqlite3.connect("tasks.db", check_same_thread=False)
-
+############################# INSERTION FUNCTIONS #############################
 # TODO: Insert User into Database
 def subscribe_user(new_subscriber: Subscriber):
     cursor = connection.cursor()
@@ -22,6 +22,118 @@ def subscribe_user(new_subscriber: Subscriber):
     connection.commit()
     cursor.close()
 
+# Insert User Task into Database
+def add_task(new_task: Task):
+    cursor = connection.cursor()
+
+    cursor.execute(f'''
+                    INSERT INTO Tasks (description, week_number, global_user_id, guild_id) VALUES  (?, ?, ?, ?)
+                   ''', (new_task.description, new_task.week_number, new_task.owner_id, new_task.guild_id))
+
+    connection.commit()
+    cursor.close()
+
+# TODO: Insert User Penalty into Database
+def add_penalty(new_penalty: Penalty):
+    pass
+
+# Insert New Week
+def add_week():
+    print("INSERTED A NEW ONE HEHE")
+    cursor = connection.cursor()
+
+    start_date = datetime.datetime.now()
+    start_date = client.TIMEZONE.localize(start_date)
+    
+    # get the days ahead to reach the next Thursday
+    days_ahead = (3 - start_date.weekday() + 7) % 7
+    end_date = start_date + datetime.timedelta(days=days_ahead)
+    end_date = end_date.replace(hour=23, minute=59, second=59)
+
+    cursor.execute(f'''
+                    INSERT INTO Weeks (start_date, end_date) VALUES  (?, ?)
+                   ''', (start_date, end_date))
+
+    connection.commit()
+    cursor.close()
+
+############################# DELETION FUNCTIONS  #############################
+def delete_task(task_id: int):
+    cursor = connection.cursor()
+    cursor.execute(f'''
+                    DELETE FROM Tasks WHERE task_id = ?
+                   ''', (task_id,))
+    connection.commit()
+    cursor.close()
+############################# UPDATE FUNCTIONS    #############################
+
+# this returns old penalty
+# TODO: Update User Penalty
+def update_subscriber_penalty(new_penalty: Penalty) -> Penalty:
+    pass
+
+# this returns old task
+# TODO: Update User Tasks
+def update_subscriber_tasks(new_task: Task) -> Task:
+    pass
+
+############################# SELECT FUNCTIONS    #############################
+
+# Get User Week Tasks (week_number = 0 means current week)
+def get_subscriber_tasks(subscriber: Subscriber, week_number: int) -> list[Task]:
+    current_week = get_current_week()
+    if(week_number == 0):
+        week_number = current_week
+
+    if week_number > current_week or week_number < 0:
+        return []
+    
+    cursor = connection.cursor()
+    cursor.execute(f'''
+                    SELECT task_id, description, completion_percentage
+                    FROM Tasks
+                    WHERE week_number = ? AND global_user_id = ? AND guild_id = ?
+                   ''', (week_number, subscriber.user_id, subscriber.guild_id))
+    output = cursor.fetchall()
+    tasks = []
+    for task in output:
+        tasks.append(Task(task_id=task[0], description=task[1], completion_percentage=task[2], week_number=week_number, guild_id=subscriber.guild_id, owner_id=subscriber.user_id))
+    connection.commit()
+    cursor.close()
+    if tasks:
+        return tasks
+    return []
+
+# Get User Penalty History
+def get_subscriber_penalty_history(subscriber: Subscriber) -> list[Penalty]:
+    cursor = connection.cursor()
+    cursor.execute(f'''
+                    SELECT penalty_id, description, is_done, is_yellow, week_number
+                    FROM Tasks
+                    WHERE global_user_id = ? AND guild_id = ?)
+                     ''', (subscriber.user_id, subscriber.guild_id))
+    output = cursor.fetchall()
+    penalties = []
+    for penalty in output:
+        penalties.append(Penalty(penalty_id=penalty[0], description=penalty[1], is_done=penalty[2], is_yellow=penalty[3], week_number=penalty[4], guild_id=subscriber.guild_id, owner_id=subscriber.user_id))
+    connection.commit()
+    cursor.close()
+    if penalties:
+        return penalties
+    return []
+
+def get_current_week():
+    cursor = connection.cursor()
+    cursor.execute(f'''
+                    SELECT week_number FROM Weeks ORDER BY week_number DESC LIMIT 1
+                   ''')
+    current_week = cursor.fetchone()
+    connection.commit()
+    cursor.close()
+
+    if current_week:
+        return current_week[0]
+    return None
 
 def is_banned_user(user_id: str, guild_id: str) -> bool:
     cursor = connection.cursor()
@@ -52,106 +164,7 @@ def is_registered_user(user_id: str, guild_id: str) -> bool:
     if is_registered is None:
         return False
     return True
-
-
-# TODO: Insert User Task into Database
-def add_task(new_task: Task):
-    cursor = connection.cursor()
-
-    cursor.execute(f'''
-                    INSERT INTO Tasks (description, week_number, global_user_id, guild_id) VALUES  (?, ?, ?, ?)
-                   ''', (new_task.description, new_task.week_number, new_task.owner_id, new_task.guild_id))
-
-    connection.commit()
-    cursor.close()
-
-# TODO: Insert User Penalty into Database
-def add_penalty(new_penalty: Penalty):
-    pass
-
-# TODO: Insert New Week
-def add_week():
-    print("INSERTED A NEW ONE HEHE")
-    cursor = connection.cursor()
-
-    start_date = datetime.datetime.now()
-    start_date = client.TIMEZONE.localize(start_date)
-    
-    # get the days ahead to reach the next Thursday
-    days_ahead = (3 - start_date.weekday() + 7) % 7
-    end_date = start_date + datetime.timedelta(days=days_ahead)
-    end_date = end_date.replace(hour=23, minute=59, second=59)
-
-    cursor.execute(f'''
-                    INSERT INTO Weeks (start_date, end_date) VALUES  (?, ?)
-                   ''', (start_date, end_date))
-
-    connection.commit()
-    cursor.close()
-
-def get_current_week():
-    cursor = connection.cursor()
-    cursor.execute(f'''
-                    SELECT week_number FROM Weeks ORDER BY week_number DESC LIMIT 1
-                   ''')
-    current_week = cursor.fetchone()
-    connection.commit()
-    cursor.close()
-
-    if current_week:
-        return current_week[0]
-    return None
-
-# TODO: Get User Week Tasks
-def get_subscriber_tasks(subscriber: Subscriber, week_number: int) -> list[Task]:
-    current_week = get_current_week()
-    if week_number > current_week or week_number < 0:
-        return []
-    
-    cursor = connection.cursor()
-    cursor.execute(f'''
-                    SELECT description, completion_percentage
-                    FROM Tasks
-                    WHERE week_number = ? AND global_user_id = ? AND guild_id = ?
-                   ''', (week_number, subscriber.user_id, subscriber.guild_id))
-    tasks = cursor.fetchall()
-    connection.commit()
-    cursor.close()
-    if tasks:
-        return tasks
-    return []
-
-# TODO: Get User Penalty History
-def get_subscriber_penalty_history(subscriber: Subscriber) -> list[Penalty]:
-    cursor = connection.cursor()
-    cursor.execute(f'''
-                    SELECT description, is_done, is_yellow, week_number
-                    FROM Tasks
-                    WHERE global_user_id = ? AND guild_id = ?)
-                     ''', (subscriber.user_id, subscriber.guild_id))
-    penalties = cursor.fetchall()
-    connection.commit()
-    cursor.close()
-    if penalties:
-        return penalties
-    return []
-
-# this returns old penalty
-# TODO: Update User Penalty
-def update_subscriber_penalty(new_penalty: Penalty) -> Penalty:
-    pass
-
-# this returns old task
-# TODO: Update User Tasks
-def update_subscriber_tasks(new_task: Task) -> Task:
-    pass
-
-
-
-
-# TODO: Change User Default Penalty
-
-
+############################# DATABASE INITIALIZATION ##########################
 
 # to initialize database
 def init_db():
