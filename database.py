@@ -3,11 +3,11 @@ from models.subscriber import Subscriber
 from models.task import Task
 from models.week import Week
 from models.penalty import Penalty
-import schedule
+import client
 import datetime
-import time
 
-# modal
+
+
 
 connection = sqlite3.connect("tasks.db", check_same_thread=False)
 
@@ -36,7 +36,7 @@ def is_banned_user(user_id: str, guild_id: str) -> bool:
 
     if is_banned:
         return is_banned[0]
-    return None
+    return False # if user is not registered, he is not banned
 
 def is_registered_user(user_id: str, guild_id: str) -> bool:
     cursor = connection.cursor()
@@ -70,13 +70,17 @@ def add_penalty(new_penalty: Penalty):
     pass
 
 # TODO: Insert New Week
-@schedule.repeat(schedule.every().thursday.at('21:00'))
 def add_week():
     print("INSERTED A NEW ONE HEHE")
     cursor = connection.cursor()
 
     start_date = datetime.datetime.now()
-    end_date = start_date + datetime.timedelta(weeks=1)
+    start_date = client.TIMEZONE.localize(start_date)
+    
+    # get the days ahead to reach the next Thursday
+    days_ahead = (3 - start_date.weekday() + 7) % 7
+    end_date = start_date + datetime.timedelta(days=days_ahead)
+    end_date = end_date.replace(hour=23, minute=59, second=59)
 
     cursor.execute(f'''
                     INSERT INTO Weeks (start_date, end_date) VALUES  (?, ?)
@@ -119,7 +123,18 @@ def get_subscriber_tasks(subscriber: Subscriber, week_number: int) -> list[Task]
 
 # TODO: Get User Penalty History
 def get_subscriber_penalty_history(subscriber: Subscriber) -> list[Penalty]:
-    pass
+    cursor = connection.cursor()
+    cursor.execute(f'''
+                    SELECT description, is_done, is_yellow, week_number
+                    FROM Tasks
+                    WHERE global_user_id = ? AND guild_id = ?)
+                     ''', (subscriber.user_id, subscriber.guild_id))
+    penalties = cursor.fetchall()
+    connection.commit()
+    cursor.close()
+    if penalties:
+        return penalties
+    return []
 
 # this returns old penalty
 # TODO: Update User Penalty
@@ -131,6 +146,9 @@ def update_subscriber_penalty(new_penalty: Penalty) -> Penalty:
 def update_subscriber_tasks(new_task: Task) -> Task:
     pass
 
+
+
+
 # TODO: Change User Default Penalty
 
 
@@ -139,6 +157,7 @@ def update_subscriber_tasks(new_task: Task) -> Task:
 def init_db():
     cursor = connection.cursor()
     cursor.execute("PRAGMA foreign_keys = ON")
+
     
     # Subscribers Table
     # we can change is_banned with settings
