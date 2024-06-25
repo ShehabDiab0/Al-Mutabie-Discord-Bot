@@ -87,14 +87,15 @@ def get_subscriber_tasks(subscriber: Subscriber, week_number: int) -> list[Task]
 
     if week_number > current_week or week_number < 0:
         return []
-    
     cursor = connection.cursor()
+    print("WEEK NUMBER", week_number)
     cursor.execute(f'''
                     SELECT task_id, description, completion_percentage
                     FROM Tasks
                     WHERE week_number = ? AND global_user_id = ? AND guild_id = ?
                    ''', (week_number, subscriber.user_id, subscriber.guild_id))
     output = cursor.fetchall()
+    print("OUTPUT", output)
     tasks = []
     for task in output:
         tasks.append(Task(task_id=task[0], description=task[1], completion_percentage=task[2], week_number=week_number, guild_id=subscriber.guild_id, owner_id=subscriber.user_id))

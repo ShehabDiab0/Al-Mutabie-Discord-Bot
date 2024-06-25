@@ -19,11 +19,27 @@ class TasksCog(commands.Cog):
         self.bot = bot
 
     # # TODO: Delete Tasks
-    # @app_commands.command(name="delete_tasks")
-    # async def delete_tasks(self, ctx):
+    @app_commands.command(name="delete_tasks")
+    async def delete_tasks(self, interaction: discord.Interaction):
+        # Show him his tasks
+        user_id = interaction.user.id
+        guild_id = interaction.guild.id
+        subscriber = Subscriber(user_id, guild_id)
+        tasks = database.get_subscriber_tasks(subscriber, database.get_current_week())
+        print("Tasks", tasks)
+        formatted_tasks = helpers.convert_tasks_to_str(tasks)
+        if not formatted_tasks:
+            await interaction.response.send_message(f"You have no tasks to delete", ephemeral=True)
+            return
         
-    #     ui = UI.DeleteSelectMenu(0, 0)
-    #     await ("Choose the task you want to delete", view=ui)
+        # Show him Selection
+        view = UI.TaskView(tasks)
+        await interaction.response.send_message("Select a Task to Delete", view=view, ephemeral=True)
+
+
+
+        
+        
 
     # TODO: Add Multiple Tasks
     @app_commands.command(name="add_multiple_tasks")
