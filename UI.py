@@ -63,8 +63,9 @@ class DeleteTaskView(View):
 #         database.update_subscriber_task(self.selected_value[0], self.new_value)
 #         await interaction.response.send_message("Task Updated", ephemeral=True)
 class UpdateTextInput(TextInput):
-    def __init__(self) -> None:
-        super().__init__(placeholder="Write Here the New Description",label="New Task Description")
+    def __init__(self,new_placeholder,new_label) -> None:
+        super().__init__(placeholder=new_placeholder,label=new_label)
+        self.required = False
     
     async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer()
@@ -74,13 +75,27 @@ class UpdateTaskModal(Modal):
         super().__init__(title="Update Task")
         self.tasks = tasks
         self.selected_value = None
-        self.text_input = UpdateTextInput()
-        self.add_item(self.text_input)
+        self.task_desc_input = UpdateTextInput(new_placeholder="Write New Description", new_label="Task Description")
+        self.task_completion_inptut = UpdateTextInput(new_placeholder="Write New Completion Percentage", new_label="Task Completion")
+        self.add_item(self.task_desc_input)
+        self.add_item(self.task_completion_inptut)
 
     async def on_submit(self, interaction: discord.Interaction):
-        self.new_value = self.text_input.value
-        database.update_subscriber_task(self.selected_value, self.new_value)
-        await interaction.response.send_message("Task Updated", ephemeral=True)
+        self.new_desc = self.task_desc_input.value
+        self.new_completion = self.task_completion_inptut.value
+        
+        if(self.new_desc != "" and self.new_completion != ""): 
+            database.update_task_desc(self.selected_value, self.new_desc)
+            database.update_task_completion_percentage(self.selected_value, self.new_completion)
+            await interaction.response.send_message("Task Description and Completion Updated", ephemeral=True)
+        elif(self.new_completion == "" and self.new_desc != ""):
+            database.update_task_desc(self.selected_value, self.new_desc)
+            await interaction.response.send_message("Task Description Updated", ephemeral=True)
+        elif(self.new_desc == "" and self.new_completion != ""):
+            database.update_task_completion_percentage(self.selected_value, self.new_completion)
+            await interaction.response.send_message("Task Completion Updated", ephemeral=True)
+        else:
+            await interaction.response.send_message("No Changes Made", ephemeral=True)
         
 # Bonjour
 class UpdateTaskView(View):

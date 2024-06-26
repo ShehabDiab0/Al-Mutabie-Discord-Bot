@@ -1,4 +1,5 @@
 import discord
+from typing import Optional
 from discord.ext import commands
 from discord import app_commands
 
@@ -111,12 +112,15 @@ class TasksCog(commands.Cog):
 
     # Update Task
     @app_commands.command(name="update_task")
-    async def update_task(self, interaction: discord.Interaction):
+    @app_commands.describe(week_number="enter the week number to update the task of that week")
+    async def update_task(self, interaction: discord.Interaction, week_number: Optional[int] = 0):
         # Show him his tasks
         user_id = interaction.user.id
         guild_id = interaction.guild.id
         subscriber = Subscriber(user_id, guild_id)
-        tasks = database.get_subscriber_tasks(subscriber, database.get_current_week())
+        if(week_number == 0):
+            week_number = database.get_current_week()
+        tasks = database.get_subscriber_tasks(subscriber, week_number)
         if not tasks:
             await interaction.response.send_message(f"You have no tasks to update", ephemeral=True)
             return
@@ -125,7 +129,7 @@ class TasksCog(commands.Cog):
         view = UI.UpdateTaskView(tasks)
         await interaction.response.send_message("Select a Task to Update", view=view, ephemeral=True)
 
-        
+    
 
 async def setup(bot):
     await bot.add_cog(TasksCog(bot))

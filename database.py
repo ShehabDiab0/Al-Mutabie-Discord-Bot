@@ -75,11 +75,18 @@ def update_subscriber_penalty(new_penalty: Penalty) -> Penalty:
 
 # this returns old task
 # TODO: Update User Tasks
-def update_subscriber_task(old_task_id: str, new_task_description):
+def update_task_desc(old_task_id: str, new_task_description):
     cursor = connection.cursor()
     cursor.execute(f'''
                     UPDATE Tasks SET description = ? WHERE task_id = ?
                      ''', (new_task_description, old_task_id))
+    connection.commit()
+
+def update_task_completion_percentage(task_id: int, completion_percentage: float):
+    cursor = connection.cursor()
+    cursor.execute(f'''
+                    UPDATE Tasks SET completion_percentage = ? WHERE task_id = ?
+                     ''', (completion_percentage, task_id))
     connection.commit()
 
 ############################# SELECT FUNCTIONS    #############################
