@@ -75,8 +75,12 @@ def update_subscriber_penalty(new_penalty: Penalty) -> Penalty:
 
 # this returns old task
 # TODO: Update User Tasks
-def update_subscriber_tasks(new_task: Task) -> Task:
-    pass
+def update_subscriber_task(old_task_id: str, new_task_description):
+    cursor = connection.cursor()
+    cursor.execute(f'''
+                    UPDATE Tasks SET description = ? WHERE task_id = ?
+                     ''', (new_task_description, old_task_id))
+    connection.commit()
 
 ############################# SELECT FUNCTIONS    #############################
 
@@ -89,14 +93,12 @@ def get_subscriber_tasks(subscriber: Subscriber, week_number: int) -> list[Task]
     if week_number > current_week or week_number < 0:
         return []
     cursor = connection.cursor()
-    print("WEEK NUMBER", week_number)
     cursor.execute(f'''
                     SELECT task_id, description, completion_percentage
                     FROM Tasks
                     WHERE week_number = ? AND global_user_id = ? AND guild_id = ?
                    ''', (week_number, subscriber.user_id, subscriber.guild_id))
     output = cursor.fetchall()
-    print("OUTPUT", output)
     tasks = []
     for task in output:
         tasks.append(Task(task_id=task[0], description=task[1], completion_percentage=task[2], week_number=week_number, guild_id=subscriber.guild_id, owner_id=subscriber.user_id))
@@ -135,6 +137,19 @@ def get_current_week():
 
     if current_week:
         return current_week[0]
+    return None
+
+def get_current_week_start_end():
+    cursor = connection.cursor()
+    cursor.execute(f'''
+                    SELECT start_date, end_date FROM Weeks ORDER BY week_number DESC LIMIT 1
+                   ''')
+    current_week = cursor.fetchone()
+    connection.commit()
+    cursor.close()
+
+    if current_week:
+        return current_week
     return None
 
 def is_banned_user(user_id: str, guild_id: str) -> bool:

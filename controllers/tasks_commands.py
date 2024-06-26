@@ -26,19 +26,15 @@ class TasksCog(commands.Cog):
         guild_id = interaction.guild.id
         subscriber = Subscriber(user_id, guild_id)
         tasks = database.get_subscriber_tasks(subscriber, database.get_current_week())
-        print("Tasks", tasks)
         formatted_tasks = helpers.convert_tasks_to_str(tasks)
         if not formatted_tasks:
             await interaction.response.send_message(f"You have no tasks to delete", ephemeral=True)
             return
         
         # Show him Selection
-        view = UI.TaskView(tasks)
+        view = UI.DeleteTaskView(tasks)
         await interaction.response.send_message("Select a Task to Delete", view=view, ephemeral=True)
 
-
-
-        
         
 
     # TODO: Add Multiple Tasks
@@ -113,8 +109,23 @@ class TasksCog(commands.Cog):
         await interaction.response.send_message(embed=embed)
         
 
+    # Update Task
+    @app_commands.command(name="update_task")
+    async def update_task(self, interaction: discord.Interaction):
+        # Show him his tasks
+        user_id = interaction.user.id
+        guild_id = interaction.guild.id
+        subscriber = Subscriber(user_id, guild_id)
+        tasks = database.get_subscriber_tasks(subscriber, database.get_current_week())
+        if not tasks:
+            await interaction.response.send_message(f"You have no tasks to update", ephemeral=True)
+            return
+        
+        # Show him Selection
+        view = UI.UpdateTaskView(tasks)
+        await interaction.response.send_message("Select a Task to Update", view=view, ephemeral=True)
 
-
+        
 
 async def setup(bot):
     await bot.add_cog(TasksCog(bot))

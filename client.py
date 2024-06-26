@@ -43,7 +43,7 @@ def run_bot():
     today = datetime.datetime.now()
     today = TIMEZONE.localize(today)
     # if today is not Thursday (0 is Monday, 6 is Sunday)
-    if(today.weekday() != 3):
+    if database.get_current_week() == None:
         database.add_week() 
 
     bot.run(os.getenv("API_TOKEN"))
