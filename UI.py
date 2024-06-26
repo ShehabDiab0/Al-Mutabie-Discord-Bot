@@ -82,7 +82,7 @@ class UpdateTaskModal(Modal):
         database.update_subscriber_task(self.selected_value, self.new_value)
         await interaction.response.send_message("Task Updated", ephemeral=True)
         
-
+# Bonjour
 class UpdateTaskView(View):
     def __init__(self, tasks) -> None:
         super().__init__()
