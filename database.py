@@ -201,7 +201,9 @@ def init_db():
     cursor.execute('''CREATE TABLE IF NOT EXISTS Subscribers (
                       global_user_id VARCHAR(255),
                       guild_id VARCHAR(255),
-                      default_penalty_description MEDIUMTEXT,
+                      default_red_penalty_description MEDIUMTEXT,
+                      default_yellow_penalty_description MEDIUMTEXT,
+                      threshold FLOAT DEFAULT 0.60,
                       is_banned BOOLEAN DEFAULT 0,
                       PRIMARY KEY (global_user_id, guild_id)
                     )''')
