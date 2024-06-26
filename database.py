@@ -60,6 +60,7 @@ def add_week():
 ############################# DELETION FUNCTIONS  #############################
 def delete_task(task_id: int):
     cursor = connection.cursor()
+    print("TASK ID Inside", task_id)
     cursor.execute(f'''
                     DELETE FROM Tasks WHERE task_id = ?
                    ''', (task_id,))

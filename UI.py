@@ -8,34 +8,39 @@ import database
 import dotenv # type: ignore
 import os
 
+class TaskDropDown(Select):
+    def __init__(self, tasks, delete_btn) -> None:
+        super().__init__(placeholder="Select Task",
+                         options=[SelectOption(label=task.description, value=str(task.task_id)) for task in tasks],
+                         min_values=1,
+                         max_values=len(tasks))
+        self.delete_btn = delete_btn
+        
+    async def callback(self, interaction: discord.Interaction):
+        self.delete_btn.selected_values = self.values
+        await interaction.response.defer()
 
-
+class DeleteButton(Button):
+    def __init__(self) -> None:
+        super().__init__(label="Delete", style=discord.ButtonStyle.danger)
+        self.selected_values = []
+        
+    async def callback(self, interaction: discord.Interaction):
+        print("=Selected Values", self.selected_values)
+        for task in self.selected_values:
+            print("Task", task)
+            database.delete_task(task)
+        await interaction.response.send_message("Tasks Deleted", ephemeral=True)
 class TaskView(View):
     def __init__(self, tasks) -> None:
         super().__init__()
         self.tasks = tasks
-        self.options = [SelectOption(label=task.description, value=str(task.task_id)) for task in tasks]
-        print("Options")
-        print(self.options)
+        self.delete_button = DeleteButton()
+        self.select = TaskDropDown(tasks, self.delete_button)
 
-        self.select = Select(placeholder="Select Task",
-                             options=self.options,
-                             min_values=1,
-                             max_values=len(self.tasks))
-         
-        self.select.call_back = self.select_callback
         self.add_item(self.select)
+        self.add_item(self.delete_button)
 
-        self.delete = Button(label="Delete", style=discord.ButtonStyle.danger)
-        # self.delete.call_back = self.delete_callback
-        self.add_item(self.delete)
-        
-    async def select_callback(self, interaction: discord.Interaction, select: Select):
-        selected_tasks = [task for task in self.tasks if task.task_id in select.values]
-        print("Trying to Delete")
-        for task in selected_tasks:
-            database.delete_task(task)
-        await interaction.response.send_message("Tasks Deleted", ephemeral=True)
 
     
 
