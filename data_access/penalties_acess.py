@@ -6,7 +6,7 @@ def get_subscriber_penalty_history(subscriber: Subscriber) -> list[Penalty]:
     cursor = connection.cursor()
     cursor.execute(f'''
                     SELECT penalty_id, description, is_done, is_yellow, week_number
-                    FROM Tasks
+                    FROM Penalties
                     WHERE global_user_id = ? AND guild_id = ?)
                      ''', (subscriber.user_id, subscriber.guild_id))
     output = cursor.fetchall()
