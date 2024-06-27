@@ -4,6 +4,7 @@ from discord.ui import View, Modal , TextInput, Select, Button
 from discord.components import SelectOption
 from discord import TextStyle
 from discord import app_commands
+import helpers
 from data_access import tasks_access
 import dotenv # type: ignore
 import os
@@ -105,6 +106,38 @@ class UpdateTaskView(View):
         self.modal = UpdateTaskModal(tasks)
         self.select = SingleTaskDropDown(self.tasks,self.modal)
         self.add_item(self.select)
+
+
+class SelfReportInput(TextInput):
+    def __init__(self, tasks) -> None:
+        super().__init__(label="Enter Task Completion Percentages (Co)", 
+                         placeholder="1- Read a 20 pages - [0.6]\n(Copy the Output of show_tasks command and paste here)",
+                         style=discord.TextStyle.long)
+        self.tasks = tasks
+
+    async def callback(self, interaction: discord.Interaction):
+        await interaction.response.defer()
+
+
+class SelfReportModal(Modal):
+    def __init__(self, tasks) -> None:
+        super().__init__(title="Self Report")
+        self.tasks = tasks
+        self.formatted_text = helpers.convert_tasks_to_self_report(tasks)
+        self.input = SelfReportInput(self.tasks)
+        self.add_item(self.input)
+         
+
+    async def on_submit(self, interaction: discord.Interaction):
+        completion_percentages = helpers.convert_formatted_tasks_to_percentages(self.input.value)
+        for i, task in enumerate(self.tasks):
+            tasks_access.update_task_completion_percentage(task.task_id, completion_percentages[i])
+        await interaction.response.send_message("Self Report Completed", ephemeral=True)
+        
+
+
+
+        
         
 
     

@@ -22,6 +22,34 @@ class TasksCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+
+    # TODO: Self Report
+    @app_commands.command(name="self_report")
+    async def self_report(self,interaction: discord.Interaction):
+        user_id = interaction.user.id
+        guild_id = interaction.guild.id
+        subscriber = Subscriber(user_id, guild_id)
+        tasks = tasks_access.get_subscriber_tasks(subscriber, get_current_week())
+        
+        if not tasks:
+            await interaction.response.send_message(f"You have no tasks to report", ephemeral=True)
+            return
+
+        week_number = get_current_week()
+        user_id: str = str(interaction.user.id)
+        guild_id: str = str(interaction.guild.id)
+        subscriber: Subscriber = Subscriber(user_id, guild_id)
+
+        tasks = tasks_access.get_subscriber_tasks(subscriber, week_number)
+        
+        modal = UI.SelfReportModal(tasks=tasks)
+        await interaction.response.send_modal(modal)
+        # await interaction.response.send_message("Select a Task to Report", ephemeral=True)
+
+
+
+        
+
     # # TODO: Delete Tasks
     @app_commands.command(name="delete_tasks")
     async def delete_tasks(self, interaction: discord.Interaction):
