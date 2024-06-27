@@ -1,30 +1,43 @@
 import discord
 from discord.ext import commands
 from discord import app_commands 
+from typing import Optional
 
 import database
 from models.subscriber import Subscriber
 from models.task import Task
 from models.week import Week
 from models.penalty import Penalty
+from models.guild import Guild
+
 
 class SubscribersCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @app_commands.command(name="register")
-    async def register(self, interaction: discord.Interaction):
+    @app_commands.describe(default_yellow_description="Write your default Yellow card description.")
+    @app_commands.describe(default_red_description="Write your default Red card description.")
+    @app_commands.describe(task_completion_threshold="enter the threshold percentage you want >= 0.5 (default is 0.6) (we apply a penalty if you completed less than the threshold percentage)")
+    async def register(self, interaction: discord.Interaction, default_yellow_description: str, default_red_description: str, task_completion_threshold: float = 0.6):
+        if task_completion_threshold < 0.5:
+            await interaction.response.send_message('يا متخازل ------ Completion Threshold has to be >= 0.5')
+            return
+
         user_id = interaction.user.id
         guild_id = interaction.guild.id
-        new_subscriber = Subscriber(user_id, guild_id)
+        new_subscriber = Subscriber(user_id, guild_id, default_yellow_description, default_red_description, task_completion_threshold)
+        new_guild = Guild(guild_id)
 
         try:
+            database.add_guild(new_guild)
             database.subscribe_user(new_subscriber)
             await interaction.response.send_message(
                 f"Be Proud, you are a hard worker, you subscribed to the program successfully {interaction.user.mention}",
                 ephemeral=True
             )
         except Exception as e:
+            print(e)
             await interaction.response.send_message(
                 "You are already subscribed or cannot subscribe again as you are banned!",
                 ephemeral=True
