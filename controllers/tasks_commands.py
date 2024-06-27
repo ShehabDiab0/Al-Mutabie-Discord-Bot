@@ -13,22 +13,10 @@ from models.week import Week
 from models.penalty import Penalty
 from database import connection
 from data_access import tasks_access
+from data_access.weeks_access import get_current_week
 from data_access.subscribers_access import is_banned_user, is_registered_user
 import helpers
 import UI
-
-def get_current_week():
-        cursor = connection.cursor()
-        cursor.execute(f'''
-                        SELECT week_number FROM Weeks ORDER BY week_number DESC LIMIT 1
-                    ''')
-        current_week = cursor.fetchone()
-        connection.commit()
-        cursor.close()
-
-        if current_week:
-            return current_week[0]
-        return None
 
 class TasksCog(commands.Cog):
     def __init__(self, bot):
