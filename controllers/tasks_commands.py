@@ -5,15 +5,30 @@ from discord import app_commands
 
 
 from client import bot
-import database
 
 
 from models.subscriber import Subscriber
 from models.task import Task
 from models.week import Week
 from models.penalty import Penalty
+from database import connection
+from data_access import tasks_access
+from data_access.subscribers_access import is_banned_user, is_registered_user
 import helpers
 import UI
+
+def get_current_week():
+        cursor = connection.cursor()
+        cursor.execute(f'''
+                        SELECT week_number FROM Weeks ORDER BY week_number DESC LIMIT 1
+                    ''')
+        current_week = cursor.fetchone()
+        connection.commit()
+        cursor.close()
+
+        if current_week:
+            return current_week[0]
+        return None
 
 class TasksCog(commands.Cog):
     def __init__(self, bot):
@@ -26,7 +41,7 @@ class TasksCog(commands.Cog):
         user_id = interaction.user.id
         guild_id = interaction.guild.id
         subscriber = Subscriber(user_id, guild_id)
-        tasks = database.get_subscriber_tasks(subscriber, database.get_current_week())
+        tasks = tasks_access.get_subscriber_tasks(subscriber, get_current_week())
         formatted_tasks = helpers.convert_tasks_to_str(tasks)
         if not formatted_tasks:
             await interaction.response.send_message(f"You have no tasks to delete", ephemeral=True)
@@ -45,19 +60,19 @@ class TasksCog(commands.Cog):
         task_owner_id: str = str(interaction.user.id)
         guild_id: str = str(interaction.guild.id)
         
-        if not database.is_registered_user(task_owner_id, guild_id):
+        if not is_registered_user(task_owner_id, guild_id):
             await interaction.response.send_message(f"You have to register first before adding any tasks please use /register to register")
             return
 
-        if database.is_banned_user(task_owner_id, guild_id):
+        if is_banned_user(task_owner_id, guild_id):
             await interaction.response.send_message(f"YOU ARE NOT ALLOWED TO USE THIS, YOU ARE BANNED")
             return
 
         tasks = tasks.split("/")
         for task_description in tasks:
-            new_task = Task(guild_id=guild_id, owner_id=task_owner_id, description=task_description, week_number=database.get_current_week())
+            new_task = Task(guild_id=guild_id, owner_id=task_owner_id, description=task_description, week_number=get_current_week())
             try:
-                database.add_task(new_task)
+                tasks_access.add_task(new_task)
             except Exception as e:
                 print(e)
                 await interaction.response.send_message(f"Failed to add this task", ephemeral=True)
@@ -71,17 +86,17 @@ class TasksCog(commands.Cog):
         task_owner_id: str = str(interaction.user.id)
         guild_id: str = str(interaction.guild.id)
         
-        if not database.is_registered_user(task_owner_id, guild_id):
+        if not is_registered_user(task_owner_id, guild_id):
             await interaction.response.send_message(f"You have to register first before adding any tasks please use /register to register")
             return
 
-        if database.is_banned_user(task_owner_id, guild_id):
+        if is_banned_user(task_owner_id, guild_id):
             await interaction.response.send_message(f"YOU ARE NOT ALLOWED TO USE THIS, YOU ARE BANNED")
             return
 
-        new_task = Task(guild_id=guild_id, owner_id=task_owner_id, description=task_description, week_number=database.get_current_week())
+        new_task = Task(guild_id=guild_id, owner_id=task_owner_id, description=task_description, week_number=get_current_week())
         try:
-            database.add_task(new_task)
+            tasks_access.add_task(new_task)
             await interaction.response.send_message(f"You added {task_description} to your Tasks SUCCESSFULLY! of Week {new_task.week_number}", ephemeral=True)
         except Exception as e:
             print(e)
@@ -93,13 +108,13 @@ class TasksCog(commands.Cog):
     @app_commands.describe(week_number="Type Tasks of which week? use 0 for current week")
     async def show_tasks(self, interaction: discord.Interaction, who: str, week_number: int):
         if week_number == 0: # special case for current week
-            week_number = database.get_current_week()
+            week_number = get_current_week()
 
         user_id = who[2:-1] # when u mention somebody in discord it uses the format <@user_id>
         guild_id: str = str(interaction.guild.id)
         subscriber: Subscriber = Subscriber(user_id, guild_id)
 
-        tasks = database.get_subscriber_tasks(subscriber, week_number)
+        tasks = tasks_access.get_subscriber_tasks(subscriber, week_number)
         formatted_tasks = helpers.convert_tasks_to_str(tasks)
 
         member = interaction.guild.get_member(int(user_id))
@@ -119,8 +134,8 @@ class TasksCog(commands.Cog):
         guild_id = interaction.guild.id
         subscriber = Subscriber(user_id, guild_id)
         if(week_number == 0):
-            week_number = database.get_current_week()
-        tasks = database.get_subscriber_tasks(subscriber, week_number)
+            week_number = get_current_week()
+        tasks = tasks_access.get_subscriber_tasks(subscriber, week_number)
         if not tasks:
             await interaction.response.send_message(f"You have no tasks to update", ephemeral=True)
             return

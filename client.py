@@ -4,6 +4,7 @@ from discord import app_commands
 import dotenv # type: ignore
 import os
 import database
+from data_access import weeks_access
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import pytz
@@ -43,8 +44,8 @@ def run_bot():
     today = datetime.datetime.now()
     today = TIMEZONE.localize(today)
     # if today is not Thursday (0 is Monday, 6 is Sunday)
-    if database.get_current_week() == None:
-        database.add_week() 
+    if weeks_access.get_current_week() == None:
+        weeks_access.add_week() 
 
     bot.run(os.getenv("API_TOKEN"))
 
@@ -84,8 +85,8 @@ async def mention(interaction: discord.Interaction, who: str):
 
 async def run_scheduler():
     scheduler.start()
-    scheduler.add_job(database.add_week, trigger='cron', day_of_week=DAY_TO_RESET, timezone=TIMEZONE)
-    # scheduler.add_job(database.add_week, trigger='cron',second='*', timezone=TIMEZONE)
+    scheduler.add_job(weeks_access.add_week, trigger='cron', day_of_week=DAY_TO_RESET, timezone=TIMEZONE)
+    # scheduler.add_job(weeks_access.add_week, trigger='cron',second='*', timezone=TIMEZONE)
     #print all the jobs
     print("Scheduler started")
 

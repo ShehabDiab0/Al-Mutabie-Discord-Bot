@@ -3,13 +3,13 @@ from discord.ext import commands
 from discord import app_commands 
 from typing import Optional
 
-import database
 from models.subscriber import Subscriber
 from models.task import Task
 from models.week import Week
 from models.penalty import Penalty
 from models.guild import Guild
-
+from data_access.guilds_access import add_guild
+from data_access.subscribers_access import *
 
 class SubscribersCog(commands.Cog):
     def __init__(self, bot):
@@ -30,8 +30,8 @@ class SubscribersCog(commands.Cog):
         new_guild = Guild(guild_id)
 
         try:
-            database.add_guild(new_guild)
-            database.subscribe_user(new_subscriber)
+            add_guild(new_guild)
+            subscribe_user(new_subscriber)
             await interaction.response.send_message(
                 f"Be Proud, you are a hard worker, you subscribed to the program successfully {interaction.user.mention}",
                 ephemeral=True

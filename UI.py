@@ -4,7 +4,7 @@ from discord.ui import View, Modal , TextInput, Select, Button
 from discord.components import SelectOption
 from discord import TextStyle
 from discord import app_commands
-import database
+from data_access import tasks_access
 import dotenv # type: ignore
 import os
 
@@ -40,7 +40,7 @@ class DeleteButton(Button):
         print("=Selected Values", self.selected_values)
         for task in self.selected_values:
             print("Task", task)
-            database.delete_task(task)
+            tasks_access.delete_task(task)
         await interaction.response.send_message("Tasks Deleted", ephemeral=True)
 class DeleteTaskView(View):
     def __init__(self, tasks) -> None:
@@ -85,14 +85,14 @@ class UpdateTaskModal(Modal):
         self.new_completion = self.task_completion_inptut.value
         
         if(self.new_desc != "" and self.new_completion != ""): 
-            database.update_task_desc(self.selected_value, self.new_desc)
-            database.update_task_completion_percentage(self.selected_value, self.new_completion)
+            tasks_access.update_task_desc(self.selected_value, self.new_desc)
+            tasks_access.update_task_completion_percentage(self.selected_value, self.new_completion)
             await interaction.response.send_message("Task Description and Completion Updated", ephemeral=True)
         elif(self.new_completion == "" and self.new_desc != ""):
-            database.update_task_desc(self.selected_value, self.new_desc)
+            tasks_access.update_task_desc(self.selected_value, self.new_desc)
             await interaction.response.send_message("Task Description Updated", ephemeral=True)
         elif(self.new_desc == "" and self.new_completion != ""):
-            database.update_task_completion_percentage(self.selected_value, self.new_completion)
+            tasks_access.update_task_completion_percentage(self.selected_value, self.new_completion)
             await interaction.response.send_message("Task Completion Updated", ephemeral=True)
         else:
             await interaction.response.send_message("No Changes Made", ephemeral=True)
