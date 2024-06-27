@@ -76,7 +76,55 @@ async def greet(interaction: discord.Interaction):
 async def mention(interaction: discord.Interaction, who: str):
     await interaction.response.send_message(f"Hey Soldier{who}")
 
+class CustomContext:
+    def __init__(self, guild, channel):
+        self.guild = guild
+        self.channel = channel
 
+    async def send(self, content):
+        await self.channel.send(content)
+
+
+@bot.command()
+@commands.has_permissions(kick_members=True)
+async def kick(user_id: str, guild_id: str):
+    reason = "Got a red card!"
+    try:
+        # Convert guild_id and user_id to integers
+        guild_id = int(guild_id)
+        user_id = int(user_id)
+
+        # Fetch the guild
+        guild = bot.get_guild(guild_id)
+        if not guild:
+            print('Guild not found.')
+            return
+
+        # Fetch a default text channel to send responses
+        default_channel = guild.system_channel or next((ch for ch in guild.text_channels if ch.permissions_for(guild.me).send_messages), None)
+        if not default_channel:
+            print('No available channel to send messages.')
+            return
+
+        # Create a custom context-like object
+        custom_ctx = CustomContext(guild, default_channel)
+
+        # Fetch the member
+        member = guild.get_member(user_id)
+        if not member:
+            await custom_ctx.send('Member not found.')
+            return
+
+        # Kick the member
+        await member.kick(reason=reason)
+        await custom_ctx.send(f'{member.mention} has been kicked for: {reason}')
+
+    except ValueError:
+        print('Invalid guild_id or user_id.')
+    except discord.Forbidden:
+        await custom_ctx.send('I do not have permission to kick this user.')
+    except discord.HTTPException as e:
+        await custom_ctx.send(f'Failed to kick the user. Error: {e}')
 
 # TODO: Get Task Instructions
 
