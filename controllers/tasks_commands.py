@@ -69,7 +69,7 @@ class TasksCog(commands.Cog):
 
         
 
-    # TODO: Add Multiple Tasks
+    # Add Multiple Tasks
     @app_commands.command(name="add_multiple_tasks")
     @app_commands.describe(tasks="Write Your tasks here separated by /")
     async def add_multiple_tasks(self, interaction: discord.Interaction, tasks: str):
@@ -122,9 +122,12 @@ class TasksCog(commands.Cog):
     @app_commands.command(name="show_tasks")
     @app_commands.describe(who="mention a user to know their tasks")
     @app_commands.describe(week_number="Type Tasks of which week? use 0 for current week")
-    async def show_tasks(self, interaction: discord.Interaction, who: str, week_number: int):
+    async def show_tasks(self, interaction: discord.Interaction, week_number: Optional[int] = 0, who: Optional[str] = "-1"):
         if week_number == 0: # special case for current week
             week_number = get_current_week()
+
+        if who == "-1":
+            who = f'<@{interaction.user.id}>'
 
         user_id = who[2:-1] # when u mention somebody in discord it uses the format <@user_id>
         guild_id: str = str(interaction.guild.id)
