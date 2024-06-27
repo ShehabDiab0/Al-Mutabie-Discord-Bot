@@ -1,10 +1,13 @@
 import sqlite3
+import datetime
+
 from models.subscriber import Subscriber
 from models.task import Task
 from models.week import Week
 from models.penalty import Penalty
+from models.guild import Guild
 import client
-import datetime
+
 
 
 
@@ -16,9 +19,28 @@ def subscribe_user(new_subscriber: Subscriber):
     cursor = connection.cursor()
 
     cursor.execute(f'''
-                    INSERT INTO Subscribers (global_user_id, guild_id) VALUES  (?, ?)
-                   ''', (new_subscriber.user_id, new_subscriber.guild_id))
+                    INSERT 
+                    INTO 
+                    Subscribers 
+                    (global_user_id, guild_id, default_yellow_penalty_description, default_red_penalty_description, threshold)
+                    VALUES (?, ?, ?, ?, ?)
+                   ''', (new_subscriber.user_id,
+                         new_subscriber.guild_id,
+                         new_subscriber.default_yellow_description,
+                         new_subscriber.default_red_description,
+                         new_subscriber.threshold_percentage))
 
+    connection.commit()
+    cursor.close()
+
+
+def add_guild(new_guild: Guild):
+    cursor = connection.cursor()
+
+    cursor.execute('''
+        INSERT INTO Guilds (guild_id, reminder_channel_id, allow_kicks, reminder_day, offset_days)
+        VALUES (?, ?, ?, ?, ?)
+    ''', (new_guild.guild_id, new_guild.reminder_channel_id, new_guild.allow_kicks, new_guild.reminder_day, new_guild.offset_days))
     connection.commit()
     cursor.close()
 
@@ -195,6 +217,15 @@ def init_db():
     cursor = connection.cursor()
     cursor.execute("PRAGMA foreign_keys = ON")
 
+
+    # Guilds settings table
+    cursor.execute('''CREATE TABLE IF NOT EXISTS Guilds (
+                      guild_id VARCHAR(255) PRIMARY KEY,
+                      reminder_channel_id VARCHAR(255),
+                      allow_kicks BOOL DEFAULT 0,
+                      reminder_day INTEGER DEFAULT 0,
+                      offset_days INTEGER DEFAULT 2
+                    )''')
     
     # Subscribers Table
     # we can change is_banned with settings
@@ -205,7 +236,8 @@ def init_db():
                       default_yellow_penalty_description MEDIUMTEXT,
                       threshold FLOAT DEFAULT 0.60,
                       is_banned BOOLEAN DEFAULT 0,
-                      PRIMARY KEY (global_user_id, guild_id)
+                      PRIMARY KEY (global_user_id, guild_id),
+                      FOREIGN KEY (guild_id) REFERENCES Guilds(guild_id) ON DELETE CASCADE
                     )''')
     
     # Weeks Table 
