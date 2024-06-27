@@ -67,3 +67,15 @@ def get_subscribers(guild_id) -> list[Subscriber]:
     if subscribers:
         return subscribers
     return []
+
+
+# TODO: ban user test
+def ban_user(subscriber: Subscriber) -> None:
+    cursor = connection.cursor()
+    cursor.execute(f'''
+                    UPDATE Subscribers
+                    SET is_banned = 1
+                    WHERE global_user_id = ? AND guild_id = ?
+                    ''', (subscriber.user_id, subscriber.guild_id))
+    connection.commit()
+    cursor.close()
