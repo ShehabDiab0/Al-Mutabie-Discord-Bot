@@ -15,6 +15,24 @@ class PenaltiesCog(commands.Cog):
 # TODO: reminders and guild scheduling
 
 
+    def weekly_check(self, guild_id) -> None:
+        week_num = weeks_access.get_current_week()
+        # get all users having this guild_id and not is_banned in a list of ids
+        subscribers = []
+        for subscriber in subscribers:
+            card = self.check_user(subscriber, week_num)
+            if card:
+                previous_card = penalties_acess.get_subscriber_penalty_history(subscriber=subscriber)[-1]
+                is_yellow = 1
+                desc = subscriber.default_yellow_penalty_description
+                if previous_card:
+                    # red card
+                    is_yellow = 0
+                    kick(subscriber.user_id, guild_id)
+                    desc = subscriber.default_red_penalty_description
+                # add penalty in db
+                penalty = Penalty(description=desc, is_yellow=is_yellow, week_number=week_num, guild_id=guild_id, owner_id=subscriber.user_id)
+                penalties_acess.add_penalty(penalty)
 
 
     # checks user weekly progress and returns true if he should recieve a card
