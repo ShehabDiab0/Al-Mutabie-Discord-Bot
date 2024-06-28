@@ -5,6 +5,7 @@ import dotenv # type: ignore
 import os
 import database
 from data_access import weeks_access
+from data_access.guilds_access import get_channel_id
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import pytz
@@ -90,9 +91,10 @@ class CustomContext:
 async def kick(user_id: str, guild_id: str):
     reason = "Got a red card!"
     try:
-        # Convert guild_id and user_id to integers
+        # Convert IDs to integers
         guild_id = int(guild_id)
         user_id = int(user_id)
+        channel_id = int(get_channel_id(guild_id))
 
         # Fetch the guild
         guild = bot.get_guild(guild_id)
@@ -100,14 +102,14 @@ async def kick(user_id: str, guild_id: str):
             print('Guild not found.')
             return
 
-        # Fetch a default text channel to send responses
-        default_channel = guild.system_channel or next((ch for ch in guild.text_channels if ch.permissions_for(guild.me).send_messages), None)
-        if not default_channel:
-            print('No available channel to send messages.')
+        # Fetch the channel using the channel_id
+        channel = guild.get_channel(channel_id)
+        if not channel or not isinstance(channel, discord.TextChannel):
+            print('Channel not found or is not a text channel.')
             return
 
         # Create a custom context-like object
-        custom_ctx = CustomContext(guild, default_channel)
+        custom_ctx = CustomContext(guild, channel)
 
         # Fetch the member
         member = guild.get_member(user_id)
@@ -120,7 +122,7 @@ async def kick(user_id: str, guild_id: str):
         await custom_ctx.send(f'{member.mention} has been kicked for: {reason}')
 
     except ValueError:
-        print('Invalid guild_id or user_id.')
+        print('Invalid guild_id, user_id, or channel_id.')
     except discord.Forbidden:
         await custom_ctx.send('I do not have permission to kick this user.')
     except discord.HTTPException as e:
