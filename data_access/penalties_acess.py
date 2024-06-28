@@ -20,8 +20,14 @@ def get_subscriber_penalty_history(subscriber: Subscriber) -> list[Penalty]:
     return []
 
 # TODO: Insert User Penalty into Database
-def add_penalty(new_penalty: Penalty):
-    pass
+def add_penalty(penalty: Penalty) -> None:
+    cursor = connection.cursor()
+    cursor.execute(f'''
+                    INSERT INTO Penalties (description, is_done, is_yellow, week_number, global_user_id, guild_id) VALUES  (?, ?, ?, ?)
+                ''', (penalty.description, 0, penalty.is_yellow, penalty.week_number, penalty.owner_id, penalty.guild_id))
+
+    connection.commit()
+    cursor.close()
 
 # TODO: Update User Penalty
 def update_subscriber_penalty(new_penalty: Penalty) -> Penalty:

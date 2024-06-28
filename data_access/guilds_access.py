@@ -26,3 +26,16 @@ def is_registered_guild(guild_id: str) -> bool:
     if is_registered is None:
         return False
     return True
+
+
+def get_channel_id(guild_id: str) -> str:
+    cursor = connection.cursor()
+    cursor.execute(f'''SELECT reminder_channel_id
+                    From 
+                    Guilds 
+                    WHERE guild_id = ?''',
+                    (guild_id,))
+    channel_id = cursor.fetchone()
+    connection.commit()
+    cursor.close()
+    return channel_id[0]
