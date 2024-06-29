@@ -6,7 +6,6 @@ import os
 import database
 from data_access import penalties_access, weeks_access
 from data_access.guilds_access import get_channel_id
-from controllers.penalties_commands import run
 from data_access import weeks_access, subscribers_access, guilds_access, tasks_access
 from models.subscriber import Subscriber
 from models.penalty import Penalty
