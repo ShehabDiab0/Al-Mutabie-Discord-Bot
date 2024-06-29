@@ -30,5 +30,28 @@ def add_penalty(penalty: Penalty) -> None:
     cursor.close()
 
 # TODO: Update User Penalty
-def update_subscriber_penalty(new_penalty: Penalty) -> Penalty:
-    pass
+def update_subscriber_penalty(new_penalty: Penalty) -> None:
+    cursor = connection.cursor()
+    cursor.execute(f"""
+                    UPDATE Penalties
+                    SET is_done = ?
+                    WHERE penalty_id = ?
+                    """, (new_penalty.is_done, new_penalty.penalty_id))
+    connection.commit()
+    cursor.close()
+
+def get_penalty(user_id: str, guild_id: str) -> Penalty:
+    cursor =connection.cursor()
+    cursor.execute(f"""
+                    SELECT penalty_id, description, is_done, is_yellow, week_number
+                    FROM Penalties
+                    WHERE global_user_id = ? AND guild_id = ?
+                    SORT BY week_number DESC
+                    """, (user_id, guild_id))
+    # get latest penalty
+    penalty = cursor.fetchone()
+    connection.commit()
+    cursor.close()
+    if penalty:
+        return Penalty(penalty_id=penalty[0], description=penalty[1], is_done=penalty[2], is_yellow=penalty[3], week_number=penalty[4], guild_id=guild_id, owner_id=user_id)
+    return None
