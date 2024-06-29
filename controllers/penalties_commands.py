@@ -1,5 +1,5 @@
 from discord.ext import commands
-from client import kick
+# from client import kick, reminder
 from models.subscriber import Subscriber
 from models.task import Task
 from models.week import Week
@@ -32,14 +32,14 @@ class PenaltiesCog(commands.Cog):
             card = self.check_user(subscriber, week_num, previous_card)
             if card:
                 if remind:
-                    #TODO: remind user
+                    # reminder(subscriber.user_id, guild_id)
                     return
                 is_yellow = 1
                 desc = subscriber.default_yellow_penalty_description
                 if previous_card:
                     # red card
                     is_yellow = 0
-                    kick(subscriber.user_id, guild_id)
+                    # kick(subscriber.user_id, guild_id)
                     desc = subscriber.default_red_penalty_description
                     subscribers_access.ban_user(subscriber)
                 # add penalty in db
@@ -64,3 +64,8 @@ class PenaltiesCog(commands.Cog):
 
 async def setup(bot):
     await bot.add_cog(PenaltiesCog(bot))
+
+def run(day: int):
+    penalties = PenaltiesCog()
+    print("running penalties")
+    penalties.run_penalties(day)
