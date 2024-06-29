@@ -4,10 +4,10 @@ from discord import app_commands
 import dotenv # type: ignore
 import os
 import database
-from data_access import weeks_access
+from data_access import penalties_access, weeks_access
 from data_access.guilds_access import get_channel_id
 from controllers.penalties_commands import run
-from data_access import weeks_access, penalties_acess, subscribers_access, guilds_access, tasks_access
+from data_access import weeks_access, subscribers_access, guilds_access, tasks_access
 from models.subscriber import Subscriber
 from models.penalty import Penalty
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -246,7 +246,7 @@ class Penalties():
         print(len(subscribers))
         for subscriber in subscribers:
             print("subscriber: ", subscriber.user_id)
-            previous_card = penalties_acess.get_subscriber_penalty_history(subscriber=subscriber)
+            previous_card = penalties_access.get_subscriber_penalty_history(subscriber=subscriber)
             if previous_card:
                 previous_card = previous_card[-1]
             else:
@@ -268,7 +268,7 @@ class Penalties():
                     subscribers_access.ban_user(subscriber)
                 # add penalty in db
                 penalty = Penalty(description=desc, is_yellow=is_yellow, week_number=week_num, guild_id=guild_id, owner_id=subscriber.user_id, is_done=False)
-                penalties_acess.add_penalty(penalty)
+                penalties_access.add_penalty(penalty)
 
 
     # checks user weekly progress and returns true if he should receive a card

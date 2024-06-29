@@ -4,7 +4,7 @@ from models.subscriber import Subscriber
 from models.task import Task
 from models.week import Week
 from models.penalty import Penalty
-from data_access import weeks_access, penalties_acess, subscribers_access, guilds_access
+from data_access import penalties_access, weeks_access, subscribers_access, guilds_access
 class PenaltiesCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -24,7 +24,7 @@ class PenaltiesCog(commands.Cog):
         # get all users having this guild_id and not is_banned in a list of ids
         subscribers = []
         for subscriber in subscribers:
-            previous_card = penalties_acess.get_subscriber_penalty_history(subscriber=subscriber)
+            previous_card = penalties_access.get_subscriber_penalty_history(subscriber=subscriber)
             if previous_card:
                 previous_card = previous_card[-1]
             else:
@@ -44,7 +44,7 @@ class PenaltiesCog(commands.Cog):
                     subscribers_access.ban_user(subscriber)
                 # add penalty in db
                 penalty = Penalty(description=desc, is_yellow=is_yellow, week_number=week_num, guild_id=guild_id, owner_id=subscriber.user_id)
-                penalties_acess.add_penalty(penalty)
+                penalties_access.add_penalty(penalty)
 
 
     # checks user weekly progress and returns true if he should recieve a card
