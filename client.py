@@ -77,6 +77,24 @@ async def greet(interaction: discord.Interaction):
 async def mention(interaction: discord.Interaction, who: str):
     await interaction.response.send_message(f"Hey Soldier{who}")
 
+
+# reminder
+async def reminder(user_id: str, guild_id: str):
+    guild_id = int(guild_id)
+    user_id = int(user_id)
+    channel_id = int(get_channel_id(guild_id))
+    # Fetch the user object using the user ID
+    user = await bot.fetch_user(user_id)
+    
+    # Fetch the channel object using the channel ID
+    channel = bot.get_channel(channel_id)
+    
+    if channel and user:  # Check if both the channel and user were found
+        # Send a message in the channel mentioning the user
+        await channel.send(f"{user.mention}, don't forget your tasks :)")
+    else:
+        print("User or channel not found.")
+
 class CustomContext:
     def __init__(self, guild, channel):
         self.guild = guild
@@ -127,6 +145,7 @@ async def kick(user_id: str, guild_id: str):
         await custom_ctx.send('I do not have permission to kick this user.')
     except discord.HTTPException as e:
         await custom_ctx.send(f'Failed to kick the user. Error: {e}')
+
 
 # TODO: Get Task Instructions
 
