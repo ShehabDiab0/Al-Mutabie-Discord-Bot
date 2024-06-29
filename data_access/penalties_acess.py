@@ -4,11 +4,11 @@ from models.penalty import Penalty
 
 def get_subscriber_penalty_history(subscriber: Subscriber) -> list[Penalty]:
     cursor = connection.cursor()
-    cursor.execute(f'''
+    cursor.execute(f"""
                     SELECT penalty_id, description, is_done, is_yellow, week_number
                     FROM Penalties
-                    WHERE global_user_id = ? AND guild_id = ?)
-                    ''', (subscriber.user_id, subscriber.guild_id))
+                    WHERE global_user_id = ? AND guild_id = ?
+                    """, (subscriber.user_id, subscriber.guild_id))
     output = cursor.fetchall()
     penalties = []
     for penalty in output:
@@ -23,7 +23,7 @@ def get_subscriber_penalty_history(subscriber: Subscriber) -> list[Penalty]:
 def add_penalty(penalty: Penalty) -> None:
     cursor = connection.cursor()
     cursor.execute(f'''
-                    INSERT INTO Penalties (description, is_done, is_yellow, week_number, global_user_id, guild_id) VALUES  (?, ?, ?, ?)
+                    INSERT INTO Penalties (description, is_done, is_yellow, week_number, global_user_id, guild_id) VALUES  (?, ?, ?, ?, ?, ?)
                 ''', (penalty.description, 0, penalty.is_yellow, penalty.week_number, penalty.owner_id, penalty.guild_id))
 
     connection.commit()

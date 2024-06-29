@@ -51,22 +51,22 @@ def is_registered_user(user_id: str, guild_id: str) -> bool:
         return False
     return True
 
-def get_subscribers(guild_id) -> list[Subscriber]:
+def get_subscribers(guild_id: str) -> list[Subscriber]:
     cursor = connection.cursor()
-    cursor.execute(f'''
-                SELECT *
-                FROM Subscribers
-                WHERE is_banned = 0 AND guild_id = ?)
-                    ''', (guild_id))
+    # print(guild_id)
+    cursor.execute('''
+                    SELECT *
+                    FROM Subscribers
+                    WHERE is_banned = 0 AND guild_id = ''' + str(guild_id))
     output = cursor.fetchall()
     subscribers = []
     for subscriber in output:
-        subscribers.append(Subscriber(user_id=subscriber.user_id, guild_id=subscriber.guild_id, is_banned=subscriber.is_banned))
+        # print(subscriber)
+        subscribers.append(Subscriber(user_id=subscriber[0], guild_id=subscriber[1],default_red_description=subscriber[2], default_yellow_description=subscriber[3], threshold_percentage=subscriber[4], is_banned=subscriber[5]))
     connection.commit()
     cursor.close()
-    if subscribers:
-        return subscribers
-    return []
+    print(subscribers)
+    return subscribers
 
 
 # TODO: ban user test
