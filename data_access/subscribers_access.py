@@ -79,3 +79,24 @@ def ban_user(subscriber: Subscriber) -> None:
                     ''', (subscriber.user_id, subscriber.guild_id))
     connection.commit()
     cursor.close()
+
+
+def update_subscriber_threshold(user_id: str, guild_id: str, new_threshold: float):
+    cursor = connection.cursor()
+    cursor.execute(f'''
+                    UPDATE Subscribers
+                    SET threshold = ?
+                    WHERE global_user_id = ? AND guild_id = ?
+                    ''', (new_threshold, user_id, guild_id))
+    connection.commit()
+    cursor.close()
+
+def update_subscriber_yellow_card(user_id: str, guild_id: str, yellow_description: str):
+    cursor = connection.cursor()
+    cursor.execute(f'''
+                    UPDATE Subscribers
+                    SET default_yellow_penalty_description = ?
+                    WHERE global_user_id = ? AND guild_id = ?
+                    ''', (yellow_description, user_id, guild_id))
+    connection.commit()
+    cursor.close()
