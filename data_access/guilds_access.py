@@ -12,16 +12,6 @@ def add_guild(new_guild: Guild):
     connection.commit()
     cursor.close()
 
-def update_guild_reminder_channel(guild_id, new_channel_id: str):
-    cursor = connection.cursor()
-
-    cursor.execute('''
-        UPDATE Guilds 
-        SET reminder_channel_id = ?
-        WHERE guild_id = ?
-    ''', (new_channel_id, guild_id,))
-    connection.commit()
-    cursor.close()
 
 def is_registered_guild(guild_id: str) -> bool:
     cursor = connection.cursor()
@@ -49,3 +39,29 @@ def get_channel_id(guild_id: str) -> str:
     connection.commit()
     cursor.close()
     return channel_id[0]
+
+
+#TODO: return 2 lists
+def get_today_guilds(day: int) -> list[Guild]:
+    cursor = connection.cursor()
+    cursor.execute(f'''SELECT guild_id, reminder_channel_id, allow_kicks, reminder_day, offset_days
+                    FROM Guilds
+                    WHERE (reminder_day + offset_days) % 7 = ?''',
+                    (day,))
+    output = cursor.fetchall()
+    # parse each guild in the list
+    apply = []
+    for guild in output:
+        apply.append(Guild(guild[0], guild[1], guild[2], guild[3], guild[4]))
+    
+    cursor.execute(f'''SELECT guild_id, reminder_channel_id, allow_kicks, reminder_day, offset_days
+                    FROM Guilds
+                    WHERE reminder_day % 7 = ?''',
+                    (day,))
+    output = cursor.fetchall()
+    reminder = []
+    for guild in output:
+        reminder.append(Guild(guild[0], guild[1], guild[2], guild[3], guild[4]))
+    connection.commit()
+    cursor.close()
+    return reminder, apply
