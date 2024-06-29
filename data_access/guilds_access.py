@@ -51,29 +51,28 @@ def get_channel_id(guild_id: str) -> str:
     return channel_id[0]
 
 
-#TODO: return 2 lists
 def get_today_guilds(day: int) -> list[Guild]:
     cursor = connection.cursor()
-    # cursor.execute(f'''SELECT guild_id, reminder_channel_id, allow_kicks, reminder_day, offset_days
-    #                 FROM Guilds
-    #                 WHERE (reminder_day + offset_days) % 7 = ?''',
-    #                 (day,))
-    cursor.execute('''SELECT guild_id, reminder_channel_id, allow_kicks, reminder_day, offset_days
+    cursor.execute(f'''SELECT guild_id, reminder_channel_id, allow_kicks, reminder_day, offset_days
                     FROM Guilds
-                    ''')
+                    WHERE (reminder_day + offset_days) % 7 = ?''',
+                    (day,))
+    # cursor.execute('''SELECT guild_id, reminder_channel_id, allow_kicks, reminder_day, offset_days
+    #                 FROM Guilds
+    #                 ''')
     output = cursor.fetchall()
     # parse each guild in the list
     apply = []
     for guild in output:
         apply.append(Guild(guild[0], guild[1], guild[2], guild[3], guild[4]))
 
-    cursor.execute('''SELECT guild_id, reminder_channel_id, allow_kicks, reminder_day, offset_days
-                    FROM Guilds
-                    ''')
-    # cursor.execute(f'''SELECT guild_id, reminder_channel_id, allow_kicks, reminder_day, offset_days
+    # cursor.execute('''SELECT guild_id, reminder_channel_id, allow_kicks, reminder_day, offset_days
     #                 FROM Guilds
-    #                 WHERE reminder_day % 7 = ?''',
-    #                 (day,))
+    #                 ''')
+    cursor.execute(f'''SELECT guild_id, reminder_channel_id, allow_kicks, reminder_day, offset_days
+                    FROM Guilds
+                    WHERE reminder_day % 7 = ?''',
+                    (day,))
     output = cursor.fetchall()
     reminder = []
     for guild in output:
