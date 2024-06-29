@@ -27,7 +27,7 @@ class SubscribersCog(commands.Cog):
         user_id = str(interaction.user.id)
         guild_id = str(interaction.guild.id)
         new_subscriber = Subscriber(user_id, guild_id, default_yellow_description, default_red_description, task_completion_threshold)
-        new_guild = Guild(guild_id)
+        new_guild = Guild(guild_id, reminder_channel_id=str(interaction.guild.system_channel.id))
 
         if not is_registered_guild(guild_id):
                 add_guild(new_guild)
