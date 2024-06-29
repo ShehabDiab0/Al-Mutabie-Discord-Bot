@@ -12,6 +12,16 @@ def add_guild(new_guild: Guild):
     connection.commit()
     cursor.close()
 
+def update_guild_reminder_channel(guild_id, new_channel_id: str):
+    cursor = connection.cursor()
+
+    cursor.execute('''
+        UPDATE Guilds 
+        SET reminder_channel_id = ?
+        WHERE guild_id = ?
+    ''', (new_channel_id, guild_id,))
+    connection.commit()
+    cursor.close()
 
 def is_registered_guild(guild_id: str) -> bool:
     cursor = connection.cursor()
