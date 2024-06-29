@@ -1,16 +1,21 @@
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord import app_commands 
 import dotenv # type: ignore
 import os
 import database
 from data_access import weeks_access
 from data_access.guilds_access import get_channel_id
-
+from controllers.penalties_commands import run
+from data_access import weeks_access, penalties_acess, subscribers_access, guilds_access, tasks_access
+from models.subscriber import Subscriber
+from models.penalty import Penalty
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import pytz
-import datetime
 import asyncio
+import json
+import os
+from datetime import datetime, timedelta
 
 ##################### BOT SETTINGS #####################
 LOCATION = "Africa/Cairo"
@@ -42,7 +47,7 @@ def run_bot():
     database.init_db()
     dotenv.load_dotenv()
 
-    today = datetime.datetime.now()
+    today = datetime.now()
     today = TIMEZONE.localize(today)
     # if today is not Thursday (0 is Monday, 6 is Sunday)
     if weeks_access.get_current_week() == None:
@@ -53,17 +58,28 @@ def run_bot():
     
     
 # ------------------------ GENERAL commands and events ------------------------
+    
 
 @bot.event
 async def on_ready():
     print("BOT IS RUNNING")
     await load_cogs()
     await run_scheduler()
+    last_run = load_last_run_time()
+    now = datetime.now()
+
     try:
         synced = await bot.tree.sync()
         print(f"Synced {len(synced)} command")
     except Exception as e:
         print(e)
+    finally:
+        if last_run is None or (now - last_run) >= timedelta(days=1):
+            await daily_task(now.weekday())
+            save_last_run_time(now)
+        
+        # start a periodic check
+        daily_check.start()
 
 # Greet Command
 @bot.tree.command(name="greet")
@@ -169,5 +185,108 @@ async def resume_scheduler(interaction: discord.Interaction):
     scheduler.resume()
     await interaction.response.send_message("Scheduler resumed")
 
-
+#----------------------------penalties-------------------------------
     
+LAST_RUN_FILE = "last_run.json"
+
+def load_last_run_time():
+    if os.path.exists(LAST_RUN_FILE):
+        with open(LAST_RUN_FILE, 'r') as f:
+            data = json.load(f)
+            return datetime.fromisoformat(data['last_run'])
+    return None
+
+def save_last_run_time(time):
+    with open(LAST_RUN_FILE, 'w') as f:
+        json.dump({'last_run': time.isoformat()}, f)
+
+
+async def daily_task(day: int):
+    
+    penalties = Penalties()
+    
+    penalties.run_penalties(day)
+    print("Running daily task")
+
+
+# A periodic check to ensure daily execution if the bot stays online
+@tasks.loop(hours=1)
+async def daily_check():
+    last_run = load_last_run_time()
+    now = datetime.now()
+
+    if last_run is None or (now - last_run) >= timedelta(days=1):
+        await daily_task()
+        save_last_run_time(now)
+
+@daily_check.before_loop
+async def before_daily_check():
+    await bot.wait_until_ready()
+
+
+
+class Penalties():
+
+# TODO: reminders and guild scheduling
+
+    def run_penalties(self, day: int) -> None:
+        print("running penalties")
+        reminder_guilds, apply_guilds = guilds_access.get_today_guilds(day)
+        for guild in reminder_guilds:
+            self.weekly_check(guild.guild_id, True)
+        for guild in apply_guilds:
+            self.weekly_check(guild.guild_id, False)
+
+
+    def weekly_check(self, guild_id: str, remind: bool) -> None:
+        print("weekly check")
+        week_num = weeks_access.get_current_week()
+        # get all users having this guild_id and not is_banned in a list of ids
+        subscribers = subscribers_access.get_subscribers(guild_id)
+        print(len(subscribers))
+        for subscriber in subscribers:
+            print("subscriber: ", subscriber.user_id)
+            previous_card = penalties_acess.get_subscriber_penalty_history(subscriber=subscriber)
+            if previous_card:
+                previous_card = previous_card[-1]
+            else:
+                previous_card = None
+            card = self.check_user(subscriber, week_num, previous_card)
+            if card:
+                if remind:
+                    print('remind')
+                    bot.loop.create_task(reminder(subscriber.user_id, guild_id))
+                    return
+                is_yellow = 1
+                desc = subscriber.default_yellow_description
+                if previous_card:
+                    # red card
+                    is_yellow = 0
+                    print('kick')
+                    bot.loop.create_task(kick(subscriber.user_id, guild_id))
+                    desc = subscriber.default_red_description
+                    subscribers_access.ban_user(subscriber)
+                # add penalty in db
+                penalty = Penalty(description=desc, is_yellow=is_yellow, week_number=week_num, guild_id=guild_id, owner_id=subscriber.user_id, is_done=False)
+                penalties_acess.add_penalty(penalty)
+
+
+    # checks user weekly progress and returns true if he should receive a card
+    def check_user(self, subscriber: Subscriber, week_num: int, previous_card: Penalty) -> bool:
+        print("check user")
+        if previous_card and not previous_card.is_done:
+            return True
+        tasks = tasks_access.get_subscriber_tasks(subscriber, week_num)
+        total = len(tasks)
+        if not total:
+            return True
+        completed = 0.0
+        for task in tasks:
+            completed += task.completion_percentage
+        return completed / total < subscriber.threshold_percentage
+
+
+
+# async def setup(bot):
+#     await bot.add_cog(PenaltiesCog(bot))
+
