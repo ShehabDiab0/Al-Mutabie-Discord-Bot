@@ -192,8 +192,9 @@ def load_last_run_time():
     if os.path.exists(LAST_RUN_FILE):
         with open(LAST_RUN_FILE, 'r') as f:
             data = json.load(f)
-            return datetime.fromisoformat(data['last_run'])
+            return datetime.fromisoformat(data['last_run']).date()
     return None
+
 
 def save_last_run_time(date):
     with open(LAST_RUN_FILE, 'w') as f:
