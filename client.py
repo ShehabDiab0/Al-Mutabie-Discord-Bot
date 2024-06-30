@@ -195,9 +195,9 @@ def load_last_run_time():
             return datetime.fromisoformat(data['last_run'])
     return None
 
-def save_last_run_time(time):
+def save_last_run_time(date):
     with open(LAST_RUN_FILE, 'w') as f:
-        json.dump({'last_run': time.isoformat()}, f)
+        json.dump({'last_run': date.isoformat()}, f)
 
 
 async def daily_task(day: int):
