@@ -64,9 +64,6 @@ async def on_ready():
     print("BOT IS RUNNING")
     await load_cogs()
     await run_scheduler()
-    last_run = load_last_run_time()
-    today = datetime.now().date()
-    print("today", today, "last", last_run)  # get only the date part
 
     try:
         synced = await bot.tree.sync()
@@ -74,9 +71,6 @@ async def on_ready():
     except Exception as e:
         print(e)
     finally:
-        if last_run is None or today > last_run:
-            await daily_task(today.weekday())
-            save_last_run_time(today)
         
         # start a periodic check
         daily_check.start()
@@ -216,7 +210,6 @@ async def daily_task(day: int):
 async def daily_check():
     last_run = load_last_run_time()
     today = datetime.now().date()
-    print("testtoday", today, "last", last_run)  # get only the date part
 
     if last_run is None or today > last_run:
         await daily_task(today.weekday())
