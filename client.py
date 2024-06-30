@@ -65,7 +65,8 @@ async def on_ready():
     await load_cogs()
     await run_scheduler()
     last_run = load_last_run_time()
-    now = datetime.now()
+    today = datetime.now().date()
+    print("today", today, "last", last_run)  # get only the date part
 
     try:
         synced = await bot.tree.sync()
@@ -73,9 +74,9 @@ async def on_ready():
     except Exception as e:
         print(e)
     finally:
-        if last_run is None or (now - last_run) >= timedelta(days=1):
-            await daily_task(now.weekday())
-            save_last_run_time(now)
+        if last_run is None or today > last_run:
+            await daily_task(today.weekday())
+            save_last_run_time(today)
         
         # start a periodic check
         daily_check.start()
@@ -188,17 +189,18 @@ async def resume_scheduler(interaction: discord.Interaction):
     
 LAST_RUN_FILE = "last_run.json"
 
+
 def load_last_run_time():
     if os.path.exists(LAST_RUN_FILE):
         with open(LAST_RUN_FILE, 'r') as f:
             data = json.load(f)
-            return datetime.fromisoformat(data['last_run']).date()
+            return datetime.fromisoformat(data['last_run']).date()  # Load and return only the date
     return None
 
 
 def save_last_run_time(date):
     with open(LAST_RUN_FILE, 'w') as f:
-        json.dump({'last_run': date.isoformat()}, f)
+        json.dump({'last_run': date.strftime('%Y-%m-%d')}, f)
 
 
 async def daily_task(day: int):
@@ -213,11 +215,13 @@ async def daily_task(day: int):
 @tasks.loop(hours=1)
 async def daily_check():
     last_run = load_last_run_time()
-    now = datetime.now()
+    today = datetime.now().date()
+    print("testtoday", today, "last", last_run)  # get only the date part
 
-    if last_run is None or (now - last_run) >= timedelta(days=1):
-        await daily_task()
-        save_last_run_time(now)
+    if last_run is None or today > last_run:
+        await daily_task(today.weekday())
+        save_last_run_time(today)
+
 
 @daily_check.before_loop
 async def before_daily_check():
