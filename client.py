@@ -11,6 +11,7 @@ from models.subscriber import Subscriber
 from models.penalty import Penalty
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import pytz
+import sys
 import asyncio
 import json
 import os
@@ -181,7 +182,7 @@ async def resume_scheduler(interaction: discord.Interaction):
 
 #----------------------------penalties-------------------------------
     
-LAST_RUN_FILE = "last_run.json"
+LAST_RUN_FILE = sys.argv[2] if len(sys.argv) >= 3 else "last_run.json"
 
 
 def load_last_run_time():
