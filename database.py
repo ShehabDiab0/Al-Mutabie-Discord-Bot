@@ -1,6 +1,7 @@
 import sqlite3
+import sys
 
-connection = sqlite3.connect("tasks.db", check_same_thread=False)
+connection = sqlite3.connect(sys.argv[1] if len(sys.argv) >= 2 else "tasks.db", check_same_thread=False)
 ############################# DATABASE INITIALIZATION ##########################
 
 # to initialize database
