@@ -54,7 +54,7 @@ class SubscribersCog(commands.Cog):
 
         subscriber: Subscriber = get_subscriber(user_id, guild_id)
         formatted_profile = helpers.convert_subscriber_profile_to_str(subscriber)
-        
+
         member = interaction.guild.get_member(int(user_id))
         embed = discord.Embed(title=f'{member.display_name} Profile',
                               description=formatted_profile,
@@ -67,63 +67,22 @@ class SubscribersCog(commands.Cog):
         
     @app_commands.command(name="edit_profile")
     async def edit_profile(self, interaction: discord.Interaction):
-        pass
-
-
-    @app_commands.command(name="update_default_threshold")
-    @app_commands.describe(new_threshold="enter the threshold percentage you want >= 0.5 (default is 0.6) (we apply a penalty if you completed less than the threshold percentage)")
-    async def update_default_threshold(self, interaction: discord.Interaction, new_threshold: Optional[float] = 0.6):
-        if new_threshold < 0.5:
-            await interaction.response.send_message('يا متخازل ------ Completion Threshold has to be >= 0.5')
-            return
-        
         user_id = str(interaction.user.id)
-        guild_id = str(interaction.guild.id)
+        guild_id = str(interaction.guild_id)
 
         if not is_registered_user(user_id, guild_id):
             await interaction.response.send_message(
-                    'You are not registered please register using /register, (you can also choose threshold there)',
+                    'You are not registered please register using /register',
                     ephemeral=True
                 )
             return
         
         if is_banned_user(user_id, guild_id):
-            await interaction.response.send_message(
-                    'banned متخازل كبير'
-                )
-            return
-        
-        try:
-            update_subscriber_threshold(user_id, guild_id, new_threshold)
-            await interaction.response.send_message(f'your threshold is now {new_threshold}', ephemeral=True)
-        except Exception as e:
-            print(e)
+            await interaction.response.send_message('Banned users are not allowed to edit their profile.',
+                                                    ephemeral=True)
 
-
-    @app_commands.command(name="update_default_yellow_penalty")
-    @app_commands.describe(default_yellow_description="Write your default Yellow card description.")
-    async def update_default_threshold(self, interaction: discord.Interaction, default_yellow_description: str):
-        user_id = str(interaction.user.id)
-        guild_id = str(interaction.guild.id)
-
-        if not is_registered_user(user_id, guild_id):
-            await interaction.response.send_message(
-                    'You are not registered please register using /register, (you can also choose yellow description there)',
-                    ephemeral=True
-                )
-            return
-        
-        if is_banned_user(user_id, guild_id):
-            await interaction.response.send_message(
-                    'banned متخازل كبير'
-                )
-            return
-        
-        try:
-            update_subscriber_yellow_card(user_id, guild_id, default_yellow_description)
-            await interaction.response.send_message(f'your new default for yellow is now {default_yellow_description}', ephemeral=True)
-        except Exception as e:
-            print(e)
+        modal = UI.EditProfileModal()
+        await interaction.response.send_modal(modal)
 
 
     # TODO: Unban user
