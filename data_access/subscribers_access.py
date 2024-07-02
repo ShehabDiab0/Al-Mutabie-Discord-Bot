@@ -20,6 +20,25 @@ def subscribe_user(new_subscriber: Subscriber):
     connection.commit()
     cursor.close()
 
+def get_subscriber(user_id, guild_id) -> Subscriber:
+    cursor = connection.cursor()
+    cursor.execute(f'''SELECT *
+                    From 
+                    Subscribers
+                    WHERE global_user_id = ? AND guild_id = ?''',
+                    (user_id, guild_id))
+    subscriber_data = cursor.fetchone()
+    connection.commit()
+    cursor.close()
+    
+    subscriber = Subscriber(user_id=subscriber_data[0],
+               guild_id=subscriber_data[1],
+               default_red_description=subscriber_data[2], 
+               default_yellow_description=subscriber_data[3], 
+               threshold_percentage=subscriber_data[4], 
+               is_banned=subscriber_data[5])
+    return subscriber
+    
 
 def is_banned_user(user_id: str, guild_id: str) -> bool:
     cursor = connection.cursor()
@@ -96,6 +115,16 @@ def update_subscriber_yellow_card(user_id: str, guild_id: str, yellow_descriptio
     cursor.execute(f'''
                     UPDATE Subscribers
                     SET default_yellow_penalty_description = ?
+                    WHERE global_user_id = ? AND guild_id = ?
+                    ''', (yellow_description, user_id, guild_id))
+    connection.commit()
+    cursor.close()
+
+def update_subscriber_red_card(user_id: str, guild_id: str, yellow_description: str):
+    cursor = connection.cursor()
+    cursor.execute(f'''
+                    UPDATE Subscribers
+                    SET default_red_penalty_description = ?
                     WHERE global_user_id = ? AND guild_id = ?
                     ''', (yellow_description, user_id, guild_id))
     connection.commit()
