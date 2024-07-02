@@ -10,6 +10,7 @@ from models.penalty import Penalty
 from models.guild import Guild
 from data_access.guilds_access import add_guild, is_registered_guild
 from data_access.subscribers_access import *
+import helpers
 import UI
 
 class SubscribersCog(commands.Cog):
@@ -52,7 +53,14 @@ class SubscribersCog(commands.Cog):
             return
 
         subscriber: Subscriber = get_subscriber(user_id, guild_id)
+        formatted_profile = helpers.convert_subscriber_profile_to_str(subscriber)
         
+        member = interaction.guild.get_member(int(user_id))
+        embed = discord.Embed(title=f'{member.display_name} Profile',
+                              description=formatted_profile,
+                              color=member.color)
+        embed.set_thumbnail(url=str(member.avatar))
+        await interaction.response.send_message(embed=embed)
 
         
         
