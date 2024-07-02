@@ -28,4 +28,10 @@ def convert_formatted_tasks_to_percentages(formatted_tasks: str) -> list[float]:
     completion_percentages = re.findall(pattern, formatted_tasks)
     return completion_percentages
 
-    
+
+def is_float(num: str) -> bool:
+    try:
+        str(num)
+        return True
+    except ValueError:
+        return False
