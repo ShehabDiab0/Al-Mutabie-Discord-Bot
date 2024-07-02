@@ -6,8 +6,8 @@ from discord import TextStyle
 from discord import app_commands
 import helpers
 from data_access import tasks_access
-import dotenv # type: ignore
-import os
+from data_access import subscribers_access
+from models.subscriber import Subscriber
 
 class SingleTaskDropDown(Select):
     def __init__(self, tasks, modal) -> None:
@@ -64,7 +64,7 @@ class DeleteTaskView(View):
 #         database.update_subscriber_task(self.selected_value[0], self.new_value)
 #         await interaction.response.send_message("Task Updated", ephemeral=True)
 class UpdateTextInput(TextInput):
-    def __init__(self,new_placeholder,new_label) -> None:
+    def __init__(self, new_placeholder, new_label) -> None:
         super().__init__(placeholder=new_placeholder,label=new_label)
         self.required = False
     
@@ -136,14 +136,53 @@ class SelfReportModal(Modal):
         
 
 
+class RegisterationInput(TextInput):
+    def __init__(self, placeholder, label, required=False) -> None:
+        super().__init__(label=label, 
+                         placeholder=placeholder,
+                         style=discord.TextStyle.long)
+        self.required = required
 
+    async def callback(self, interaction: discord.Interaction):
+        await interaction.response.defer()
+
+
+
+class RegisterationModal(Modal):
+    def __init__(self) -> None:
+        super().__init__(title="Registeration")
+        self.default_yellow_card_input = RegisterationInput(placeholder="Write your default Yellow card description.", label="Default Yellow Card Description", required=True)
+        self.default_red_card_input = RegisterationInput(placeholder="Write your default Red card description.", label="Default Red Card Description", required=True)
+        self.threshold = RegisterationInput(placeholder="Write Your threshold percentage you want >= 0.5 and <= 1 (Default is 0.6)", label="Threshold Percentage", required=False)
+        self.add_item(self.default_yellow_card_input)
+        self.add_item(self.default_red_card_input)
+        self.add_item(self.threshold)
+
+    async def on_submit(self, interaction: discord.Interaction):
+        yellow_card_description = self.default_yellow_card_input.value
+        red_card_description = self.default_red_card_input.value
+        threshold = self.threshold.value
+
+        if threshold == "":
+            threshold = 0.6
+
+        if not helpers.is_float(threshold):
+            await interaction.response.send_message("Please Enter a number >= 0.5 and <= 1 or leave it empty, (Default is 0.6)", ephemeral=True)
+            return
+
+        threshold = float(threshold)
+        if threshold > 1 or threshold < 0.5:
+            await interaction.response.send_message('يا متخازل ------ Completion Threshold has to be >= 0.5 and <= 1')
+            return
+
+        user_id = str(interaction.user.id)
+        guild_id = str(interaction.guild.id)
+        new_subscriber = Subscriber(user_id, guild_id, yellow_card_description, red_card_description, threshold)
+
+        subscribers_access.subscribe_user(new_subscriber)
+        await interaction.response.send_message(
+            f"Be Proud, you are a hard worker, you subscribed to the program successfully {interaction.user.mention}",
+            ephemeral=True
+        )
         
         
-
-    
-
-
-
-
-
-
