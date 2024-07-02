@@ -24,11 +24,10 @@ def convert_tasks_to_self_report(tasks: list[Task]) -> str:
     return formatted_tasks
 
 def convert_subscriber_profile_to_str(subscriber: Subscriber):
-    return  f'''Name: {bot.get_user(int(subscriber.user_id)).display_name}
-                Default Yellow Card: {subscriber.default_yellow_description}
-                Default Red Card: {subscriber.default_red_description}
+    return  f'''Default Yellow Card 🟨:\n {subscriber.default_yellow_description}\n                   
+                Default Red Card 🟥:\n {subscriber.default_red_description}\n                     
                 Default Completion Threshold: {subscriber.threshold_percentage}
-                Banned: {"YES!!!" if subscriber.is_banned else "no :^)" }
+                Banned : {"🅱️" if subscriber.is_banned else "🟩" }
             '''
 
 def convert_formatted_tasks_to_percentages(formatted_tasks: str) -> list[float]:
