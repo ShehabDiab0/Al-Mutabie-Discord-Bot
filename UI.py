@@ -184,5 +184,66 @@ class RegisterationModal(Modal):
             f"Be Proud, you are a hard worker, you subscribed to the program successfully {interaction.user.mention}",
             ephemeral=True
         )
+
+
+class EditProfileModal(Modal):
+    def __init__(self) -> None:
+        super().__init__(title="Registeration")
+        self.default_yellow_card_input = RegisterationInput(placeholder="Write your new default Yellow card description.", label="Default Yellow Card Description", required=False)
+        self.default_red_card_input = RegisterationInput(placeholder="Write your new default Red card description.", label="Default Red Card Description", required=False)
+        self.threshold = RegisterationInput(placeholder="Write Your new threshold percentage you want >= 0.5 and <= 1", label="Threshold Percentage", required=False)
+        self.add_item(self.default_yellow_card_input)
+        self.add_item(self.default_red_card_input)
+        self.add_item(self.threshold)
+
+    async def on_submit(self, interaction: discord.Interaction):
+        yellow_card_description = self.default_yellow_card_input.value
+        red_card_description = self.default_red_card_input.value
+        threshold = self.threshold.value
+
+        if threshold == "":
+            threshold = 0.6
+
+        if not helpers.is_float(threshold):
+            await interaction.response.send_message("Please Enter a number >= 0.5 and <= 1 or leave it empty, (Default is 0.6)", ephemeral=True)
+            return
+
+        threshold = float(threshold)
+        if threshold > 1 or threshold < 0.5:
+            await interaction.response.send_message('يا متخازل ------ Completion Threshold has to be >= 0.5 and <= 1')
+            return
+
+        is_updated: bool = False
+        threshold_status: str = ""
+        user_id = str(interaction.user.id)
+        guild_id = str(interaction.guild.id)
         
+        if yellow_card_description != "":
+            subscribers_access.update_subscriber_yellow_card(user_id, guild_id, yellow_card_description)
+            is_updated = True
+        if red_card_description != "":
+            subscribers_access.update_subscriber_red_card(user_id, guild_id, red_card_description)
+            is_updated = True
         
+        if threshold != "":
+            if helpers.is_float(threshold) and float(threshold) <= 1 and float(threshold) >= 0.5:
+                subscribers_access.update_subscriber_threshold(user_id, guild_id, float(threshold))
+                is_updated = True 
+            else:
+                threshold_status = " And Couldn't update Threshold يا متحايل"
+        
+
+
+
+        if is_updated:
+            await interaction.response.send_message(
+                f"Profile Updated Successfully {interaction.user.mention}" + threshold_status,
+                ephemeral=True
+            )
+            return
+        
+        await interaction.response.send_message(
+            f"No Changes Made :^)",
+            ephemeral=True
+        )
+        return
