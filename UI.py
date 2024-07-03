@@ -93,6 +93,9 @@ class UpdateTaskModal(Modal):
             tasks_access.update_task_desc(self.selected_value, self.new_desc)
             await interaction.response.send_message("Task Description Updated", ephemeral=True)
         elif(self.new_desc == "" and self.new_completion != ""):
+            if self.new_completion < 0 or self.new_completion > 100:
+                await interaction.response.send_message("Completion Percentage should be between 0 and 100", ephemeral=True)
+                return
             tasks_access.update_task_completion_percentage(self.selected_value, self.new_completion)
             await interaction.response.send_message("Task Completion Updated", ephemeral=True)
         else:
