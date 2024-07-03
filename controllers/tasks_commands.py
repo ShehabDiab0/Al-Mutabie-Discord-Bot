@@ -138,8 +138,8 @@ class TasksCog(commands.Cog):
 
         member = interaction.guild.get_member(int(user_id))
         embed = discord.Embed(title=f'{member.display_name} Tasks of Week {week_number}',
-                              description=formatted_tasks,
-                              color=member.color)
+                            description=formatted_tasks,
+                            color=member.color)
         embed.set_thumbnail(url=str(member.avatar))
         await interaction.response.send_message(embed=embed)
         
