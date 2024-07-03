@@ -107,6 +107,26 @@ async def reminder(user_id: str, guild_id: str):
     else:
         print("User or channel not found.")
 
+
+# send card
+async def send_card(user_id: str, guild_id: str, penalty: Penalty):
+    guild_id = int(guild_id)
+    user_id = int(user_id)
+    channel_id = int(get_channel_id(guild_id))
+    # Fetch the user object using the user ID
+    user = await bot.fetch_user(user_id)
+    # Fetch the channel object using the channel ID
+    channel = bot.get_channel(channel_id)
+    card = "received a red card \U0001F7E5"
+    if penalty.is_yellow:
+        card = "received a yellow card \U0001F7E8"
+    if channel and user:  # Check if both the channel and user were found
+        # Send a message in the channel mentioning the user
+        await channel.send(f"{user.mention} {card} for not completing his tasks, His punishment will be {penalty.description}")
+    else:
+        print("User or channel not found.")
+
+
 class CustomContext:
     def __init__(self, guild, channel):
         self.guild = guild
@@ -269,6 +289,7 @@ class Penalties():
                     subscribers_access.ban_user(subscriber)
                 # add penalty in db
                 penalty = Penalty(description=desc, is_yellow=is_yellow, week_number=week_num, guild_id=guild_id, owner_id=subscriber.user_id, is_done=False)
+                bot.loop.create_task(send_card(subscriber.user_id, guild_id, penalty))
                 penalties_access.add_penalty(penalty)
 
 
