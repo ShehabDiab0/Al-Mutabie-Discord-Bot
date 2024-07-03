@@ -44,3 +44,10 @@ def is_float(num: str) -> bool:
         return True
     except ValueError:
         return False
+
+
+def is_valid_number(input_str):
+    # allows integer or float from 0 to 100
+    pattern = r"^(100|(\d{1,2})(\.\d+)?|0(\.\d+)?)$"
+    match = re.match(pattern, input_str)
+    return bool(match)
