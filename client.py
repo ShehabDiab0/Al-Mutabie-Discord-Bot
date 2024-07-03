@@ -9,6 +9,7 @@ from data_access.guilds_access import get_channel_id
 from data_access import weeks_access, subscribers_access, guilds_access, tasks_access
 from models.subscriber import Subscriber
 from models.penalty import Penalty
+from models.guild import Guild
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import pytz
 import sys
@@ -231,12 +232,13 @@ class Penalties():
         print("running penalties")
         reminder_guilds, apply_guilds = guilds_access.get_today_guilds(day)
         for guild in reminder_guilds:
-            self.weekly_check(guild.guild_id, True)
+            self.weekly_check(guild, True)
         for guild in apply_guilds:
-            self.weekly_check(guild.guild_id, False)
+            self.weekly_check(guild, False)
 
 
-    def weekly_check(self, guild_id: str, remind: bool) -> None:
+    def weekly_check(self, guild: Guild, remind: bool) -> None:
+        guild_id = guild.guild_id
         print("weekly check")
         week_num = weeks_access.get_current_week()
         # get all users having this guild_id and not is_banned in a list of ids
@@ -260,8 +262,9 @@ class Penalties():
                 if previous_card:
                     # red card
                     is_yellow = 0
-                    print('kick')
-                    bot.loop.create_task(kick(subscriber.user_id, guild_id))
+                    if guild.allow_kicks:
+                        print('kick')
+                        bot.loop.create_task(kick(subscriber.user_id, guild_id))
                     desc = subscriber.default_red_description
                     subscribers_access.ban_user(subscriber)
                 # add penalty in db
