@@ -42,8 +42,12 @@ class SubscribersCog(commands.Cog):
         if who == "-1":
             who = f'<@{interaction.user.id}>'
 
-        user_id = who[2:-1] # when u mention somebody in discord it uses the format <@user_id>
+        user_id = who[3:-1] if user_id[2] == '!' else who[2:-1] # when u mention somebody in discord it uses the format <@user_id> or <@!user_id>
         guild_id: str = str(interaction.guild.id)
+
+        if not helpers.is_valid_discord_mention(who) or not await helpers.is_existing_discord_user(user_id):
+            await interaction.response.send_message("Please Mention a correct discord user", ephemeral=True)
+            return
 
         if not is_registered_user(user_id, guild_id):
             await interaction.response.send_message(
