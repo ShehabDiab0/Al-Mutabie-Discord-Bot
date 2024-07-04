@@ -134,8 +134,14 @@ class SelfReportModal(Modal):
         self.add_item(self.input)
          
 
+    # TODO: we want to think of a better way to do self report
     async def on_submit(self, interaction: discord.Interaction):
         completion_percentages = helpers.convert_formatted_tasks_to_percentages(self.input.value)
+        
+        if len(completion_percentages) != len(self.tasks):
+            await interaction.response.send_message("Please Copy your Tasks Exactly from /show_tasks command and try again!", ephemeral=True)
+            return
+        
         failed_to_update = []
         for i, task in enumerate(self.tasks):
             if not helpers.is_valid_number(str(completion_percentages[i])) or float(completion_percentages[i]) < 0 or float(completion_percentages[i]) > 100:
