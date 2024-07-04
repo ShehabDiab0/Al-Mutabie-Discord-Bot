@@ -1,5 +1,6 @@
 from models.task import Task
 from models.subscriber import Subscriber
+import discord
 from client import bot
 import re
 
@@ -51,3 +52,14 @@ def is_valid_number(input_str):
     pattern = r"^(100|(\d{1,2})(\.\d+)?|0(\.\d+)?)$"
     match = re.match(pattern, input_str)
     return bool(match)
+
+def is_valid_discord_mention(mention: str) -> bool:
+    return mention.startswith('<@') and mention.endswith('>')
+
+async def is_existing_discord_user(user_id: str) -> bool:
+    try:
+        user = await bot.fetch_user(user_id)
+        return user is not None
+    except Exception as e:
+        print(e)
+        return False
