@@ -129,13 +129,17 @@ class TasksCog(commands.Cog):
         if who == "-1":
             who = f'<@{interaction.user.id}>'
 
-        guild_id: str = str(interaction.guild.id)
-        user_id = who[3:-1] if who[2] == '!' else who[2:-1] # when u mention somebody in discord it uses the format <@user_id> or <@!user_id>
-
-        if not helpers.is_valid_discord_mention(who) or not await helpers.is_existing_discord_user(user_id):
+        if not helpers.is_valid_discord_mention(who):
             await interaction.response.send_message("Please Mention a correct discord user", ephemeral=True)
             return
         
+        user_id = who[3:-1] if who[2] == '!' else who[2:-1] # when u mention somebody in discord it uses the format <@user_id> or <@!user_id>
+        if not await helpers.is_existing_discord_user(user_id):
+            await interaction.response.send_message("Please Mention a correct discord user", ephemeral=True)
+            return
+            
+
+        guild_id: str = str(interaction.guild.id)
         subscriber: Subscriber = Subscriber(user_id, guild_id)
         tasks = tasks_access.get_subscriber_tasks(subscriber, week_number)
         formatted_tasks = helpers.convert_tasks_to_str(tasks)
