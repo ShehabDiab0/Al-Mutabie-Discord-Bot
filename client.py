@@ -307,8 +307,24 @@ class Penalties():
             completed += task.completion_percentage
         return completed / total < subscriber.threshold_percentage
 
-
-
-# async def setup(bot):
-#     await bot.add_cog(PenaltiesCog(bot))
-
+# ------------------------ Instructions ------------------------
+@app_commands.command(name="instructions")
+async def instructions(interaction: discord.Interaction):
+    info = '''**Commands Description:**
+            1. /register: To register to the bot\n 
+            2. To show someone Profile or your Profile use /show_profile\n
+            3. To edit your profile use /edit_profile\n
+            4. To add a task use /add_single_task\n
+            5. To add multiple tasks use /add_multiple_tasks\n
+            6. To show Someone or your tasks use /show_tasks\n
+            7. To delete a task use /delete_task\n
+            8. To update a task use /update_task\n
+            9. To do a self report use /self_report\n
+            10. To check your penalty done use /penalty_done\n
+            **Rules:**
+            1. When do we apply penalties? ==> Every Sunday @ 12:00 AM
+    '''
+    embed = discord.Embed(title=f'Instructions and Rules',
+                              description=info,
+                              color=discord.Color.blue())
+    await interaction.response.send_message(embed=embed)
