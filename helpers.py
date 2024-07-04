@@ -54,7 +54,8 @@ def is_valid_number(input_str):
     return bool(match)
 
 def is_valid_discord_mention(mention: str) -> bool:
-    return mention.startswith('<@') and mention.endswith('>')
+    pattern = r'^<@!?(\d+)>$'
+    return bool(re.match(pattern, mention))
 
 async def is_existing_discord_user(user_id: str) -> bool:
     try:
