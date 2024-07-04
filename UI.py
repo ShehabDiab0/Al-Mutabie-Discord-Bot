@@ -87,13 +87,16 @@ class UpdateTaskModal(Modal):
         
         if(self.new_desc != "" and self.new_completion != ""): 
             tasks_access.update_task_desc(self.selected_value, self.new_desc)
+            if not helpers.is_valid_number(self.new_completion) or float(self.new_completion) < 0 or float(self.new_completion) > 100:
+                await interaction.response.send_message("Updated Task Description, but Completion Percentage should be between 0 and 100", ephemeral=True)
+                return
             tasks_access.update_task_completion_percentage(self.selected_value, self.new_completion)
             await interaction.response.send_message("Task Description and Completion Updated", ephemeral=True)
         elif(self.new_completion == "" and self.new_desc != ""):
             tasks_access.update_task_desc(self.selected_value, self.new_desc)
             await interaction.response.send_message("Task Description Updated", ephemeral=True)
         elif(self.new_desc == "" and self.new_completion != ""):
-            if self.new_completion < 0 or self.new_completion > 100:
+            if not helpers.is_valid_number(self.new_completion) or float(self.new_completion) < 0 or float(self.new_completion) > 100:
                 await interaction.response.send_message("Completion Percentage should be between 0 and 100", ephemeral=True)
                 return
             tasks_access.update_task_completion_percentage(self.selected_value, self.new_completion)
@@ -133,10 +136,17 @@ class SelfReportModal(Modal):
 
     async def on_submit(self, interaction: discord.Interaction):
         completion_percentages = helpers.convert_formatted_tasks_to_percentages(self.input.value)
+        failed_to_update = []
         for i, task in enumerate(self.tasks):
+            if not helpers.is_valid_number(str(completion_percentages[i])) or float(completion_percentages[i]) < 0 or float(completion_percentages[i]) > 100:
+                failed_to_update.append(i + 1)
+                continue
             tasks_access.update_task_completion_percentage(task.task_id, completion_percentages[i])
-        await interaction.response.send_message("Self Report Completed", ephemeral=True)
+        if len(failed_to_update) == 0:
+            await interaction.response.send_message(f"Self Report Completed", ephemeral=True)
+            return
         
+        await interaction.response.send_message(f"Failed to Updated these tasks: {failed_to_update}, if there are anyother tasks then they are updated", ephemeral=True)
 
 
 class RegisterationInput(TextInput):
