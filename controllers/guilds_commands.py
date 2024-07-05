@@ -25,7 +25,7 @@ class GuildsCog(commands.Cog):
         new_guild = Guild(guild_id, reminder_channel_id=new_channel_id)
 
         if not is_registered_user(user_id, guild_id) or is_banned_user(user_id, guild_id):
-            await interaction.response.send_message('You are not allowed to do this action as you are not registered or banned, please try to register using /register command')
+            await interaction.response.send_message('You are not allowed to do this action as you are not registered or banned, please try to register using /register command', ephemeral=True)
             return
 
         if not guilds_access.is_registered_guild(guild_id):
@@ -48,7 +48,8 @@ class GuildsCog(commands.Cog):
         new_guild = Guild(guild_id, new_channel_id)
 
         if not is_registered_user(user_id, guild_id) or is_banned_user(user_id, guild_id):
-            await interaction.response.send_message('You are not allowed to do this action as you are not registered or banned, please try to register using /register command')
+            await interaction.response.send_message('You are not allowed to do this action as you are not registered or banned, please try to register using /register command',
+                                                    ephemeral=True)
 
         if not guilds_access.is_registered_guild(guild_id):
             guilds_access.add_guild(new_guild)

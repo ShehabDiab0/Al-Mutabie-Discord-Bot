@@ -20,7 +20,7 @@ class PenaltiesCog(commands.Cog):
         penalty = get_penalty(task_owner_id, guild_id)
 
         if not is_registered_user(task_owner_id, guild_id):
-            await interaction.response.send_message(f"You have to register first before adding any tasks please use /register to register")
+            await interaction.response.send_message(f"You have to register first before adding any tasks please use /register to register", ephemeral=True)
             return
         
         if penalty:
