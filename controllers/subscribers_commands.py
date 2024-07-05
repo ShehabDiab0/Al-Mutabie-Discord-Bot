@@ -67,7 +67,8 @@ class SubscribersCog(commands.Cog):
         embed = discord.Embed(title=f'{member.display_name} Profile',
                               description=formatted_profile,
                               color=member.color)
-        embed.set_thumbnail(url=str(member.avatar))
+        if member.avatar is not None:
+            embed.set_thumbnail(url=str(member.avatar))
         await interaction.response.send_message(embed=embed)
 
         
