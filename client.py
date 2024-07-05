@@ -179,9 +179,6 @@ async def kick(user_id: str, guild_id: str):
         await custom_ctx.send(f'Failed to kick the user. Error: {e}')
 
 
-# TODO: Get Task Instructions
-
-
 # ------------------------ Scheduling functions/commands ------------------------
 
 async def run_scheduler():
@@ -308,7 +305,7 @@ class Penalties():
         return completed / total < subscriber.threshold_percentage
 
 # ------------------------ Instructions ------------------------
-@app_commands.command(name="instructions")
+@bot.tree.command(name="instructions")
 async def instructions(interaction: discord.Interaction):
     info = '''**Commands Description:**
             1. /register: To register to the bot\n 
