@@ -14,7 +14,7 @@ from models.penalty import Penalty
 from database import connection
 from data_access import tasks_access
 from data_access.weeks_access import get_current_week
-from data_access.subscribers_access import is_banned_user, is_registered_user
+from data_access.subscribers_access import is_banned_user, is_registered_user, get_subscribers
 import helpers
 import UI
 
@@ -152,7 +152,31 @@ class TasksCog(commands.Cog):
         if member.avatar is not None:
             embed.set_thumbnail(url=str(member.avatar))
         await interaction.response.send_message(embed=embed)
+
+
+    # Show tasks for all users in the guild
+    @app_commands.command(name="show_tasks_for_all")
+    @app_commands.describe(week_number="Type Tasks of which week? use 0 for current week")
+    async def show_tasks_for_all(self, interaction: discord.Interaction, week_number: Optional[int] = 0):
+        if week_number == 0: # special case for current week
+            week_number = get_current_week()
         
+
+        guild_id: str = str(interaction.guild.id)
+        subscribers = get_subscribers(guild_id)
+        for subscriber in subscribers:
+            tasks = tasks_access.get_subscriber_tasks(subscriber, week_number)
+            formatted_tasks = helpers.convert_tasks_to_str(tasks)
+
+            member = interaction.guild.get_member(int(subscriber.user_id))
+            embed = discord.Embed(title=f'{member.display_name} Tasks of Week {week_number}',
+                                description=formatted_tasks,
+                                color=member.color)
+
+            if member.avatar is not None:
+                embed.set_thumbnail(url=str(member.avatar))
+            await interaction.response.send_message(embed=embed)
+
 
     # Update Task
     @app_commands.command(name="update_task")
