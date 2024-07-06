@@ -302,7 +302,7 @@ class Penalties():
         completed = 0.0
         for task in tasks:
             completed += task.completion_percentage
-        return completed / total < subscriber.threshold_percentage
+        return completed / total < (subscriber.threshold_percentage * 100)
 
 # ------------------------ Instructions ------------------------
 @bot.tree.command(name="instructions")
