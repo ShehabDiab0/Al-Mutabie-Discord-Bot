@@ -129,3 +129,13 @@ def update_subscriber_red_card(user_id: str, guild_id: str, yellow_description: 
                     ''', (yellow_description, user_id, guild_id))
     connection.commit()
     cursor.close()
+
+def update_ban_status(user_id: str, guild_id: str, is_banned: bool):
+    cursor = connection.cursor()
+    cursor.execute(f'''
+                    UPDATE Subscribers
+                    SET is_banned = ?
+                    WHERE global_user_id = ? AND guild_id = ?
+                    ''', (is_banned, user_id, guild_id))
+    connection.commit()
+    cursor.close()
