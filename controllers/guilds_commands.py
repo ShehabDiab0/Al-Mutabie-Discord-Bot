@@ -18,6 +18,7 @@ class GuildsCog(commands.Cog):
 
     # TODO: handle the exception correctly
     @app_commands.command(name="set_reminder_channel")
+    @commands.guild_only()
     async def set_reminder_channel(self, interaction: discord.Interaction):
         user_id: str = str(interaction.user.id)
         guild_id: str = str(interaction.guild.id)
@@ -41,6 +42,7 @@ class GuildsCog(commands.Cog):
     
     # TODO: handle the exception correctly
     @app_commands.command(name="reset_reminder_channel")
+    @commands.guild_only()
     async def reset_reminder_channel(self, interaction: discord.Interaction):
         user_id: str = str(interaction.user.id)
         guild_id: str = str(interaction.guild.id)

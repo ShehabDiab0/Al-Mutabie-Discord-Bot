@@ -18,6 +18,7 @@ class SubscribersCog(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="register")
+    @commands.guild_only()
     async def register(self, interaction: discord.Interaction):
         user_id = str(interaction.user.id)
         guild_id = str(interaction.guild_id)
@@ -38,6 +39,7 @@ class SubscribersCog(commands.Cog):
 
     @app_commands.command(name="show_profile")
     @app_commands.describe(who="mention a user to know their tasks")
+    @commands.guild_only()
     async def show_profile(self, interaction: discord.Interaction, who: Optional[str] = "-1"):
         if who == "-1":
             who = f'<@{interaction.user.id}>'
@@ -75,6 +77,7 @@ class SubscribersCog(commands.Cog):
         
         
     @app_commands.command(name="edit_profile")
+    @commands.guild_only()
     async def edit_profile(self, interaction: discord.Interaction):
         user_id = str(interaction.user.id)
         guild_id = str(interaction.guild_id)
@@ -95,7 +98,8 @@ class SubscribersCog(commands.Cog):
 
 
     # TODO: Unban user
-
+    # @app_commands.command('unban_user')
+    # @commands.guild_only()
     # TODO: Get Banned users
 
 async def setup(bot):

@@ -85,6 +85,7 @@ async def greet(interaction: discord.Interaction):
 
 # Testing mention command
 @bot.tree.command(name="mention")
+@commands.guild_only()
 @app_commands.describe(who="who")
 async def mention(interaction: discord.Interaction, who: str):
     await interaction.response.send_message(f"Hey Soldier{who}")
@@ -138,6 +139,7 @@ class CustomContext:
 
 @bot.command()
 @commands.has_permissions(kick_members=True)
+@commands.guild_only()
 async def kick(user_id: str, guild_id: str):
     reason = "Got a red card!"
     try:
@@ -189,17 +191,25 @@ async def run_scheduler():
     print("Scheduler started")
 
 @bot.tree.command(name="pause_scheduler")
+@app_commands.checks.has_permissions(administrator=True)
+@commands.guild_only()
 async def pause_scheduler(interaction: discord.Interaction):
-    if interaction.user.id == 149961018993410049:
-        await interaction.response.send_message('متخازل كبير')
-        return
     scheduler.pause()
     await interaction.response.send_message("Scheduler paused")
 
 @bot.tree.command(name="resume_scheduler")
+@app_commands.checks.has_permissions(administrator=True)
+@commands.guild_only()
 async def resume_scheduler(interaction: discord.Interaction):
     scheduler.resume()
     await interaction.response.send_message("Scheduler resumed")
+
+
+@pause_scheduler.error
+@resume_scheduler.error
+async def scheduler_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
+    if isinstance(error, app_commands.errors.MissingPermissions):
+        await interaction.response.send_message("You don't have permissions to use this command.", ephemeral=True)
 
 #----------------------------penalties-------------------------------
     
@@ -313,6 +323,7 @@ class Penalties():
 
 # ------------------------ Instructions ------------------------
 @bot.tree.command(name="instructions")
+@commands.guild_only()
 async def instructions(interaction: discord.Interaction):
     info = '''**Commands Description:**
             1. /register: To register to the bot\n 

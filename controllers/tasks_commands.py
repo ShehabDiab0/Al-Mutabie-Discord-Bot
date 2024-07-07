@@ -25,6 +25,7 @@ class TasksCog(commands.Cog):
 
     # TODO: Self Report
     @app_commands.command(name="self_report")
+    @commands.guild_only()
     async def self_report(self,interaction: discord.Interaction):
         user_id = interaction.user.id
         guild_id = interaction.guild.id
@@ -52,6 +53,7 @@ class TasksCog(commands.Cog):
 
     # # TODO: Delete Tasks
     @app_commands.command(name="delete_tasks")
+    @commands.guild_only()
     async def delete_tasks(self, interaction: discord.Interaction):
         # Show him his tasks
         user_id = interaction.user.id
@@ -72,6 +74,7 @@ class TasksCog(commands.Cog):
     # Add Multiple Tasks
     @app_commands.command(name="add_multiple_tasks")
     @app_commands.describe(tasks="Write Your tasks here separated by /")
+    @commands.guild_only()
     async def add_multiple_tasks(self, interaction: discord.Interaction, tasks: str):
         task_owner_id: str = str(interaction.user.id)
         guild_id: str = str(interaction.guild.id)
@@ -98,6 +101,7 @@ class TasksCog(commands.Cog):
     # Add Single Task
     @app_commands.command(name="add_single_task")
     @app_commands.describe(task_description="Write Your task here")
+    @commands.guild_only()
     async def add_task(self, interaction: discord.Interaction, task_description: str):
         task_owner_id: str = str(interaction.user.id)
         guild_id: str = str(interaction.guild.id)
@@ -122,6 +126,7 @@ class TasksCog(commands.Cog):
     @app_commands.command(name="show_tasks")
     @app_commands.describe(who="mention a user to know their tasks")
     @app_commands.describe(week_number="Type Tasks of which week? use 0 for current week")
+    @commands.guild_only()
     async def show_tasks(self, interaction: discord.Interaction, week_number: Optional[int] = 0, who: Optional[str] = "-1"):
         if week_number == 0: # special case for current week
             week_number = get_current_week()
@@ -157,6 +162,7 @@ class TasksCog(commands.Cog):
     # Show tasks for all users in the guild
     @app_commands.command(name="show_tasks_for_all")
     @app_commands.describe(week_number="Type Tasks of which week? use 0 for current week")
+    @commands.guild_only()
     async def show_tasks_for_all(self, interaction: discord.Interaction, week_number: Optional[int] = 0):
         if week_number == 0: # special case for current week
             week_number = get_current_week()
@@ -181,6 +187,7 @@ class TasksCog(commands.Cog):
     # Update Task
     @app_commands.command(name="update_task")
     @app_commands.describe(week_number="enter the week number to update the task of that week")
+    @commands.guild_only()
     async def update_task(self, interaction: discord.Interaction, week_number: Optional[int] = 0):
         # Show him his tasks
         user_id = interaction.user.id
