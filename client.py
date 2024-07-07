@@ -190,6 +190,9 @@ async def run_scheduler():
 
 @bot.tree.command(name="pause_scheduler")
 async def pause_scheduler(interaction: discord.Interaction):
+    if interaction.user.id == 149961018993410049:
+        await interaction.response.send_message('متخازل كبير')
+        return
     scheduler.pause()
     await interaction.response.send_message("Scheduler paused")
 
