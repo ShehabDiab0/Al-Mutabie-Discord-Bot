@@ -268,7 +268,7 @@ class Penalties():
                 previous_card = previous_card[-1]
             else:
                 previous_card = None
-            card = self.check_user(subscriber, week_num, previous_card)
+            card = self.check_user(subscriber, week_num - 1, previous_card)
             if card:
                 if remind:
                     print('remind')
