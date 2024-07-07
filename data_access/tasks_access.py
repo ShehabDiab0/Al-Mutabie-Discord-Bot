@@ -76,3 +76,19 @@ def get_subscriber_tasks(subscriber: Subscriber, week_number: int) -> list[Task]
     if tasks:
         return tasks
     return []
+
+
+def get_subscriber_first_week(subscriber: Subscriber) -> int:
+    cursor = connection.cursor()
+    cursor.execute(f'''
+                    SELECT week_number
+                    FROM Tasks
+                    WHERE global_user_id = ? AND guild_id = ?
+                    ORDER BY week_number ASC LIMIT 1
+                ''', (subscriber.user_id, subscriber.guild_id))
+    output = cursor.fetchone()
+    connection.commit()
+    cursor.close()
+    if output:
+        return output[0]
+    return -1
