@@ -127,11 +127,11 @@ class TasksCog(commands.Cog):
     @app_commands.describe(who="mention a user to know their tasks")
     @app_commands.describe(week_number="Type Tasks of which week? use 0 for current week")
     @commands.guild_only()
-    async def show_tasks(self, interaction: discord.Interaction, week_number: Optional[int] = 0, who: Optional[str] = "-1"):
+    async def show_tasks(self, interaction: discord.Interaction, who: Optional[str], week_number: Optional[int] = 0):
         if week_number == 0: # special case for current week
             week_number = get_current_week()
 
-        if who == "-1":
+        if who == "":
             who = f'<@{interaction.user.id}>'
 
         if not helpers.is_valid_discord_mention(who):

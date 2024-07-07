@@ -40,8 +40,8 @@ class SubscribersCog(commands.Cog):
     @app_commands.command(name="show_profile")
     @app_commands.describe(who="mention a user to know their tasks")
     @commands.guild_only()
-    async def show_profile(self, interaction: discord.Interaction, who: Optional[str] = "-1"):
-        if who == "-1":
+    async def show_profile(self, interaction: discord.Interaction, who: Optional[str]):
+        if who == "":
             who = f'<@{interaction.user.id}>'
 
 
