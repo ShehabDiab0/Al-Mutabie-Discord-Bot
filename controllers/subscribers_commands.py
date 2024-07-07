@@ -95,7 +95,7 @@ class SubscribersCog(commands.Cog):
         await interaction.response.send_modal(modal)
 
 
-    @app_commands.command('unban_user')
+    @app_commands.command(name='unban_user')
     @app_commands.describe(who="mention a user to know their tasks")
     @app_commands.checks.has_permissions(administrator=True)
     @commands.guild_only()
