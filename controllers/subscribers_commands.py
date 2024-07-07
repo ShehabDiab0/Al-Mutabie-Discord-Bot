@@ -72,8 +72,6 @@ class SubscribersCog(commands.Cog):
         if member.avatar is not None:
             embed.set_thumbnail(url=str(member.avatar))
         await interaction.response.send_message(embed=embed)
-
-        
         
         
     @app_commands.command(name="edit_profile")
@@ -97,9 +95,39 @@ class SubscribersCog(commands.Cog):
         await interaction.response.send_modal(modal)
 
 
-    # TODO: Unban user
-    # @app_commands.command('unban_user')
-    # @commands.guild_only()
+    @app_commands.command('unban_user')
+    @app_commands.describe(who="mention a user to know their tasks")
+    @app_commands.checks.has_permissions(administrator=True)
+    @commands.guild_only()
+    async def unban_user(self, interaction: discord.Interaction, who: Optional[str]):
+        if who == "":
+            who = f'<@{interaction.user.id}>'
+
+
+        if not helpers.is_valid_discord_mention(who):
+            await interaction.response.send_message("Please Mention a correct discord user", ephemeral=True)
+            return
+        
+        user_id = who[3:-1] if who[2] == '!' else who[2:-1] # when u mention somebody in discord it uses the format <@user_id> or <@!user_id>
+        if not await helpers.is_existing_discord_user(user_id):
+            await interaction.response.send_message("Please Mention a correct discord user", ephemeral=True)
+            return
+
+        guild_id: str = str(interaction.guild.id)
+        if not is_registered_user(user_id, guild_id):
+            await interaction.response.send_message(
+                    f'{who} is not registered please register using /register',
+                    ephemeral=True
+                )
+            return
+
+        update_ban_status(user_id, guild_id, is_banned=False)
+        await interaction.response.send_message(f'{who} is Successfully Unbanned Successfully :^)')
+
+    @unban_user.error
+    async def subscriber_error_handle(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
+        if isinstance(error, app_commands.errors.MissingPermissions):
+            await interaction.response.send_message('You don\'t have permissions to use this command.')
     # TODO: Get Banned users
 
 async def setup(bot):
