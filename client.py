@@ -293,6 +293,10 @@ class Penalties():
     # checks user weekly progress and returns true if he should receive a card
     def check_user(self, subscriber: Subscriber, week_num: int, previous_card: Penalty) -> bool:
         print("check user")
+        # get user start week
+        first_week = tasks_access.get_subscriber_first_week(subscriber)
+        if week_num < first_week:
+            return False
         if previous_card and not previous_card.is_done:
             return True
         tasks = tasks_access.get_subscriber_tasks(subscriber, week_num)
