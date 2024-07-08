@@ -130,8 +130,7 @@ class TasksCog(commands.Cog):
     async def show_tasks(self, interaction: discord.Interaction, who: Optional[str], week_number: Optional[int] = 0):
         if week_number == 0: # special case for current week
             week_number = get_current_week()
-
-        if who == "":
+        if not who:
             who = f'<@{interaction.user.id}>'
 
         if not helpers.is_valid_discord_mention(who):
@@ -170,6 +169,7 @@ class TasksCog(commands.Cog):
 
         guild_id: str = str(interaction.guild.id)
         subscribers = get_subscribers(guild_id)
+        all_tasks_embeds = []
         for subscriber in subscribers:
             tasks = tasks_access.get_subscriber_tasks(subscriber, week_number)
             formatted_tasks = helpers.convert_tasks_to_str(tasks)
@@ -181,7 +181,8 @@ class TasksCog(commands.Cog):
 
             if member.avatar is not None:
                 embed.set_thumbnail(url=str(member.avatar))
-            await interaction.response.send_message(embed=embed)
+            all_tasks_embeds.append(embed)
+        await interaction.response.send_message(embeds=all_tasks_embeds)
 
 
     # Update Task

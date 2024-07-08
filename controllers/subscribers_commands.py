@@ -41,7 +41,7 @@ class SubscribersCog(commands.Cog):
     @app_commands.describe(who="mention a user to know their tasks")
     @commands.guild_only()
     async def show_profile(self, interaction: discord.Interaction, who: Optional[str]):
-        if who == "":
+        if not who:
             who = f'<@{interaction.user.id}>'
 
 
@@ -100,7 +100,7 @@ class SubscribersCog(commands.Cog):
     @app_commands.checks.has_permissions(administrator=True)
     @commands.guild_only()
     async def unban_user(self, interaction: discord.Interaction, who: Optional[str]):
-        if who == "":
+        if not who:
             who = f'<@{interaction.user.id}>'
 
 
