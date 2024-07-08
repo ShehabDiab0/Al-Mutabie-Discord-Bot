@@ -76,7 +76,7 @@ def get_subscribers(guild_id: str) -> list[Subscriber]:
     cursor.execute('''
                     SELECT *
                     FROM Subscribers
-                    WHERE is_banned = 0 AND guild_id = ''' + str(guild_id))
+                    WHERE is_banned = 0 AND guild_id = ?''', (guild_id,))
     output = cursor.fetchall()
     subscribers = []
     for subscriber in output:

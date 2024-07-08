@@ -45,7 +45,7 @@ async def load_cogs():
 # ------------------------ Running the bot ------------------------
 # running the bot
 def run_bot():
-    database.init_db()
+    # database.init_db()
     dotenv.load_dotenv()
 
     today = datetime.now()
