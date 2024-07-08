@@ -87,16 +87,23 @@ class TasksCog(commands.Cog):
             await interaction.response.send_message(f"YOU ARE NOT ALLOWED TO USE THIS, YOU ARE BANNED")
             return
 
+        failed_tasks = []
         tasks = tasks.split("/")
         for task_description in tasks:
-            new_task = Task(guild_id=guild_id, owner_id=task_owner_id, description=task_description, week_number=get_current_week())
-            try:
-                tasks_access.add_task(new_task)
-            except Exception as e:
-                print(e)
-                await interaction.response.send_message(f"Failed to add this task", ephemeral=True)
+            if len(task_description) < 1 or len(task_description) > 100: # select menu doesn't like options < 1 or > 100 characters
+                failed_tasks.append(task_description)
+                continue
 
-        await interaction.response.send_message(f"You added {len(tasks)} tasks to your Tasks SUCCESSFULLY! of Week {new_task.week_number}", ephemeral=True)
+            new_task = Task(guild_id=guild_id, owner_id=task_owner_id, description=task_description, week_number=get_current_week())
+            tasks_access.add_task(new_task)
+        if len(failed_tasks) == 0:
+            await interaction.response.send_message(f"You added {len(tasks)} tasks to your Tasks SUCCESSFULLY! of Week {new_task.week_number}", ephemeral=True)
+            return
+        
+        await interaction.response.send_message(f'''You added {len(tasks) - len(failed_tasks)} tasks to your Tasks SUCCESSFULLY! of Week {new_task.week_number},
+                                                some of the tasks weren't added as each task has to contain 1 to 100 chars only
+                                                ''', ephemeral=True)
+        
     
     # Add Single Task
     @app_commands.command(name="add_single_task")
@@ -114,6 +121,10 @@ class TasksCog(commands.Cog):
             await interaction.response.send_message(f"YOU ARE NOT ALLOWED TO USE THIS, YOU ARE BANNED")
             return
 
+        if len(task_description) < 1 or len(task_description) > 100: # select menu doesn't like options < 1 or > 100 characters
+            await interaction.response.send_message(f"Tasks can only contian 1 to 100 characters")
+            return
+        
         new_task = Task(guild_id=guild_id, owner_id=task_owner_id, description=task_description, week_number=get_current_week())
         try:
             tasks_access.add_task(new_task)
