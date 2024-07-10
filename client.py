@@ -234,7 +234,7 @@ async def daily_task(day: int):
     penalties = Penalties()
     
     penalties.run_penalties(day)
-    print("Running daily task")
+    print("Running daily task for day:", day)
 
 
 # A periodic check to ensure daily execution if the bot stays online
@@ -244,7 +244,7 @@ async def daily_check():
     today = datetime.now().date()
 
     if last_run is None or today > last_run:
-        await daily_task(today.weekday())
+        await daily_task((today.weekday() - 3) % 7)
         save_last_run_time(today)
 
 
@@ -275,12 +275,13 @@ class Penalties():
         subscribers = subscribers_access.get_subscribers(guild_id)
         print(len(subscribers))
         for subscriber in subscribers:
-            print("subscriber: ", subscriber.user_id)
+            print("subscriber: ", subscriber.user_id, "remind: ", remind)
             previous_card = penalties_access.get_subscriber_penalty_history(subscriber=subscriber)
             if previous_card:
                 previous_card = previous_card[-1]
             else:
                 previous_card = None
+            print("previous card: ", previous_card.is_yellow)
             card = self.check_user(subscriber, week_num - 1, previous_card)
             if card:
                 if remind:
