@@ -29,6 +29,18 @@ def get_current_week_start_end():
         return current_week
     return None
 
+def get_week_start_end(week_number):
+    cursor = connection.cursor()
+    cursor.execute(f'''
+                    SELECT start_date, end_date FROM Weeks WHERE week_number = ?
+                   ''', (week_number,))
+    week = cursor.fetchone()
+    connection.commit()
+    cursor.close()
+
+    if week:
+        return week
+    return None
 
 def add_week():
     print("INSERTED A NEW ONE HEHE")

@@ -14,9 +14,13 @@ from models.penalty import Penalty
 from database import connection
 from data_access import tasks_access
 from data_access.weeks_access import get_current_week
+from data_access import weeks_access
 from data_access.subscribers_access import is_banned_user, is_registered_user, get_subscribers
 import helpers
 import UI
+
+import datetime
+import client
 
 class TasksCog(commands.Cog):
     def __init__(self, bot):
@@ -25,8 +29,9 @@ class TasksCog(commands.Cog):
 
     # TODO: Self Report
     @app_commands.command(name="self_report")
+    @app_commands.describe(week="Type Tasks of which week")
     @commands.guild_only()
-    async def self_report(self,interaction: discord.Interaction):
+    async def self_report(self,interaction: discord.Interaction, week: int):
         user_id = interaction.user.id
         guild_id = interaction.guild.id
         subscriber = Subscriber(user_id, guild_id)
@@ -36,7 +41,8 @@ class TasksCog(commands.Cog):
             await interaction.response.send_message(f"You have no tasks to report", ephemeral=True)
             return
 
-        week_number = get_current_week()
+        week_number = week
+
         user_id: str = str(interaction.user.id)
         guild_id: str = str(interaction.guild.id)
         subscriber: Subscriber = Subscriber(user_id, guild_id)
