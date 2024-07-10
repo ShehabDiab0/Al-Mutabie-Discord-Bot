@@ -318,7 +318,7 @@ class Penalties():
         return completed / total < (subscriber.threshold_percentage * 100)
 
 # ------------------------ Instructions ------------------------
-@bot.tree.command(name="instructions")
+@bot.tree.command(name="help")
 @commands.guild_only()
 async def instructions(interaction: discord.Interaction):
     info = '''**Commands Description:**
