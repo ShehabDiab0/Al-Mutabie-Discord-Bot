@@ -256,8 +256,6 @@ async def before_daily_check():
 
 class Penalties():
 
-# TODO: reminders and guild scheduling
-
     def run_penalties(self, day: int) -> None:
         print("running penalties")
         reminder_guilds, apply_guilds = guilds_access.get_today_guilds(day)
@@ -281,11 +279,9 @@ class Penalties():
                 previous_card = previous_card[-1]
             else:
                 previous_card = None
-            print("previous card: ", previous_card.is_yellow)
             card = self.check_user(subscriber, week_num - 1, previous_card)
             if card:
                 if remind:
-                    print('remind')
                     bot.loop.create_task(reminder(subscriber.user_id, guild_id))
                     continue
                 is_yellow = 1
@@ -306,7 +302,6 @@ class Penalties():
 
     # checks user weekly progress and returns true if he should receive a card
     def check_user(self, subscriber: Subscriber, week_num: int, previous_card: Penalty) -> bool:
-        print("check user")
         # get user start week
         first_week = tasks_access.get_subscriber_first_week(subscriber)
         if week_num < first_week:
