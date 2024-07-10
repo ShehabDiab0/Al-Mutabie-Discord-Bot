@@ -290,7 +290,7 @@ class Penalties():
                     continue
                 is_yellow = 1
                 desc = subscriber.default_yellow_description
-                if previous_card and ((previous_card.week_number - week_num) == 1):
+                if previous_card and ((week_num - previous_card.week_number) <= 1):
                     # red card
                     is_yellow = 0
                     if guild.allow_kicks:
