@@ -287,7 +287,7 @@ class Penalties():
                 if remind:
                     print('remind')
                     bot.loop.create_task(reminder(subscriber.user_id, guild_id))
-                    return
+                    continue
                 is_yellow = 1
                 desc = subscriber.default_yellow_description
                 if previous_card and ((previous_card.week_number - week_num) == 1):
