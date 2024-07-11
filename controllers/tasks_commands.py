@@ -27,7 +27,6 @@ class TasksCog(commands.Cog):
         self.bot = bot
 
 
-    # TODO: Self Report
     @app_commands.command(name="self_report")
     @app_commands.describe(week="Type Tasks of which week")
     @commands.guild_only()
@@ -35,13 +34,13 @@ class TasksCog(commands.Cog):
         user_id = interaction.user.id
         guild_id = interaction.guild.id
         subscriber = Subscriber(user_id, guild_id)
-        tasks = tasks_access.get_subscriber_tasks(subscriber, get_current_week())
+        week_number = week
+        tasks = tasks_access.get_subscriber_tasks(subscriber, week)
         
         if not tasks:
             await interaction.response.send_message(f"You have no tasks to report", ephemeral=True)
             return
 
-        week_number = week
 
         user_id: str = str(interaction.user.id)
         guild_id: str = str(interaction.guild.id)
