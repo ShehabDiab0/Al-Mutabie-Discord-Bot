@@ -22,7 +22,7 @@ class SubscribersCog(commands.Cog):
     async def register(self, interaction: discord.Interaction):
         user_id = str(interaction.user.id)
         guild_id = str(interaction.guild_id)
-        new_guild = Guild(guild_id)
+        new_guild = Guild(guild_id, reminder_channel_id=str(interaction.guild.system_channel.id))
 
         if not is_registered_guild(guild_id):
                 add_guild(new_guild)
