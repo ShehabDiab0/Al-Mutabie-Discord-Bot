@@ -9,9 +9,12 @@ def convert_tasks_to_str(tasks: list[Task]) -> str:
         return "Empty! متخازل"
     
     formatted_tasks = ''
+    total_progress: float = 0.0
     for i, task in enumerate(tasks):
         formatted_tasks += f'{i + 1}- {task.description} - [{task.completion_percentage}]\n'
-
+        total_progress += task.completion_percentage
+    formatted_tasks += f'\n Total Progress: {total_progress/len(tasks)}'
+    
     return formatted_tasks
 
 def convert_tasks_to_self_report(tasks: list[Task]) -> str:
