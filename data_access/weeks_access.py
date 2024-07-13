@@ -1,13 +1,12 @@
 from database import connection
 import datetime
-import client
-
+from client import TIMEZONE
 
 def get_current_week():
     cursor = connection.cursor()
     cursor.execute(f'''
                     SELECT week_number FROM Weeks ORDER BY week_number DESC LIMIT 1
-                   ''')
+                    ''')
     current_week = cursor.fetchone()
     connection.commit()
     cursor.close()
@@ -20,7 +19,7 @@ def get_current_week_start_end():
     cursor = connection.cursor()
     cursor.execute(f'''
                     SELECT start_date, end_date FROM Weeks ORDER BY week_number DESC LIMIT 1
-                   ''')
+                    ''')
     current_week = cursor.fetchone()
     connection.commit()
     cursor.close()
@@ -33,7 +32,7 @@ def get_week_start_end(week_number):
     cursor = connection.cursor()
     cursor.execute(f'''
                     SELECT start_date, end_date FROM Weeks WHERE week_number = ?
-                   ''', (week_number,))
+                    ''', (week_number,))
     week = cursor.fetchone()
     connection.commit()
     cursor.close()
@@ -46,7 +45,7 @@ def add_week():
     cursor = connection.cursor()
 
     start_date = datetime.datetime.now()
-    start_date = client.TIMEZONE.localize(start_date)
+    start_date = TIMEZONE.localize(start_date)
     
     # get the days ahead to reach the next Thursday
     days_ahead = (3 - start_date.weekday() + 7) % 7
@@ -59,7 +58,7 @@ def add_week():
 
     cursor.execute(f'''
                     INSERT INTO Weeks (start_date, end_date) VALUES  (?, ?)
-                   ''', (start_date, end_date))
+                    ''', (start_date, end_date))
 
     connection.commit()
     cursor.close()
