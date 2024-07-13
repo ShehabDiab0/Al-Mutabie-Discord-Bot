@@ -54,6 +54,10 @@ def add_week():
     end_date = start_date + datetime.timedelta(days=days_ahead)
     end_date = end_date.replace(hour=23, minute=59, second=59)
 
+    # get the previous Thursday
+    start_date = end_date - datetime.timedelta(days=7)
+    start_date = start_date.replace(hour=0, minute=0, second=0)
+
     cursor.execute(f'''
                     INSERT INTO Weeks (start_date, end_date) VALUES  (?, ?)
                    ''', (start_date, end_date))
