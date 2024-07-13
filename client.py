@@ -267,6 +267,7 @@ class Penalties():
 
 
     def weekly_check(self, guild: Guild, remind: bool) -> None:
+        remind_subscribers = []
         guild_id = guild.guild_id
         print("weekly check")
         week_num = weeks_access.get_current_week()
@@ -283,7 +284,7 @@ class Penalties():
             card = self.check_user(subscriber, week_num - 1, previous_card)
             if card:
                 if remind:
-                    bot.loop.create_task(reminder(subscriber.user_id, guild_id))
+                    remind_subscribers.append(subscriber)
                     continue
                 is_yellow = 1
                 desc = subscriber.default_yellow_description
@@ -299,6 +300,9 @@ class Penalties():
                 penalty = Penalty(description=desc, is_yellow=is_yellow, week_number=week_num, guild_id=guild_id, owner_id=subscriber.user_id, is_done=False)
                 bot.loop.create_task(send_card(subscriber.user_id, guild_id, penalty))
                 penalties_access.add_penalty(penalty)
+        if remind:
+            bot.loop.create_task(reminder(subscriber.user_id, guild_id))
+
 
 
     # checks user weekly progress and returns true if he should receive a card
