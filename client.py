@@ -50,9 +50,7 @@ def run_bot():
 
     today = datetime.now()
     today = TIMEZONE.localize(today)
-    # if today is not Thursday (0 is Monday, 6 is Sunday)
-    if weeks_access.get_current_week() == None:
-        weeks_access.add_week() 
+    
 
     bot.run(os.getenv("API_TOKEN"))
 
@@ -65,7 +63,7 @@ def run_bot():
 async def on_ready():
     print("BOT IS RUNNING")
     await load_cogs()
-    await run_scheduler()
+    # await run_scheduler()
 
     try:
         synced = await bot.tree.sync()
@@ -230,7 +228,10 @@ def save_last_run_time(date):
 
 
 async def daily_task(day: int):
-    
+    if weeks_access.get_current_week() == None:
+        print('Adding a new week')
+        weeks_access.add_week() 
+
     penalties = Penalties()
     
     penalties.run_penalties(day)
