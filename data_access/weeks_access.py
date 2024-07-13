@@ -43,7 +43,6 @@ def get_week_start_end(week_number):
     return None
 
 def add_week():
-    print("INSERTED A NEW ONE HEHE")
     cursor = connection.cursor()
 
     start_date = datetime.datetime.now()
