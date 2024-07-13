@@ -21,6 +21,7 @@ import UI
 
 import datetime
 import client
+import matplotlib.pyplot as plt
 
 class TasksCog(commands.Cog):
     def __init__(self, bot):
@@ -200,7 +201,40 @@ class TasksCog(commands.Cog):
             all_tasks_embeds.append(embed)
         await interaction.response.send_message(embeds=all_tasks_embeds)
 
+    @app_commands.command(name="show_week_data")
+    @app_commands.describe(week_number="Type Tasks of which week? use 0 for current week")
+    @commands.guild_only()
+    async def show_week_data(self, interaction: discord.Interaction, week_number: Optional[int] = 0):
+        if week_number == 0: # special case for current week
+            week_number = get_current_week()
+        
 
+        guild_id: str = str(interaction.guild.id)
+        subscribers = get_subscribers(guild_id)
+
+        sub_data = {}
+        for sub in subscribers:
+            tasks = tasks_access.get_subscriber_tasks(sub, week_number)
+            total_progress = helpers.get_total_progress(tasks)
+            member = interaction.guild.get_member(int(sub.user_id))
+
+            sub_data[member.display_name] = total_progress
+        
+        # Plotting the Histogram
+        fig, ax = plt.subplots()
+        ax.bar(sub_data.keys(), sub_data.values())
+        ax.set_xlabel('Users')
+        ax.set_ylabel('Total Progress')
+        ax.set_title(f'Week {week_number} Progress')
+        ax.set_ylim(0, 100)  # Set y-axis limit to 100
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.savefig('week_progress.png')
+        plt.close()
+        file = discord.File('week_progress.png')
+        await interaction.response.send_message(files=[file])
+        
+    
     # Update Task
     @app_commands.command(name="update_task")
     @app_commands.describe(week_number="enter the week number to update the task of that week")

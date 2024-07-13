@@ -17,6 +17,12 @@ def convert_tasks_to_str(tasks: list[Task]) -> str:
     
     return formatted_tasks
 
+def get_total_progress(tasks: list[Task]) -> float:
+    total_progress: float = 0.0
+    for task in tasks:
+        total_progress += task.completion_percentage
+    return total_progress/len(tasks)
+
 def convert_tasks_to_self_report(tasks: list[Task]) -> str:
     if len(tasks) == 0:
         return "Empty! متخازل"
