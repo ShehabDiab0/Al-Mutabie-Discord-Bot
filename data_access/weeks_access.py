@@ -52,11 +52,11 @@ def add_week():
     # get the days ahead to reach the next Thursday
     days_ahead = (3 - start_date.weekday() + 7) % 7
     end_date = start_date + datetime.timedelta(days=days_ahead)
-    end_date = end_date.replace(hour=23, minute=59, second=59)
+    end_date = end_date.replace(hour=23, minute=59, second=59, microsecond=0)
 
     # get the previous Thursday
     start_date = end_date - datetime.timedelta(days=7)
-    start_date = start_date.replace(hour=0, minute=0, second=0)
+    start_date = start_date.replace(hour=0, minute=0, second=0, microsecond=0)
 
     cursor.execute(f'''
                     INSERT INTO Weeks (start_date, end_date) VALUES  (?, ?)
