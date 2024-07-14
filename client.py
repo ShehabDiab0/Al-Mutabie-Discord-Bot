@@ -113,6 +113,7 @@ async def send_card(user_id: str, guild_id: str, penalty: Penalty):
         print("User or channel not found.")
 
 
+# TODO: change kick to not use CustomContext (not needed)
 class CustomContext:
     def __init__(self, guild, channel):
         self.guild = guild
