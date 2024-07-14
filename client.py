@@ -90,19 +90,22 @@ async def mention(interaction: discord.Interaction, who: str):
 
 
 # reminder
-async def reminder(user_id: str, guild_id: str):
+async def reminder(user_ids, guild_id: str):
     guild_id = int(guild_id)
-    user_id = int(user_id)
+    print(user_ids)
+    user_ids = [int(x) for x in user_ids]
     channel_id = int(get_channel_id(guild_id))
-    # Fetch the user object using the user ID
-    user = await bot.fetch_user(user_id)
-    
     # Fetch the channel object using the channel ID
     channel = bot.get_channel(channel_id)
-    
-    if channel and user:  # Check if both the channel and user were found
+    print("channel:",channel_id)
+    if channel and user_ids:  # Check if both the channel and user were found
+        message = "A new week has started. \nSelf report your last week and add your new tasks.\n You have 2 days\n"
+        # Fetch each user object for mentioning using the user ID
+        for user_id in user_ids:
+            user = await bot.fetch_user(user_id)
+            message += user.mention
         # Send a message in the channel mentioning the user
-        await channel.send(f"{user.mention}, don't forget your tasks :)")
+        await channel.send(message)
     else:
         print("User or channel not found.")
 
@@ -267,7 +270,7 @@ class Penalties():
 
 
     def weekly_check(self, guild: Guild, remind: bool) -> None:
-        remind_subscribers = []
+        remind_ids = []
         guild_id = guild.guild_id
         print("weekly check")
         week_num = weeks_access.get_current_week()
@@ -284,7 +287,8 @@ class Penalties():
             card = self.check_user(subscriber, week_num - 1, previous_card)
             if card:
                 if remind:
-                    remind_subscribers.append(subscriber)
+                    print(subscriber.user_id, "to be reminded")
+                    remind_ids.append(subscriber.user_id)
                     continue
                 is_yellow = 1
                 desc = subscriber.default_yellow_description
@@ -301,7 +305,7 @@ class Penalties():
                 bot.loop.create_task(send_card(subscriber.user_id, guild_id, penalty))
                 penalties_access.add_penalty(penalty)
         if remind:
-            bot.loop.create_task(reminder(subscriber.user_id, guild_id))
+            bot.loop.create_task(reminder(remind_ids, guild_id))
 
 
 
