@@ -1,6 +1,6 @@
 from database import connection
 import datetime
-from client import TIMEZONE
+import client
 
 def get_current_week():
     cursor = connection.cursor()
@@ -45,7 +45,7 @@ def add_week():
     cursor = connection.cursor()
 
     start_date = datetime.datetime.now()
-    start_date = TIMEZONE.localize(start_date)
+    start_date = client.TIMEZONE.localize(start_date)
     
     # get the days ahead to reach the next Thursday
     days_ahead = (3 - start_date.weekday() + 7) % 7
