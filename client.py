@@ -3,33 +3,21 @@ from discord.ext import commands, tasks
 from discord import app_commands 
 import dotenv # type: ignore
 import os
-import database
 from data_access import penalties_access, weeks_access
 from data_access.guilds_access import get_channel_id
 from data_access import weeks_access, subscribers_access, guilds_access, tasks_access
 from models.subscriber import Subscriber
 from models.penalty import Penalty
 from models.guild import Guild
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-import pytz
 import sys
-import asyncio
 import json
 import os
 from datetime import datetime, timedelta
+from constants import TIMEZONE
 
-##################### BOT SETTINGS #####################
-LOCATION = "Africa/Cairo"
-TIMEZONE = pytz.timezone(LOCATION)
-YELLOW_THRESHOLD = 3
-RED_THRESHOLD = 5
-TIME_ALLOWED = 5
-DAY_TO_RESET = "thu"
-########################################################
 
 
 bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
-# scheduler = AsyncIOScheduler()
 
 
 # loading cogs to sync other files commands
@@ -45,7 +33,6 @@ async def load_cogs():
 # ------------------------ Running the bot ------------------------
 # running the bot
 def run_bot():
-    # database.init_db()
     dotenv.load_dotenv()
 
     today = datetime.now()
@@ -63,7 +50,6 @@ def run_bot():
 async def on_ready():
     print("BOT IS RUNNING")
     await load_cogs()
-    # await run_scheduler()
 
     try:
         synced = await bot.tree.sync()
@@ -90,19 +76,20 @@ async def mention(interaction: discord.Interaction, who: str):
 
 
 # reminder
-async def reminder(user_id: str, guild_id: str):
+async def reminder(user_ids, guild_id: str):
     guild_id = int(guild_id)
-    user_id = int(user_id)
+    user_ids = [int(x) for x in user_ids]
     channel_id = int(get_channel_id(guild_id))
-    # Fetch the user object using the user ID
-    user = await bot.fetch_user(user_id)
-    
     # Fetch the channel object using the channel ID
     channel = bot.get_channel(channel_id)
-    
-    if channel and user:  # Check if both the channel and user were found
+    if channel and user_ids:  # Check if both the channel and user were found
+        message = "A new week has started. \nSelf report your last week and add your new tasks.\n You have 2 days\n"
+        # Fetch each user object for mentioning using the user ID
+        for user_id in user_ids:
+            user = await bot.fetch_user(user_id)
+            message += user.mention
         # Send a message in the channel mentioning the user
-        await channel.send(f"{user.mention}, don't forget your tasks :)")
+        await channel.send(message)
     else:
         print("User or channel not found.")
 
@@ -126,6 +113,7 @@ async def send_card(user_id: str, guild_id: str, penalty: Penalty):
         print("User or channel not found.")
 
 
+# TODO: change kick to not use CustomContext (not needed)
 class CustomContext:
     def __init__(self, guild, channel):
         self.guild = guild
@@ -179,38 +167,8 @@ async def kick(user_id: str, guild_id: str):
         await custom_ctx.send(f'Failed to kick the user. Error: {e}')
 
 
-# ------------------------ Scheduling functions/commands ------------------------
-
-# async def run_scheduler():
-#     scheduler.start()
-#     scheduler.add_job(weeks_access.add_week, trigger='cron', day_of_week=DAY_TO_RESET, timezone=TIMEZONE)
-#     # scheduler.add_job(weeks_access.add_week, trigger='cron',second='*', timezone=TIMEZONE)
-#     #print all the jobs
-#     print("Scheduler started")
-
-# @bot.tree.command(name="pause_scheduler")
-# @app_commands.checks.has_permissions(administrator=True)
-# @commands.guild_only()
-# async def pause_scheduler(interaction: discord.Interaction):
-#     scheduler.pause()
-#     await interaction.response.send_message("Scheduler paused")
-
-# @bot.tree.command(name="resume_scheduler")
-# @app_commands.checks.has_permissions(administrator=True)
-# @commands.guild_only()
-# async def resume_scheduler(interaction: discord.Interaction):
-#     scheduler.resume()
-#     await interaction.response.send_message("Scheduler resumed")
-
-
-# @pause_scheduler.error
-# @resume_scheduler.error
-# async def scheduler_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
-#     if isinstance(error, app_commands.errors.MissingPermissions):
-#         await interaction.response.send_message("You don't have permissions to use this command.", ephemeral=True)
-
 #----------------------------penalties-------------------------------
-    
+
 LAST_RUN_FILE = sys.argv[2] if len(sys.argv) >= 3 else "last_run.json"
 
 
@@ -267,12 +225,12 @@ class Penalties():
 
 
     def weekly_check(self, guild: Guild, remind: bool) -> None:
+        remind_ids = []
         guild_id = guild.guild_id
         print("weekly check")
         week_num = weeks_access.get_current_week()
         # get all users having this guild_id and not is_banned in a list of ids
         subscribers = subscribers_access.get_subscribers(guild_id)
-        print(len(subscribers))
         for subscriber in subscribers:
             print("subscriber: ", subscriber.user_id, "remind: ", remind)
             previous_card = penalties_access.get_subscriber_penalty_history(subscriber=subscriber)
@@ -283,7 +241,8 @@ class Penalties():
             card = self.check_user(subscriber, week_num - 1, previous_card)
             if card:
                 if remind:
-                    bot.loop.create_task(reminder(subscriber.user_id, guild_id))
+                    print(subscriber.user_id, "to be reminded")
+                    remind_ids.append(subscriber.user_id)
                     continue
                 is_yellow = 1
                 desc = subscriber.default_yellow_description
@@ -299,6 +258,9 @@ class Penalties():
                 penalty = Penalty(description=desc, is_yellow=is_yellow, week_number=week_num, guild_id=guild_id, owner_id=subscriber.user_id, is_done=False)
                 bot.loop.create_task(send_card(subscriber.user_id, guild_id, penalty))
                 penalties_access.add_penalty(penalty)
+        if remind:
+            bot.loop.create_task(reminder(remind_ids, guild_id))
+
 
 
     # checks user weekly progress and returns true if he should receive a card
