@@ -3,17 +3,14 @@ from discord.ext import commands, tasks
 from discord import app_commands 
 import dotenv # type: ignore
 import os
-import database
 from data_access import penalties_access, weeks_access
 from data_access.guilds_access import get_channel_id
 from data_access import weeks_access, subscribers_access, guilds_access, tasks_access
 from models.subscriber import Subscriber
 from models.penalty import Penalty
 from models.guild import Guild
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import pytz
 import sys
-import asyncio
 import json
 import os
 from datetime import datetime, timedelta
@@ -21,10 +18,6 @@ from datetime import datetime, timedelta
 ##################### BOT SETTINGS #####################
 LOCATION = "Africa/Cairo"
 TIMEZONE = pytz.timezone(LOCATION)
-YELLOW_THRESHOLD = 3
-RED_THRESHOLD = 5
-TIME_ALLOWED = 5
-DAY_TO_RESET = "thu"
 ########################################################
 
 
@@ -44,7 +37,6 @@ async def load_cogs():
 # ------------------------ Running the bot ------------------------
 # running the bot
 def run_bot():
-    # database.init_db()
     dotenv.load_dotenv()
 
     today = datetime.now()
@@ -62,7 +54,6 @@ def run_bot():
 async def on_ready():
     print("BOT IS RUNNING")
     await load_cogs()
-    # await run_scheduler()
 
     try:
         synced = await bot.tree.sync()
