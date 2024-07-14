@@ -92,12 +92,10 @@ async def mention(interaction: discord.Interaction, who: str):
 # reminder
 async def reminder(user_ids, guild_id: str):
     guild_id = int(guild_id)
-    print(user_ids)
     user_ids = [int(x) for x in user_ids]
     channel_id = int(get_channel_id(guild_id))
     # Fetch the channel object using the channel ID
     channel = bot.get_channel(channel_id)
-    print("channel:",channel_id)
     if channel and user_ids:  # Check if both the channel and user were found
         message = "A new week has started. \nSelf report your last week and add your new tasks.\n You have 2 days\n"
         # Fetch each user object for mentioning using the user ID
@@ -276,7 +274,6 @@ class Penalties():
         week_num = weeks_access.get_current_week()
         # get all users having this guild_id and not is_banned in a list of ids
         subscribers = subscribers_access.get_subscribers(guild_id)
-        print(len(subscribers))
         for subscriber in subscribers:
             print("subscriber: ", subscriber.user_id, "remind: ", remind)
             previous_card = penalties_access.get_subscriber_penalty_history(subscriber=subscriber)
