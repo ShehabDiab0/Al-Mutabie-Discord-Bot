@@ -9,16 +9,12 @@ from data_access import weeks_access, subscribers_access, guilds_access, tasks_a
 from models.subscriber import Subscriber
 from models.penalty import Penalty
 from models.guild import Guild
-import pytz
 import sys
 import json
 import os
 from datetime import datetime, timedelta
+from constants import TIMEZONE
 
-##################### BOT SETTINGS #####################
-LOCATION = "Africa/Cairo"
-TIMEZONE = pytz.timezone(LOCATION)
-########################################################
 
 
 bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
