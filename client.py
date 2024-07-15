@@ -284,21 +284,29 @@ class Penalties():
 @bot.tree.command(name="help")
 @commands.guild_only()
 async def instructions(interaction: discord.Interaction):
-    info = '''**Commands Description:**
-            1. /register: To register to the bot\n 
-            2. To show someone Profile or your Profile use /show_profile\n
-            3. To edit your profile use /edit_profile\n
-            4. To add a task use /add_single_task\n
-            5. To add multiple tasks use /add_multiple_tasks\n
-            6. To show Someone or your tasks use /show_tasks\n
-            7. To delete a task use /delete_task\n
-            8. To update a task use /update_task\n
-            9. To do a self report use /self_report\n
-            10. To check your penalty done use /penalty_done\n
-            **Rules:**
-            1. When do we apply penalties? ==> Every Sunday @ 12:00 AM
+    info = '''
+**Commands Description:**
+1. /register: To register to the bot
+2. To show someone Profile or your Profile use /show_profile, Parameters: who
+3. To edit your profile use /edit_profile
+4. To add a task use /add_single_task, The tasks should be 1 to 100 chars each
+5. To add multiple tasks use /add_multiple_tasks, Please seperate them by dashes, The tasks should be 1 to 100 chars each
+6. To show Someone or your tasks use /show_tasks, Parameters: who, week_number
+7. To delete a task use /delete_task
+8. To update a task use /update_task, Parameters: week_number
+9. To report your week progress use /self_report, Parameters: week_number
+10. To mark your penalty as done use /finished_penalty
+**Rules:**
+• Week starts ==> Friday 00:00 AM
+• Reminders ==> Thursday 00:00 AM
+• Penalties ==> Saturday @ 00:00 AM
+• You get a penalty in 3 conditions:
+------>1. you did not complete enough tasks to pass the threshold percentage you registered with
+------>2. you did not write your tasks on time
+------>3. you did not complete your penalty 
+• you get a red card if you have 1 penalty previous week and you recieved a new one
     '''
     embed = discord.Embed(title=f'Instructions and Rules',
                               description=info,
                               color=discord.Color.blue())
-    await interaction.response.send_message(embed=embed)
+    await interaction.response.send_message(embed=embed, ephemeral=True)
