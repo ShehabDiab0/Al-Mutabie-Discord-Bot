@@ -46,7 +46,7 @@ def get_penalty(user_id: str, guild_id: str) -> Penalty:
                     SELECT penalty_id, description, is_done, is_yellow, week_number
                     FROM Penalties
                     WHERE global_user_id = ? AND guild_id = ?
-                    SORT BY week_number DESC
+                    ORDER BY week_number DESC LIMIT 1
                     """, (user_id, guild_id))
     # get latest penalty
     penalty = cursor.fetchone()
