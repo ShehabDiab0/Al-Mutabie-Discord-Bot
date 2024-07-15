@@ -13,7 +13,7 @@ class PenaltiesCog(commands.Cog):
         self.bot = bot
         
     # Penalty Completed
-    @app_commands.command(name="penalty_done")
+    @app_commands.command(name="finished_penalty")
     @commands.guild_only()
     async def penalty_done(self, interaction: discord.Interaction):
         task_owner_id: str = str(interaction.user.id)
