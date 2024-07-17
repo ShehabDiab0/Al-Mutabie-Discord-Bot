@@ -141,7 +141,7 @@ class TasksCog(commands.Cog):
 
     # Show Tasks
     @app_commands.command(name="show_tasks")
-    @app_commands.describe(who="mention a user to know their tasks")
+    @app_commands.describe(who="mention a user to show their tasks")
     @app_commands.describe(week_number="Type Tasks of which week? use 0 for current week")
     @commands.guild_only()
     async def show_tasks(self, interaction: discord.Interaction, who: Optional[str], week_number: Optional[int] = 0):
