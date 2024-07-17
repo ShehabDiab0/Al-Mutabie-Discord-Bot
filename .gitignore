@@ -163,3 +163,5 @@ cython_debug/
 
 
 *.db
+*.png
+last_run.json
