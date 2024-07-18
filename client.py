@@ -189,7 +189,7 @@ def save_last_run_time(date):
 
 async def daily_task(day: int):
     penalties = Penalties()
-    if weeks_access.get_current_week() == None:
+    if weeks_access.has_week_ended():
         print('Adding a new week')
         weeks_access.add_week()
         penalties.remind_everyone()
@@ -216,7 +216,6 @@ async def before_daily_check():
 
 
 class Penalties():
-
     def remind_everyone(self) -> None:
         reminder_guilds = guilds_access.get_all_guilds()
         for guild in reminder_guilds:
@@ -278,7 +277,7 @@ class Penalties():
         completed = 0.0
         for task in tasks:
             completed += task.completion_percentage
-        return completed / total < (subscriber.threshold_percentage * 100)
+        return completed / total < (subscriber.threshold_percentage)
 
 # ------------------------ Instructions ------------------------
 @bot.tree.command(name="help")
