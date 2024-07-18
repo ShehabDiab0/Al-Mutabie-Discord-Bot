@@ -32,6 +32,18 @@ class PenaltiesCog(commands.Cog):
         else:
             await interaction.response.send_message(f"No penalty to mark as done", ephemeral=True)
 
+    # TODO: Mention All people who received penalties this week
+    @app_commands.command(name="mention_penalized_users")
+    @commands.guild_only()
+    async def mention_penalized_users(self, interaction: discord.Integration):
+        pass
+    
+    # TODO: User Penalty History
+    @app_commands.command(name="penalty_history")
+    @app_commands.describe(who="mention a user to show their Penalty History")
+    @commands.guild_only()
+    async def penalty_history(self, interaction: discord.Interaction, who: Optional[str]):
+        pass
 
 
 async def setup(bot):
