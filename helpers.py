@@ -84,3 +84,23 @@ def is_guild_member(guild_id: str, user_id: str) -> bool:
 def parse_discord_mention(mention: str):
     # when u mention somebody in discord it uses the format <@user_id> or <@!user_id>
     return mention[3:-1] if mention[2] == '!' else mention[2:-1]
+
+async def get_valid_user(interaction, who):
+    if not is_valid_discord_mention(who):
+            await interaction.response.send_message("Please Mention a correct discord user", ephemeral=True)
+            return
+        
+    user_id: str = parse_discord_mention(who)
+    guild_id: str = str(interaction.guild.id)
+    if not await is_existing_discord_user(user_id) or not is_guild_member(guild_id, user_id):
+        await interaction.response.send_message("Please Mention a correct discord user in this guild", ephemeral=True)
+        return
+
+    if not subscribers_access.is_registered_user(user_id, guild_id):
+        await interaction.response.send_message(
+                f'{who} is not registered please register using /register',
+                ephemeral=True
+            )
+        return
+
+    return guild_id, user_id
