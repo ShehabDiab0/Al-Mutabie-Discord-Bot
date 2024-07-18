@@ -66,21 +66,9 @@ def get_today_guilds(day: int) -> list[Guild]:
     apply = []
     for guild in output:
         apply.append(Guild(guild[0], guild[1], guild[2], guild[3], guild[4]))
-    cursor.execute(f'''SELECT guild_id, reminder_channel_id, allow_kicks, reminder_day, offset_days
-                    FROM Guilds
-                    WHERE reminder_day % 7 = ?''',
-                    (day,))
-    # This query is for testing purposes
-    # cursor.execute('''SELECT guild_id, reminder_channel_id, allow_kicks, reminder_day, offset_days
-    #                 FROM Guilds
-    #                 ''')
-    output = cursor.fetchall()
-    reminder = []
-    for guild in output:
-        reminder.append(Guild(guild[0], guild[1], guild[2], guild[3], guild[4]))
     connection.commit()
     cursor.close()
-    return reminder, apply
+    return apply
 
 
 def get_all_guilds() -> list[Guild]:
