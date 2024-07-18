@@ -44,24 +44,11 @@ class SubscribersCog(commands.Cog):
         if not who:
             who = f'<@{interaction.user.id}>'
 
-
-        if not helpers.is_valid_discord_mention(who):
-            await interaction.response.send_message("Please Mention a correct discord user", ephemeral=True)
+        user_info = await helpers.get_valid_user(interaction, who)
+        if user_info is None:
             return
         
-        user_id = who[3:-1] if who[2] == '!' else who[2:-1] # when u mention somebody in discord it uses the format <@user_id> or <@!user_id>
-        if not await helpers.is_existing_discord_user(user_id):
-            await interaction.response.send_message("Please Mention a correct discord user", ephemeral=True)
-            return
-
-        guild_id: str = str(interaction.guild.id)
-        if not is_registered_user(user_id, guild_id):
-            await interaction.response.send_message(
-                    'You are not registered please register using /register',
-                    ephemeral=True
-                )
-            return
-
+        guild_id, user_id= user_info
         subscriber: Subscriber = get_subscriber(user_id, guild_id)
         formatted_profile = helpers.convert_subscriber_profile_to_str(subscriber)
 
@@ -103,24 +90,11 @@ class SubscribersCog(commands.Cog):
         if not who:
             who = f'<@{interaction.user.id}>'
 
-
-        if not helpers.is_valid_discord_mention(who):
-            await interaction.response.send_message("Please Mention a correct discord user", ephemeral=True)
+        user_info = await helpers.get_valid_user(interaction, who)
+        if user_info is None:
             return
         
-        user_id = who[3:-1] if who[2] == '!' else who[2:-1] # when u mention somebody in discord it uses the format <@user_id> or <@!user_id>
-        if not await helpers.is_existing_discord_user(user_id):
-            await interaction.response.send_message("Please Mention a correct discord user", ephemeral=True)
-            return
-
-        guild_id: str = str(interaction.guild.id)
-        if not is_registered_user(user_id, guild_id):
-            await interaction.response.send_message(
-                    f'{who} is not registered please register using /register',
-                    ephemeral=True
-                )
-            return
-
+        guild_id, user_id= user_info
         update_ban_status(user_id, guild_id, is_banned=False)
         await interaction.response.send_message(f'{who} is Successfully Unbanned Successfully :^)')
 

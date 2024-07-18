@@ -99,7 +99,8 @@ class TasksCog(commands.Cog):
             if len(task_description) < 1 or len(task_description) > 100: # select menu doesn't like options < 1 or > 100 characters
                 failed_tasks.append(task_description)
                 continue
-
+            
+            
             new_task = Task(guild_id=guild_id, owner_id=task_owner_id, description=task_description, week_number=get_current_week())
             tasks_access.add_task(new_task)
         if len(failed_tasks) == 0:
@@ -147,20 +148,15 @@ class TasksCog(commands.Cog):
     async def show_tasks(self, interaction: discord.Interaction, who: Optional[str], week_number: Optional[int] = 0):
         if week_number == 0: # special case for current week
             week_number = get_current_week()
+
         if not who:
             who = f'<@{interaction.user.id}>'
 
-        if not helpers.is_valid_discord_mention(who):
-            await interaction.response.send_message("Please Mention a correct discord user", ephemeral=True)
+        user_info = await helpers.get_valid_user(interaction, who)
+        if user_info is None:
             return
         
-        user_id = who[3:-1] if who[2] == '!' else who[2:-1] # when u mention somebody in discord it uses the format <@user_id> or <@!user_id>
-        if not await helpers.is_existing_discord_user(user_id):
-            await interaction.response.send_message("Please Mention a correct discord user", ephemeral=True)
-            return
-            
-
-        guild_id: str = str(interaction.guild.id)
+        guild_id, user_id= user_info
         subscriber: Subscriber = Subscriber(user_id, guild_id)
         tasks = tasks_access.get_subscriber_tasks(subscriber, week_number)
         formatted_tasks = helpers.convert_tasks_to_str(tasks)

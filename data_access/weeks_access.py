@@ -5,18 +5,34 @@ from constants import TIMEZONE
 def get_current_week():
     cursor = connection.cursor()
     cursor.execute(f'''
-                    SELECT week_number, end_date FROM Weeks ORDER BY week_number DESC LIMIT 1
+                    SELECT week_number FROM Weeks ORDER BY week_number DESC LIMIT 1
+                    ''')
+    current_week = cursor.fetchone()
+    connection.commit()
+    cursor.close()
+
+    if current_week:
+        return current_week[0]
+    
+    # returns None if there are no weeks
+    return None
+
+def has_week_ended() -> bool:
+    cursor = connection.cursor()
+    cursor.execute(f'''
+                    SELECT end_date FROM Weeks ORDER BY week_number DESC LIMIT 1
                     ''')
     current_week = cursor.fetchone()
     connection.commit()
     cursor.close()
 
     now_date = TIMEZONE.localize(datetime.datetime.now())
-
-    # Compare end_date with now to return None if the week has ended
-    if current_week and current_week[1] > str(now_date):
-        return current_week[0]
-    return None
+    
+    end_date = current_week[0] if current_week else float('-inf')
+    if current_week and end_date > str(now_date):
+        return False # week did not end
+    
+    return True
 
 def get_current_week_start_end():
     cursor = connection.cursor()

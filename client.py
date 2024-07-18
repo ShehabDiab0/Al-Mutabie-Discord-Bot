@@ -189,7 +189,7 @@ def save_last_run_time(date):
 
 async def daily_task(day: int):
     penalties = Penalties()
-    if weeks_access.get_current_week() == None:
+    if weeks_access.has_week_ended():
         print('Adding a new week')
         weeks_access.add_week()
         penalties.remind_everyone()
@@ -216,7 +216,6 @@ async def before_daily_check():
 
 
 class Penalties():
-
     def remind_everyone(self) -> None:
         reminder_guilds = guilds_access.get_all_guilds()
         for guild in reminder_guilds:
@@ -238,7 +237,7 @@ class Penalties():
         subscribers = subscribers_access.get_subscribers(guild_id)
         for subscriber in subscribers:
             # check if subscriber exists in the discord server
-            if not bot.get_user(int(subscriber.user_id)):
+            if bot.get_guild(guild_id).get_member(subscriber.user_id) is not None:
                 continue
             previous_card = penalties_access.get_subscriber_penalty_history(subscriber=subscriber)
             if previous_card:
@@ -278,7 +277,7 @@ class Penalties():
         completed = 0.0
         for task in tasks:
             completed += task.completion_percentage
-        return completed / total < (subscriber.threshold_percentage * 100)
+        return completed / total < (subscriber.threshold_percentage)
 
 # ------------------------ Instructions ------------------------
 @bot.tree.command(name="help")
