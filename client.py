@@ -78,6 +78,7 @@ async def mention(interaction: discord.Interaction, who: str):
 # reminder
 async def reminder(user_ids, guild_id: str):
     guild_id = int(guild_id)
+    guild = bot.get_guild(guild_id)
     user_ids = [int(x) for x in user_ids]
     channel_id = int(get_channel_id(guild_id))
     # Fetch the channel object using the channel ID
@@ -86,8 +87,9 @@ async def reminder(user_ids, guild_id: str):
         message = "A new week has started. \nSelf report your last week and add your new tasks.\n You have 2 days\n"
         # Fetch each user object for mentioning using the user ID
         for user_id in user_ids:
-            user = await bot.fetch_user(user_id)
-            message += user.mention
+            user = guild.get_member(user_id)
+            if user:
+                message += user.mention
         # Send a message in the channel mentioning the user
         await channel.send(message)
     else:

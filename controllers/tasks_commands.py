@@ -166,6 +166,10 @@ class TasksCog(commands.Cog):
         formatted_tasks = helpers.convert_tasks_to_str(tasks)
 
         member = interaction.guild.get_member(int(user_id))
+        if not member:
+            await interaction.response.send_message("This is not a member in this guild.", ephemeral=True)
+            return
+    
         embed = discord.Embed(title=f'{member.display_name} Tasks of Week {week_number}',
                             description=formatted_tasks,
                             color=member.color)
@@ -186,12 +190,19 @@ class TasksCog(commands.Cog):
 
         guild_id: str = str(interaction.guild.id)
         subscribers = get_subscribers(guild_id)
+        if not subscribers:
+            await interaction.response.send_message('no subscribers yet', ephemeral=True)
+            return
+        
         all_tasks_embeds = []
         for subscriber in subscribers:
             tasks = tasks_access.get_subscriber_tasks(subscriber, week_number)
             formatted_tasks = helpers.convert_tasks_to_str(tasks)
 
             member = interaction.guild.get_member(int(subscriber.user_id))
+            if not member:
+                continue
+            
             embed = discord.Embed(title=f'{member.display_name} Tasks of Week {week_number}',
                                 description=formatted_tasks,
                                 color=member.color)
@@ -199,6 +210,7 @@ class TasksCog(commands.Cog):
             if member.avatar is not None:
                 embed.set_thumbnail(url=str(member.avatar))
             all_tasks_embeds.append(embed)
+
         await interaction.response.send_message(embeds=all_tasks_embeds)
 
     @app_commands.command(name="show_week_data")
