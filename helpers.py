@@ -2,6 +2,7 @@ from models.task import Task
 from models.subscriber import Subscriber
 import discord
 from client import bot
+from data_access import subscribers_access
 import re
 
 def convert_tasks_to_str(tasks: list[Task]) -> str:
@@ -75,3 +76,11 @@ async def is_existing_discord_user(user_id: str) -> bool:
     except Exception as e:
         print(e)
         return False
+    
+def is_guild_member(guild_id: str, user_id: str) -> bool:
+    guild = bot.get_guild(guild_id)
+    return guild.get_member(user_id) is not None
+
+def parse_discord_mention(mention: str):
+    # when u mention somebody in discord it uses the format <@user_id> or <@!user_id>
+    return mention[3:-1] if mention[2] == '!' else mention[2:-1]
