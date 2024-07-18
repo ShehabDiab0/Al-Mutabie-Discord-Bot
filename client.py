@@ -204,7 +204,6 @@ def save_last_run_time(date):
 
 async def daily_task(day: int):
     penalties = Penalties()
-
     if weeks_access.get_current_week() == None:
         print('Adding a new week')
         weeks_access.add_week()
@@ -241,22 +240,18 @@ class Penalties():
 
     def run_penalties(self, day: int) -> None:
         print("running penalties")
-        reminder_guilds, apply_guilds = guilds_access.get_today_guilds(day)
-        for guild in reminder_guilds:
-            self.weekly_check(guild, True)
+        apply_guilds = guilds_access.get_today_guilds(day)
         for guild in apply_guilds:
-            self.weekly_check(guild, False)
+            self.weekly_check(guild)
 
 
-    def weekly_check(self, guild: Guild, remind: bool) -> None:
-        remind_ids = []
+    def weekly_check(self, guild: Guild) -> None:
         guild_id = guild.guild_id
         print("weekly check")
         week_num = weeks_access.get_current_week()
         # get all users having this guild_id and not is_banned in a list of ids
         subscribers = subscribers_access.get_subscribers(guild_id)
         for subscriber in subscribers:
-            print("subscriber: ", subscriber.user_id, "remind: ", remind)
             previous_card = penalties_access.get_subscriber_penalty_history(subscriber=subscriber)
             if previous_card:
                 previous_card = previous_card[-1]
@@ -264,10 +259,6 @@ class Penalties():
                 previous_card = None
             card = self.check_user(subscriber, week_num - 1, previous_card)
             if card:
-                if remind:
-                    print(subscriber.user_id, "to be reminded")
-                    remind_ids.append(subscriber.user_id)
-                    continue
                 is_yellow = 1
                 desc = subscriber.default_yellow_description
                 if previous_card and ((week_num - previous_card.week_number) <= 1):
@@ -282,9 +273,6 @@ class Penalties():
                 penalty = Penalty(description=desc, is_yellow=is_yellow, week_number=week_num, guild_id=guild_id, owner_id=subscriber.user_id, is_done=False)
                 bot.loop.create_task(send_card(subscriber.user_id, guild_id, penalty))
                 penalties_access.add_penalty(penalty)
-        if remind:
-            bot.loop.create_task(reminder(remind_ids, guild_id))
-
 
 
     # checks user weekly progress and returns true if he should receive a card
