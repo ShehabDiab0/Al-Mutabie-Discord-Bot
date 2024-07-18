@@ -77,7 +77,7 @@ class UpdateTaskModal(Modal):
         self.tasks = tasks
         self.selected_value = None
         self.task_desc_input = UpdateTextInput(new_placeholder="Write New Description", new_label="Task Description")
-        self.task_completion_inptut = UpdateTextInput(new_placeholder="Write New Completion Percentage", new_label="Task Completion")
+        self.task_completion_inptut = UpdateTextInput(new_placeholder="Write New Completion Percentage (0-100)", new_label="Task Completion")
         self.add_item(self.task_desc_input)
         self.add_item(self.task_completion_inptut)
 
@@ -117,7 +117,7 @@ class UpdateTaskView(View):
 class SelfReportInput(TextInput):
     def __init__(self, tasks) -> None:
         super().__init__(label="Enter Task Completion Percentages (Co)", 
-                         placeholder="1- Read a 20 pages - [0.6]\n(Copy the Output of show_tasks command and paste here)",
+                         placeholder="1- Read a 20 pages - [60]\n(Copy the Output of show_tasks command and paste here)",
                          style=discord.TextStyle.long)
         self.tasks = tasks
 
@@ -172,7 +172,7 @@ class RegisterationModal(Modal):
         super().__init__(title="Registeration")
         self.default_yellow_card_input = RegisterationInput(placeholder="Write your default Yellow card description.", label="Default Yellow Card Description", required=True)
         self.default_red_card_input = RegisterationInput(placeholder="Write your default Red card description.", label="Default Red Card Description", required=True)
-        self.threshold = RegisterationInput(placeholder="Write Your threshold percentage you want >= 0.5 and <= 1 (Default is 0.6)", label="Threshold Percentage", required=False)
+        self.threshold = RegisterationInput(placeholder="Write Your threshold percentage you want >= 50.0 and <= 100.0 (Default is 60.0)", label="Threshold Percentage", required=False)
         self.add_item(self.default_yellow_card_input)
         self.add_item(self.default_red_card_input)
         self.add_item(self.threshold)
@@ -183,15 +183,15 @@ class RegisterationModal(Modal):
         threshold = self.threshold.value
 
         if threshold == "":
-            threshold = 0.6
+            threshold = 60.0
 
         if not helpers.is_float(threshold):
-            await interaction.response.send_message("Please Enter a number >= 0.5 and <= 1 or leave it empty, (Default is 0.6)", ephemeral=True)
+            await interaction.response.send_message("Please Enter a number >= 50.0 and <= 100.0 or leave it empty, (Default is 60.0)", ephemeral=True)
             return
 
         threshold = float(threshold)
-        if threshold > 1 or threshold < 0.5:
-            await interaction.response.send_message('يا متخازل ------ Completion Threshold has to be >= 0.5 and <= 1')
+        if threshold > 100.0 or threshold < 50.0:
+            await interaction.response.send_message('يا متخازل ------ Completion Threshold has to be >= 50.0 and <= 100.0')
             return
 
         user_id = str(interaction.user.id)
@@ -210,7 +210,7 @@ class EditProfileModal(Modal):
         super().__init__(title="Registeration")
         self.default_yellow_card_input = RegisterationInput(placeholder="Write your new default Yellow card description.", label="Default Yellow Card Description", required=False)
         self.default_red_card_input = RegisterationInput(placeholder="Write your new default Red card description.", label="Default Red Card Description", required=False)
-        self.threshold = RegisterationInput(placeholder="Write Your new threshold percentage you want >= 0.5 and <= 1", label="Threshold Percentage", required=False)
+        self.threshold = RegisterationInput(placeholder="Write Your new threshold percentage you want >= 50.0 and <= 100.0", label="Threshold Percentage", required=False)
         self.add_item(self.default_yellow_card_input)
         self.add_item(self.default_red_card_input)
         self.add_item(self.threshold)
@@ -221,15 +221,15 @@ class EditProfileModal(Modal):
         threshold = self.threshold.value
 
         if threshold == "":
-            threshold = 0.6
+            threshold = 60.0
 
         if not helpers.is_float(threshold):
-            await interaction.response.send_message("Please Enter a number >= 0.5 and <= 1 or leave it empty, (Default is 0.6)", ephemeral=True)
+            await interaction.response.send_message("Please Enter a number >= 50.0 and <= 100.0 or leave it empty, (Default is 60.0)", ephemeral=True)
             return
 
         threshold = float(threshold)
-        if threshold > 1 or threshold < 0.5:
-            await interaction.response.send_message('يا متخازل ------ Completion Threshold has to be >= 0.5 and <= 1')
+        if threshold > 100.0 or threshold < 50.0:
+            await interaction.response.send_message('يا متخازل ------ Completion Threshold has to be >= 50.0 and <= 100.0')
             return
 
         is_updated: bool = False
@@ -245,7 +245,7 @@ class EditProfileModal(Modal):
             is_updated = True
         
         if threshold != "":
-            if helpers.is_float(threshold) and float(threshold) <= 1 and float(threshold) >= 0.5:
+            if helpers.is_float(threshold) and float(threshold) <= 100.0 and float(threshold) >= 50.0:
                 subscribers_access.update_subscriber_threshold(user_id, guild_id, float(threshold))
                 is_updated = True 
             else:
