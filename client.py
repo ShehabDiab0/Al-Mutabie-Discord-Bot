@@ -75,11 +75,12 @@ async def mention(interaction: discord.Interaction, who: str):
     await interaction.response.send_message(f"Hey Soldier{who}")
 
 
-# reminder
-async def reminder(user_ids, guild_id: str):
+# reminder for everyone
+async def send_reminder(guild_id: str):
     guild_id = int(guild_id)
     guild = bot.get_guild(guild_id)
-    user_ids = [int(x) for x in user_ids]
+    user_ids = subscribers_access.get_subscribers(guild_id)
+    user_ids = [int(x.user_id) for x in user_ids]
     channel_id = int(get_channel_id(guild_id))
     # Fetch the channel object using the channel ID
     channel = bot.get_channel(channel_id)
@@ -94,7 +95,6 @@ async def reminder(user_ids, guild_id: str):
         await channel.send(message)
     else:
         print("User or channel not found.")
-
 
 # send card
 async def send_card(user_id: str, guild_id: str, penalty: Penalty):
@@ -188,12 +188,12 @@ def save_last_run_time(date):
 
 
 async def daily_task(day: int):
+    penalties = Penalties()
     if weeks_access.get_current_week() == None:
         print('Adding a new week')
-        weeks_access.add_week() 
+        weeks_access.add_week()
+        penalties.remind_everyone()
 
-    penalties = Penalties()
-    
     penalties.run_penalties(day)
     print("Running daily task for day:", day)
 
@@ -217,24 +217,29 @@ async def before_daily_check():
 
 class Penalties():
 
+    def remind_everyone(self) -> None:
+        reminder_guilds = guilds_access.get_all_guilds()
+        for guild in reminder_guilds:
+            bot.loop.create_task(send_reminder(guild.guild_id))
+
+
     def run_penalties(self, day: int) -> None:
         print("running penalties")
-        reminder_guilds, apply_guilds = guilds_access.get_today_guilds(day)
-        for guild in reminder_guilds:
-            self.weekly_check(guild, True)
+        apply_guilds = guilds_access.get_today_guilds(day)
         for guild in apply_guilds:
-            self.weekly_check(guild, False)
+            self.weekly_check(guild)
 
 
-    def weekly_check(self, guild: Guild, remind: bool) -> None:
-        remind_ids = []
+    def weekly_check(self, guild: Guild) -> None:
         guild_id = guild.guild_id
         print("weekly check")
         week_num = weeks_access.get_current_week()
         # get all users having this guild_id and not is_banned in a list of ids
         subscribers = subscribers_access.get_subscribers(guild_id)
         for subscriber in subscribers:
-            print("subscriber: ", subscriber.user_id, "remind: ", remind)
+            # check if subscriber exists in the discord server
+            if not bot.get_user(int(subscriber.user_id)):
+                continue
             previous_card = penalties_access.get_subscriber_penalty_history(subscriber=subscriber)
             if previous_card:
                 previous_card = previous_card[-1]
@@ -242,10 +247,6 @@ class Penalties():
                 previous_card = None
             card = self.check_user(subscriber, week_num - 1, previous_card)
             if card:
-                if remind:
-                    print(subscriber.user_id, "to be reminded")
-                    remind_ids.append(subscriber.user_id)
-                    continue
                 is_yellow = 1
                 desc = subscriber.default_yellow_description
                 if previous_card and ((week_num - previous_card.week_number) <= 1):
@@ -260,9 +261,6 @@ class Penalties():
                 penalty = Penalty(description=desc, is_yellow=is_yellow, week_number=week_num, guild_id=guild_id, owner_id=subscriber.user_id, is_done=False)
                 bot.loop.create_task(send_card(subscriber.user_id, guild_id, penalty))
                 penalties_access.add_penalty(penalty)
-        if remind:
-            bot.loop.create_task(reminder(remind_ids, guild_id))
-
 
 
     # checks user weekly progress and returns true if he should receive a card
@@ -299,14 +297,15 @@ async def instructions(interaction: discord.Interaction):
 9. To report your week progress use /self_report, Parameters: week_number
 10. To mark your penalty as done use /finished_penalty
 **Rules:**
-• Week starts ==> Friday 00:00 AM
-• Reminders ==> Thursday 00:00 AM
-• Penalties ==> Saturday @ 00:00 AM
-• You get a penalty in 3 conditions:
+• Week starts & Reminders ==> Friday 00:00
+• Penalties ==> Sunday 00:00
+• You get a penalty in 3 conditions (yellow then red):
 ------>1. you did not complete enough tasks to pass the threshold percentage you registered with
 ------>2. you did not write your tasks on time
------->3. you did not complete your penalty 
+------>3. you did not complete your previous penalty 
 • you get a red card if you have 1 penalty previous week and you recieved a new one
+• Warning: getting a red card would ban you from using the bot
+• You get kicked once getting a red card if the server allows kicks from the bot
     '''
     embed = discord.Embed(title=f'Instructions and Rules',
                               description=info,
