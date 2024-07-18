@@ -1,20 +1,7 @@
 from database import connection
 from models.task import Task
 from models.subscriber import Subscriber
-
-
-def get_current_week():
-    cursor = connection.cursor()
-    cursor.execute(f'''
-                    SELECT week_number FROM Weeks ORDER BY week_number DESC LIMIT 1
-                   ''')
-    current_week = cursor.fetchone()
-    connection.commit()
-    cursor.close()
-
-    if current_week:
-        return current_week[0]
-    return None
+from data_access import weeks_access
 
 # Insert User Task into Database
 def add_task(new_task: Task):
@@ -55,7 +42,7 @@ def update_task_completion_percentage(task_id: int, completion_percentage: float
 
 # Get User Week Tasks (week_number = 0 means current week)
 def get_subscriber_tasks(subscriber: Subscriber, week_number: int) -> list[Task]:
-    current_week = get_current_week()
+    current_week = weeks_access.get_current_week()
     if(week_number == 0):
         week_number = current_week
 
