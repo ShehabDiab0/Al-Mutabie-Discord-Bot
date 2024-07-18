@@ -75,26 +75,6 @@ async def mention(interaction: discord.Interaction, who: str):
     await interaction.response.send_message(f"Hey Soldier{who}")
 
 
-# reminder
-async def reminder(user_ids, guild_id: str):
-    guild_id = int(guild_id)
-    guild = bot.get_guild(guild_id)
-    user_ids = [int(x) for x in user_ids]
-    channel_id = int(get_channel_id(guild_id))
-    # Fetch the channel object using the channel ID
-    channel = bot.get_channel(channel_id)
-    if channel and user_ids:  # Check if both the channel and user were found
-        message = "A new week has started. \nSelf report your last week and add your new tasks.\n You have 2 days\n"
-        # Fetch each user object for mentioning using the user ID
-        for user_id in user_ids:
-            user = guild.get_member(user_id)
-            if user:
-                message += user.mention
-        # Send a message in the channel mentioning the user
-        await channel.send(message)
-    else:
-        print("User or channel not found.")
-
 # reminder for everyone
 async def remind_everyone(guild_id: str):
     guild_id = int(guild_id)
