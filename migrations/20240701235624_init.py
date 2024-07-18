@@ -15,7 +15,7 @@ def upgrade(connection):
             guild_id VARCHAR(255),
             default_red_penalty_description MEDIUMTEXT,
             default_yellow_penalty_description MEDIUMTEXT,
-            threshold FLOAT DEFAULT 0.60,
+            threshold FLOAT DEFAULT 60.0,
             is_banned BOOLEAN DEFAULT 0,
             PRIMARY KEY (global_user_id, guild_id),
             FOREIGN KEY (guild_id) REFERENCES Guilds(guild_id) ON DELETE CASCADE
@@ -36,7 +36,7 @@ def upgrade(connection):
             week_number INTEGER,
             global_user_id VARCHAR(255),
             guild_id VARCHAR(255),
-            FOREIGN KEY (week_number) REFERENCES Weeks(week_number),
+            FOREIGN KEY (week_number) REFERENCES Weeks(week_number) ON DELETE CASCADE,
             FOREIGN KEY (global_user_id, guild_id) REFERENCES Subscribers(global_user_id, guild_id)
         );
 
@@ -49,7 +49,7 @@ def upgrade(connection):
             week_number INTEGER,
             global_user_id VARCHAR(255),
             guild_id VARCHAR(255),
-            FOREIGN KEY (week_number) REFERENCES Weeks(week_number),
+            FOREIGN KEY (week_number) REFERENCES Weeks(week_number) ON DELETE CASCADE,
             FOREIGN KEY (global_user_id, guild_id) REFERENCES Subscribers(global_user_id, guild_id)
         );
     ''')
