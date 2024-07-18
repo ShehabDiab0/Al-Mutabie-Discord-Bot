@@ -292,14 +292,15 @@ async def instructions(interaction: discord.Interaction):
 9. To report your week progress use /self_report, Parameters: week_number
 10. To mark your penalty as done use /finished_penalty
 **Rules:**
-• Week starts ==> Friday 00:00 AM
-• Reminders ==> Thursday 00:00 AM
-• Penalties ==> Saturday @ 00:00 AM
-• You get a penalty in 3 conditions:
+• Week starts & Reminders ==> Friday 00:00
+• Penalties ==> Sunday 00:00
+• You get a penalty in 3 conditions (yellow then red):
 ------>1. you did not complete enough tasks to pass the threshold percentage you registered with
 ------>2. you did not write your tasks on time
------->3. you did not complete your penalty 
+------>3. you did not complete your previous penalty 
 • you get a red card if you have 1 penalty previous week and you recieved a new one
+• Warning: getting a red card would ban you from using the bot
+• You get kicked once getting a red card if the server allows kicks from the bot
     '''
     embed = discord.Embed(title=f'Instructions and Rules',
                               description=info,
