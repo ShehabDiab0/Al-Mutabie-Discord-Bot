@@ -232,6 +232,9 @@ class Penalties():
         # get all users having this guild_id and not is_banned in a list of ids
         subscribers = subscribers_access.get_subscribers(guild_id)
         for subscriber in subscribers:
+            # check if subscriber exists in the discord server
+            if not bot.get_user(int(subscriber.user_id)):
+                continue
             previous_card = penalties_access.get_subscriber_penalty_history(subscriber=subscriber)
             if previous_card:
                 previous_card = previous_card[-1]
