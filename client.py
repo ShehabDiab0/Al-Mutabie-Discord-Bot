@@ -95,6 +95,21 @@ async def reminder(user_ids, guild_id: str):
     else:
         print("User or channel not found.")
 
+# reminder for everyone
+async def remind_everyone(guild_id: str):
+    guild_id = int(guild_id)
+    guild = bot.get_guild(guild_id)
+    channel_id = int(get_channel_id(guild_id))
+    # Fetch the channel object using the channel ID
+    channel = bot.get_channel(channel_id)
+    if channel:
+
+        # New week message, mentioning everyone
+        message = "A new week has started. \nSelf report your last week and add your new tasks.\n You have 2 days\n @everyone"
+
+        await channel.send(message)
+    else:
+        print("User or channel not found.")
 
 # send card
 async def send_card(user_id: str, guild_id: str, penalty: Penalty):
@@ -188,12 +203,13 @@ def save_last_run_time(date):
 
 
 async def daily_task(day: int):
+    penalties = Penalties()
+
     if weeks_access.get_current_week() == None:
         print('Adding a new week')
-        weeks_access.add_week() 
+        weeks_access.add_week()
+        penalties.new_week()
 
-    penalties = Penalties()
-    
     penalties.run_penalties(day)
     print("Running daily task for day:", day)
 
@@ -216,6 +232,12 @@ async def before_daily_check():
 
 
 class Penalties():
+
+    def new_week(self) -> None:
+        reminder_guilds = guilds_access.get_all_guilds()
+        for guild in reminder_guilds:
+            bot.loop.create_task(remind_everyone(guild.guild_id))
+
 
     def run_penalties(self, day: int) -> None:
         print("running penalties")
