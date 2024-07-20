@@ -238,9 +238,8 @@ class Penalties():
         for subscriber in subscribers:
             # check if subscriber exists in the discord server
             bot_guild = bot.get_guild(int(guild_id)) 
-            if bot_guild is None: # means the bot was in a server and was kicked
-                continue
-            if bot_guild.get_member(int(subscriber.user_id)) is None:
+            # check if the bot got kicked or the user left the server
+            if bot_guild is None or bot_guild.get_member(int(subscriber.user_id)) is None: 
                 continue
             previous_card = penalties_access.get_subscriber_penalty_history(subscriber=subscriber)
             if previous_card:
