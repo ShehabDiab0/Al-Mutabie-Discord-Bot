@@ -205,7 +205,7 @@ async def daily_check():
     today = datetime.now().date()
 
     if last_run is None or today > last_run:
-        await daily_task((today.weekday() - 3) % 7)
+        await daily_task((today.weekday() - 4) % 7)
         save_last_run_time(today)
 
 
@@ -240,7 +240,7 @@ class Penalties():
             bot_guild = bot.get_guild(int(guild_id)) 
             if bot_guild is None: # means the bot was in a server and was kicked
                 continue
-            if bot_guild.get_member(int(subscriber.user_id)) is not None:
+            if bot_guild.get_member(int(subscriber.user_id)) is None:
                 continue
             previous_card = penalties_access.get_subscriber_penalty_history(subscriber=subscriber)
             if previous_card:
