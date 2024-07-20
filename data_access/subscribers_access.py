@@ -80,11 +80,9 @@ def get_subscribers(guild_id: str) -> list[Subscriber]:
     output = cursor.fetchall()
     subscribers = []
     for subscriber in output:
-        # print(subscriber)
         subscribers.append(Subscriber(user_id=subscriber[0], guild_id=subscriber[1],default_red_description=subscriber[2], default_yellow_description=subscriber[3], threshold_percentage=subscriber[4], is_banned=subscriber[5]))
     connection.commit()
     cursor.close()
-    print(subscribers)
     return subscribers
 
 

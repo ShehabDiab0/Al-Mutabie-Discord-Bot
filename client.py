@@ -205,7 +205,7 @@ async def daily_check():
     today = datetime.now().date()
 
     if last_run is None or today > last_run:
-        await daily_task((today.weekday() - 3) % 7)
+        await daily_task((today.weekday() - 4) % 7)
         save_last_run_time(today)
 
 
