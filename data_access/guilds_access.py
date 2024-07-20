@@ -55,7 +55,7 @@ def get_today_guilds(day: int) -> list[Guild]:
     cursor = connection.cursor()
     cursor.execute(f'''SELECT guild_id, reminder_channel_id, allow_kicks, reminder_day, offset_days
                     FROM Guilds
-                    WHERE offset_days % 7 = ?''',
+                    WHERE (reminder_day + offset_days) % 7 = ?''',
                     (day,))
     # This query is for testing purposes
     # cursor.execute('''SELECT guild_id, reminder_channel_id, allow_kicks, reminder_day, offset_days
