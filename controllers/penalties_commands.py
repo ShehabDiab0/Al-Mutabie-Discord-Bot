@@ -8,6 +8,7 @@ from models.week import Week
 from models.penalty import Penalty
 from data_access.subscribers_access import is_registered_user
 from data_access.penalties_access import get_penalty, update_subscriber_penalty, get_penalties_for_week
+from data_access.weeks_access import get_current_week
 class PenaltiesCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -37,13 +38,16 @@ class PenaltiesCog(commands.Cog):
     @commands.guild_only()
     async def mention_penalized_users(self, interaction: discord.Integration):
         guild_id = str(interaction.guild.id)
-        week = Week.get_current_week()
-        penalties = get_penalties_for_week(week.week_number, guild_id)
+        week = get_current_week()
+        penalties = get_penalties_for_week(week, guild_id)
         if not penalties:
             await interaction.response.send_message("No penalties this week")
+            return
         message = "Penalties this week:\n"
         for penalty in penalties:
-            user = await interaction.guild.fetch_member(int(penalty.owner_id))
+            user = interaction.guild.get_member(int(penalty.owner_id))
+            if not user:
+                continue
             message += f"{user.mention} {penalty.description}\n"
         await interaction.response.send_message(message)
 
