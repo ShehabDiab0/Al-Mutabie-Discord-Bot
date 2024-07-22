@@ -7,7 +7,7 @@ from models.task import Task
 from models.week import Week
 from models.penalty import Penalty
 from data_access.subscribers_access import is_registered_user
-from data_access.penalties_access import get_penalty, update_subscriber_penalty
+from data_access.penalties_access import get_penalty, update_subscriber_penalty, get_penalties_for_week
 class PenaltiesCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -32,12 +32,22 @@ class PenaltiesCog(commands.Cog):
         else:
             await interaction.response.send_message(f"No penalty to mark as done", ephemeral=True)
 
-    # TODO: Mention All people who received penalties this week
+
     @app_commands.command(name="mention_penalized_users")
     @commands.guild_only()
     async def mention_penalized_users(self, interaction: discord.Integration):
-        pass
-    
+        guild_id = str(interaction.guild.id)
+        week = Week.get_current_week()
+        penalties = get_penalties_for_week(week.week_number, guild_id)
+        if not penalties:
+            await interaction.response.send_message("No penalties this week")
+        message = "Penalties this week:\n"
+        for penalty in penalties:
+            user = await interaction.guild.fetch_member(int(penalty.owner_id))
+            message += f"{user.mention} {penalty.description}\n"
+        await interaction.response.send_message(message)
+
+
     # TODO: User Penalty History
     @app_commands.command(name="penalty_history")
     @app_commands.describe(who="mention a user to show their Penalty History")
