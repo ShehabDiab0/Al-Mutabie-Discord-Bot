@@ -63,8 +63,18 @@ class GuildsCog(commands.Cog):
             await interaction.response.send_message(f"reminder channel set to {interaction.guild.system_channel.name}")
         except Exception as e:
             print(e)
-    
 
+
+    @app_commands.command(name="allow_kicks")
+    @commands.guild_only()
+    async def allow_kicks(self, interaction: discord.Interaction):
+        # check if user is a moderator
+        if not interaction.user.guild_permissions.kick_members: 
+            await interaction.response.send_message('You are not allowed to do this action as you need "kick members" permision', ephemeral=True)
+            return
+        guild_id: str = str(interaction.guild.id)
+        guilds_access.update_guild_kicks(guild_id=guild_id, is_allowed_kick=True)
+        await interaction.response.send_message('The bot can kick users now', ephemeral=True)
 
 
 async def setup(bot):
