@@ -68,10 +68,7 @@ class SubscribersCog(commands.Cog):
         guild_id = str(interaction.guild_id)
 
         if not is_registered_user(user_id, guild_id):
-            await interaction.response.send_message(
-                    'You are not registered please register using /register',
-                    ephemeral=True
-                )
+            await interaction.response.send_message('You are not registered please register using /register')
             return
         
         if is_banned_user(user_id, guild_id):
