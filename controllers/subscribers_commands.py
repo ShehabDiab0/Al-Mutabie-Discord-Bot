@@ -60,7 +60,7 @@ class SubscribersCog(commands.Cog):
             embed.set_thumbnail(url=str(member.avatar))
         await interaction.response.send_message(embed=embed)
         
-        
+    #TODO: use get_valid_user instead of is_registered_user
     @app_commands.command(name="edit_profile")
     @commands.guild_only()
     async def edit_profile(self, interaction: discord.Interaction):
