@@ -55,7 +55,6 @@ class PenaltiesCog(commands.Cog):
         await interaction.response.send_message(message)
 
 
-    # TODO: User Penalty History
     @app_commands.command(name="penalty_history")
     @app_commands.describe(who="mention a user to show their Penalty History")
     @commands.guild_only()
