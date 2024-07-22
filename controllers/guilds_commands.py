@@ -77,5 +77,17 @@ class GuildsCog(commands.Cog):
         await interaction.response.send_message('The bot can kick users now', ephemeral=True)
 
 
+    @app_commands.command(name="disallow_kicks")
+    @commands.guild_only()
+    async def disallow_kicks(self, interaction: discord.Interaction):
+        # check if user is a moderator
+        if not interaction.user.guild_permissions.kick_members: 
+            await interaction.response.send_message('You are not allowed to do this action as you need "kick members" permision', ephemeral=True)
+            return
+        guild_id: str = str(interaction.guild.id)
+        guilds_access.update_guild_kicks(guild_id=guild_id, is_allowed_kick=False)
+        await interaction.response.send_message('The bot can\'t kick users now', ephemeral=True)
+
+
 async def setup(bot):
     await bot.add_cog(GuildsCog(bot))
