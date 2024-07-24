@@ -60,7 +60,7 @@ class SubscribersCog(commands.Cog):
             embed.set_thumbnail(url=str(member.avatar))
         await interaction.response.send_message(embed=embed)
         
-        
+    #TODO: use get_valid_user instead of is_registered_user
     @app_commands.command(name="edit_profile")
     @commands.guild_only()
     async def edit_profile(self, interaction: discord.Interaction):
@@ -68,10 +68,7 @@ class SubscribersCog(commands.Cog):
         guild_id = str(interaction.guild_id)
 
         if not is_registered_user(user_id, guild_id):
-            await interaction.response.send_message(
-                    'You are not registered please register using /register',
-                    ephemeral=True
-                )
+            await interaction.response.send_message('You are not registered please register using /register')
             return
         
         if is_banned_user(user_id, guild_id):
@@ -103,6 +100,23 @@ class SubscribersCog(commands.Cog):
         if isinstance(error, app_commands.errors.MissingPermissions):
             await interaction.response.send_message('You don\'t have permissions to use this command.')
     # TODO: Get Banned users
+
+
+    @app_commands.command(name="mention_subscribers")
+    @commands.guild_only()
+    async def mention_subscribers(self, interaction: discord.Integration):
+        guild_id = str(interaction.guild.id)
+        subscribers = get_subscribers(guild_id)
+        if not subscribers:
+            await interaction.response.send_message("No one is subscribed. use /subscribe")
+            return
+        message = ""
+        for subscriber in subscribers:
+            user = interaction.guild.get_member(int(subscriber.user_id))
+            if not user:
+                continue
+            message += f"{user.mention}"
+        await interaction.response.send_message(message)
 
 async def setup(bot):
     await bot.add_cog(SubscribersCog(bot))

@@ -12,6 +12,7 @@ def add_guild(new_guild: Guild):
     connection.commit()
     cursor.close()
 
+
 def update_guild_reminder_channel(guild_id, new_channel_id: str):
     cursor = connection.cursor()
 
@@ -22,6 +23,7 @@ def update_guild_reminder_channel(guild_id, new_channel_id: str):
     ''', (new_channel_id, guild_id,))
     connection.commit()
     cursor.close()
+
 
 def is_registered_guild(guild_id: str) -> bool:
     cursor = connection.cursor()
@@ -83,3 +85,15 @@ def get_all_guilds() -> list[Guild]:
     connection.commit()
     cursor.close()
     return guilds
+
+
+def update_guild_kicks(guild_id: str, is_allowed_kick: bool):
+    cursor = connection.cursor()
+
+    cursor.execute('''
+        UPDATE Guilds 
+        SET allow_kicks = ?
+        WHERE guild_id = ?
+    ''', (is_allowed_kick, guild_id,))
+    connection.commit()
+    cursor.close()
