@@ -95,7 +95,8 @@ async def get_valid_user(interaction, who):
         return
 
     if not subscribers_access.is_registered_user(user_id, guild_id):
-        await interaction.response.send_message(f'{who} is not registered please register using /register')
+        await interaction.response.send_message(f'{who} is not registered please register using /register',
+                                                ephemeral=True)
         return
 
     return guild_id, user_id

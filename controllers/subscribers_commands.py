@@ -60,7 +60,6 @@ class SubscribersCog(commands.Cog):
             embed.set_thumbnail(url=str(member.avatar))
         await interaction.response.send_message(embed=embed)
         
-    #TODO: use get_valid_user instead of is_registered_user
     @app_commands.command(name="edit_profile")
     @commands.guild_only()
     async def edit_profile(self, interaction: discord.Interaction):
@@ -68,12 +67,14 @@ class SubscribersCog(commands.Cog):
         guild_id = str(interaction.guild_id)
 
         if not is_registered_user(user_id, guild_id):
-            await interaction.response.send_message('You are not registered please register using /register')
+            await interaction.response.send_message('You are not registered please register using /register',
+                                                    ephemeral=True)
             return
         
         if is_banned_user(user_id, guild_id):
             await interaction.response.send_message('Banned users are not allowed to edit their profile.',
                                                     ephemeral=True)
+            return
 
         modal = UI.EditProfileModal()
         await interaction.response.send_modal(modal)
