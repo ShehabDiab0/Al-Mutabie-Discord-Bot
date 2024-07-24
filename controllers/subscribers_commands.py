@@ -101,6 +101,23 @@ class SubscribersCog(commands.Cog):
             await interaction.response.send_message('You don\'t have permissions to use this command.')
     # TODO: Get Banned users
 
+
+    @app_commands.command(name="mention_subscribers")
+    @commands.guild_only()
+    async def mention_subscribers(self, interaction: discord.Integration):
+        guild_id = str(interaction.guild.id)
+        subscribers = get_subscribers(guild_id)
+        if not subscribers:
+            await interaction.response.send_message("No one is subscribed. use /subscribe")
+            return
+        message = ""
+        for subscriber in subscribers:
+            user = interaction.guild.get_member(int(subscriber.user_id))
+            if not user:
+                continue
+            message += f"{user.mention}"
+        await interaction.response.send_message(message)
+
 async def setup(bot):
     await bot.add_cog(SubscribersCog(bot))
 
