@@ -94,7 +94,7 @@ class SubscribersCog(commands.Cog):
         
         guild_id, user_id= user_info
         update_ban_status(user_id, guild_id, is_banned=False)
-        await interaction.response.send_message(f'{who} is Successfully Unbanned Successfully :^)')
+        await interaction.response.send_message(f'{who} is Unbanned Successfully :^)')
 
     @unban_user.error
     async def subscriber_error_handle(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
@@ -109,7 +109,7 @@ class SubscribersCog(commands.Cog):
         guild_id = str(interaction.guild.id)
         subscribers = get_subscribers(guild_id)
         if not subscribers:
-            await interaction.response.send_message("No one is subscribed. use /subscribe")
+            await interaction.response.send_message("No one is subscribed. use /register (or everyone is banned :) )")
             return
         message = ""
         for subscriber in subscribers:

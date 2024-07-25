@@ -32,7 +32,7 @@ class PenaltiesCog(commands.Cog):
             penalty.is_done = True
             # update penalty
             update_subscriber_penalty(penalty)
-            await interaction.response.send_message(f"Penalty marked as done, Congratulations")
+            await interaction.response.send_message(f"Penalty marked as done, Congratulations", ephemeral=True)
         else:
             await interaction.response.send_message(f"No penalty to mark as done", ephemeral=True)
 
