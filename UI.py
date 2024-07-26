@@ -113,41 +113,48 @@ class UpdateTaskView(View):
         self.select = SingleTaskDropDown(self.tasks,self.modal)
         self.add_item(self.select)
 
-
-class SelfReportInput(TextInput):
-    def __init__(self, tasks) -> None:
-        super().__init__(label="Enter Task Completion Percentages (Co)", 
-                         placeholder="1- Read a 20 pages - [60]\n(Copy the Output of show_tasks command and paste here)",
-                         style=discord.TextStyle.long)
+class SelfReportButton(Button):
+    def __init__(self, tasks, curr_idx) -> None:
+        super().__init__(label="Next", style=discord.ButtonStyle.primary)
         self.tasks = tasks
-
+        self.curr_idx = curr_idx
+        self.end_idx = min(curr_idx + 5, len(self.tasks))
+        
     async def callback(self, interaction: discord.Interaction):
-        await interaction.response.defer()
-
+        modal = SelfReportModal(self.tasks, self.curr_idx)
+        await interaction.response.send_modal(modal)
 
 class SelfReportModal(Modal):
-    def __init__(self, tasks) -> None:
-        super().__init__(title="Self Report")
+    def __init__(self, tasks, curr_idx):
+        super().__init__(title="Report Task Completion")
         self.tasks = tasks
+        self.curr_idx = curr_idx
+        self.end_idx = min(curr_idx + 5, len(tasks))
         self.formatted_text = helpers.convert_tasks_to_self_report(tasks)
-        self.input = SelfReportInput(self.tasks)
-        self.add_item(self.input)
-         
 
-    # TODO: we want to think of a better way to do self report
+        for idx, task in enumerate(tasks[curr_idx:self.end_idx]):
+            self.add_item(TextInput(label=f"Task {curr_idx+idx+1}", placeholder=f"{task.description}", custom_id=str(curr_idx+idx), style=discord.TextStyle.short))
+
     async def on_submit(self, interaction: discord.Interaction):
-        completion_percentages = helpers.convert_formatted_tasks_to_percentages(self.input.value)
-        
-        if len(completion_percentages) != len(self.tasks):
-            await interaction.response.send_message("Please Copy your Tasks Exactly from /show_tasks command and try again!", ephemeral=True)
-            return
-        
+        print(self.curr_idx)
         failed_to_update = []
-        for i, task in enumerate(self.tasks):
-            if not helpers.is_valid_number(str(completion_percentages[i])) or float(completion_percentages[i]) < 0 or float(completion_percentages[i]) > 100:
+        for i, child in enumerate(self.children):
+            completion_percentage = child.value
+            if not helpers.is_valid_number(str(completion_percentage)) or float(completion_percentage) < 0 or float(completion_percentage) > 100:
                 failed_to_update.append(i + 1)
                 continue
-            tasks_access.update_task_completion_percentage(task.task_id, completion_percentages[i])
+
+            tasks_access.update_task_completion_percentage(self.tasks[self.curr_idx + i].task_id, float(completion_percentage))
+            print('done')
+        
+        if self.end_idx < len(self.tasks):
+            view = View()
+            next_button = SelfReportButton(self.tasks, self.end_idx)
+            view.add_item(next_button)
+            question_message = f"Do you want to view the next page to edit tasks from {self.curr_idx+5} to {min(self.end_idx+5, len(self.tasks))}"
+            await interaction.response.send_message(question_message, view=view, ephemeral=True)
+            return
+
         if len(failed_to_update) == 0:
             await interaction.response.send_message(f"Self Report Completed", ephemeral=True)
             return
