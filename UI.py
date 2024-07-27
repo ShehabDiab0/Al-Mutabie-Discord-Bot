@@ -115,13 +115,15 @@ class UpdateTaskView(View):
 
 class SelfReportButton(Button):
     def __init__(self, tasks, curr_idx) -> None:
-        super().__init__(label="Next", style=discord.ButtonStyle.primary)
+        super().__init__(label="Enter", style=discord.ButtonStyle.primary)
         self.tasks = tasks
         self.curr_idx = curr_idx
         self.end_idx = min(curr_idx + 5, len(self.tasks))
         
     async def callback(self, interaction: discord.Interaction):
         modal = SelfReportModal(self.tasks, self.curr_idx)
+        view = View()
+        view.add_item(self)
         await interaction.response.send_modal(modal)
 
 class SelfReportModal(Modal):
@@ -133,25 +135,33 @@ class SelfReportModal(Modal):
         self.formatted_text = helpers.convert_tasks_to_self_report(tasks)
 
         for idx, task in enumerate(tasks[curr_idx:self.end_idx]):
-            self.add_item(TextInput(label=f"Task {curr_idx+idx+1}", placeholder=f"{task.description}", custom_id=str(curr_idx+idx), style=discord.TextStyle.short))
+            label_task = f'{task.description if len(task.description) < 29 else (task.description[:29] + "..")} {round(task.completion_percentage, 2)}'
+            # self.add_item(TextInput(label=f"Task {curr_idx+idx+1}, Write a float number between 1-100", placeholder=f"{task.description}", custom_id=str(curr_idx+idx), style=discord.TextStyle.short))
+            self.add_item(TextInput(label=f"Task {curr_idx+idx+1}: {label_task}",
+                                    placeholder=f"Write a float number between 1-100",
+                                    custom_id=str(curr_idx+idx),
+                                    style=discord.TextStyle.short,
+                                    required=False))
 
     async def on_submit(self, interaction: discord.Interaction):
-        print(self.curr_idx)
         failed_to_update = []
         for i, child in enumerate(self.children):
+            if child.value == "":
+                continue
             completion_percentage = child.value
             if not helpers.is_valid_number(str(completion_percentage)) or float(completion_percentage) < 0 or float(completion_percentage) > 100:
                 failed_to_update.append(i + 1)
                 continue
 
             tasks_access.update_task_completion_percentage(self.tasks[self.curr_idx + i].task_id, float(completion_percentage))
-            print('done')
+            self.tasks[self.curr_idx + i].completion_percentage = float(completion_percentage)
         
+        # modals only allow 5 text fields, so we need to ask if the used wants to continue or not
         if self.end_idx < len(self.tasks):
             view = View()
             next_button = SelfReportButton(self.tasks, self.end_idx)
             view.add_item(next_button)
-            question_message = f"Do you want to view the next page to edit tasks from {self.curr_idx+5} to {min(self.end_idx+5, len(self.tasks))}"
+            question_message = f"Do you want to enter the next page to edit tasks from {self.curr_idx+5} to {min(self.end_idx+5, len(self.tasks))}"
             await interaction.response.send_message(question_message, view=view, ephemeral=True)
             return
 
