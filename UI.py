@@ -114,16 +114,14 @@ class UpdateTaskView(View):
         self.add_item(self.select)
 
 class SelfReportButton(Button):
-    def __init__(self, tasks, curr_idx) -> None:
-        super().__init__(label="Enter", style=discord.ButtonStyle.primary)
+    def __init__(self, label, tasks, curr_idx) -> None:
+        super().__init__(label=label, style=discord.ButtonStyle.primary)
         self.tasks = tasks
         self.curr_idx = curr_idx
         self.end_idx = min(curr_idx + 5, len(self.tasks))
         
     async def callback(self, interaction: discord.Interaction):
         modal = SelfReportModal(self.tasks, self.curr_idx)
-        view = View()
-        view.add_item(self)
         await interaction.response.send_modal(modal)
 
 class SelfReportModal(Modal):
@@ -156,21 +154,28 @@ class SelfReportModal(Modal):
             tasks_access.update_task_completion_percentage(self.tasks[self.curr_idx + i].task_id, float(completion_percentage))
             self.tasks[self.curr_idx + i].completion_percentage = float(completion_percentage)
         
+        # means it's the last modal
+        if self.end_idx >= len(self.tasks):
+            if len(failed_to_update) == 0:
+                await interaction.response.send_message(f"Self Report Completed", ephemeral=True)
+                return
+            
+            await interaction.response.send_message(f"You Reached the last page, but Failed to Update these tasks: {failed_to_update}, if there are anyother tasks then they are updated", ephemeral=True)
+
         # modals only allow 5 text fields, so we need to ask if the used wants to continue or not
-        if self.end_idx < len(self.tasks):
-            view = View()
-            next_button = SelfReportButton(self.tasks, self.end_idx)
-            view.add_item(next_button)
-            question_message = f"Do you want to enter the next page to edit tasks from {self.curr_idx+5} to {min(self.end_idx+5, len(self.tasks))}"
-            await interaction.response.send_message(question_message, view=view, ephemeral=True)
-            return
+        view = View()
+        next_button = SelfReportButton("Next ➡️", self.tasks, self.end_idx)
+        previous_button = SelfReportButton("Previous ⬅️", self.tasks, self.curr_idx)
+        view.add_item(previous_button)
+        view.add_item(next_button)
 
-        if len(failed_to_update) == 0:
-            await interaction.response.send_message(f"Self Report Completed", ephemeral=True)
-            return
-        
-        await interaction.response.send_message(f"Failed to Updated these tasks: {failed_to_update}, if there are anyother tasks then they are updated", ephemeral=True)
+        question_message = f"Do you want to enter the next page to edit tasks from {self.curr_idx+6} to {min(self.end_idx+5, len(self.tasks))}"
+        if len(self.tasks) - self.end_idx == 1:
+            question_message = f"Do you want to edit the last task {self.curr_idx + 1}"
 
+        if len(failed_to_update) > 0:
+            question_message += f"\nAlso Failed to update Tasks: {failed_to_update}"
+        await interaction.response.send_message(question_message, view=view, ephemeral=True)
 
 class RegisterationInput(TextInput):
     def __init__(self, placeholder, label, required=False) -> None:
