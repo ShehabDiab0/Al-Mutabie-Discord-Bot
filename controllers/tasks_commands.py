@@ -42,14 +42,13 @@ class TasksCog(commands.Cog):
             await interaction.response.send_message(f"You have no tasks to report", ephemeral=True)
             return
 
-
         user_id: str = str(interaction.user.id)
         guild_id: str = str(interaction.guild.id)
         subscriber: Subscriber = Subscriber(user_id, guild_id)
 
         tasks = tasks_access.get_subscriber_tasks(subscriber, week_number)
         
-        modal = UI.SelfReportModal(tasks=tasks)
+        modal = UI.SelfReportModal(tasks=tasks, curr_idx=0)
         await interaction.response.send_modal(modal)
         # await interaction.response.send_message("Select a Task to Report", ephemeral=True)
 
@@ -129,7 +128,7 @@ class TasksCog(commands.Cog):
             return
 
         if len(task_description) < 1 or len(task_description) > 100: # select menu doesn't like options < 1 or > 100 characters
-            await interaction.response.send_message(f"Tasks can only contian 1 to 100 characters")
+            await interaction.response.send_message(f"Tasks can only contian 1 to 100 characters", ephemeral=True)
             return
         
         new_task = Task(guild_id=guild_id, owner_id=task_owner_id, description=task_description, week_number=get_current_week())
