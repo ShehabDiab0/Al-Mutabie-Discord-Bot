@@ -128,7 +128,7 @@ class TasksCog(commands.Cog):
             return
 
         if len(task_description) < 1 or len(task_description) > 100: # select menu doesn't like options < 1 or > 100 characters
-            await interaction.response.send_message(f"Tasks can only contian 1 to 100 characters")
+            await interaction.response.send_message(f"Tasks can only contian 1 to 100 characters", ephemeral=True)
             return
         
         new_task = Task(guild_id=guild_id, owner_id=task_owner_id, description=task_description, week_number=get_current_week())
