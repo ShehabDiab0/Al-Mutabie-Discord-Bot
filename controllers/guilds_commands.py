@@ -69,7 +69,6 @@ class GuildsCog(commands.Cog):
 
     @app_commands.command(name="allow_kicks")
     @commands.guild_only()
-    @app_commands.checks.has_permissions(administrator=True)
     async def allow_kicks(self, interaction: discord.Interaction):
         # check if user is a moderator
         if not interaction.user.guild_permissions.kick_members: 
@@ -82,7 +81,6 @@ class GuildsCog(commands.Cog):
 
     @app_commands.command(name="disallow_kicks")
     @commands.guild_only()
-    @app_commands.checks.has_permissions(administrator=True)
     async def disallow_kicks(self, interaction: discord.Interaction):
         # check if user is a moderator
         if not interaction.user.guild_permissions.kick_members: 
