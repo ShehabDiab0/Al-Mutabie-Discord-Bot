@@ -35,22 +35,14 @@ class TasksCog(commands.Cog):
         user_id = interaction.user.id
         guild_id = interaction.guild.id
         subscriber = Subscriber(user_id, guild_id)
-        week_number = week
         tasks = tasks_access.get_subscriber_tasks(subscriber, week)
         
         if not tasks:
             await interaction.response.send_message(f"You have no tasks to report", ephemeral=True)
             return
-
-        user_id: str = str(interaction.user.id)
-        guild_id: str = str(interaction.guild.id)
-        subscriber: Subscriber = Subscriber(user_id, guild_id)
-
-        tasks = tasks_access.get_subscriber_tasks(subscriber, week_number)
         
         modal = UI.SelfReportModal(tasks=tasks, curr_idx=0)
         await interaction.response.send_modal(modal)
-        # await interaction.response.send_message("Select a Task to Report", ephemeral=True)
 
 
 

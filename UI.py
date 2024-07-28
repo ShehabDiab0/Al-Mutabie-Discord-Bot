@@ -165,7 +165,7 @@ class SelfReportModal(Modal):
         # modals only allow 5 text fields, so we need to ask if the used wants to continue or not
         view = View()
         next_button = SelfReportButton("Next ➡️", self.tasks, self.end_idx)
-        previous_button = SelfReportButton("Previous ⬅️", self.tasks, self.curr_idx)
+        previous_button = SelfReportButton("⬅️ Previous", self.tasks, self.curr_idx)
         view.add_item(previous_button)
         view.add_item(next_button)
 
