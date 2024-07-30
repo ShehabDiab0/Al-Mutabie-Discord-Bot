@@ -6,7 +6,6 @@ from data_access import weeks_access, subscribers_access, guilds_access, tasks_a
 from models.subscriber import Subscriber
 from models.penalty import Penalty
 from models.guild import Guild
-from constants import TIMEZONE
 
 
 # reminder for everyone
@@ -107,11 +106,6 @@ async def kick(bot, user_id: str, guild_id: str):
 class Penalties():
     # constructor that takes bot
     def __init__(self, bot: commands.Bot):
-        self.bot = bot
-        self.remind_everyone.start()
-        self.run_penalties.start()
-        self.weekly_check.start()
-        self.check_user.start()
         self.bot = bot
 
     def remind_everyone(self) -> None:
