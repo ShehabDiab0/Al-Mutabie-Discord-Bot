@@ -5,17 +5,13 @@ import dotenv # type: ignore
 import os
 from data_access import penalties_access, weeks_access
 from data_access.guilds_access import get_channel_id
-from data_access import weeks_access, subscribers_access, guilds_access, tasks_access
-from models.subscriber import Subscriber
-from models.penalty import Penalty
-from models.guild import Guild
+from data_access import weeks_access
 import sys
 import json
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 from constants import TIMEZONE
 from penalty_scheduler import Penalties
-
 
 
 bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
@@ -40,20 +36,16 @@ def run_bot():
     bot.run(os.getenv("API_TOKEN"))
 
 # ------------------------ GENERAL commands and events ------------------------
-
-
 @bot.event
 async def on_ready():
     print("BOT IS RUNNING")
     await load_cogs()
-
     try:
         synced = await bot.tree.sync()
         print(f"Synced {len(synced)} command")
     except Exception as e:
         print(e)
     finally:
-        
         # start a periodic check
         daily_check.start()
 
