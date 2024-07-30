@@ -50,7 +50,6 @@ async def send_card(bot, user_id: str, guild_id: str, penalty: Penalty):
         print("User or channel not found.")
 
 
-# TODO: change kick to not use CustomContext (not needed)
 @commands.has_permissions(kick_members=True)
 @commands.guild_only()
 async def kick(bot, user_id: str, guild_id: str):
