@@ -47,7 +47,7 @@ async def on_ready():
         print(e)
     finally:
         # start a periodic check
-        daily_check.start()
+        hourly_check.start()
 
 # Greet Command
 @bot.tree.command(name="greet")
@@ -94,7 +94,7 @@ async def daily_task(day: int):
 
 # A periodic check to ensure daily execution if the bot stays online
 @tasks.loop(hours=1)
-async def daily_check():
+async def hourly_check():
     last_run = load_last_run_time()
     today = datetime.now().date()
 
@@ -103,8 +103,8 @@ async def daily_check():
         save_last_run_time(today)
 
 
-@daily_check.before_loop
-async def before_daily_check():
+@hourly_check.before_loop
+async def before_hourly_check():
     await bot.wait_until_ready()
 
 
