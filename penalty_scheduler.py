@@ -51,16 +51,6 @@ async def send_card(bot, user_id: str, guild_id: str, penalty: Penalty):
 
 
 # TODO: change kick to not use CustomContext (not needed)
-class CustomContext:
-    def __init__(self, guild, channel):
-        self.guild = guild
-        self.channel = channel
-
-    async def send(self, content):
-        await self.channel.send(content)
-
-
-
 @commands.has_permissions(kick_members=True)
 @commands.guild_only()
 async def kick(bot, user_id: str, guild_id: str):
@@ -83,25 +73,20 @@ async def kick(bot, user_id: str, guild_id: str):
             print('Channel not found or is not a text channel.')
             return
 
-        # Create a custom context-like object
-        custom_ctx = CustomContext(guild, channel)
-
         # Fetch the member
         member = guild.get_member(user_id)
         if not member:
-            await custom_ctx.send('Member not found.')
+            await channel.send('Member not found.')
             return
-
         # Kick the member
         await member.kick(reason=reason)
-        await custom_ctx.send(f'{member.mention} has been kicked for: {reason}')
-
+        await channel.send(f'{member.mention} has been kicked for: {reason}')
     except ValueError:
         print('Invalid guild_id, user_id, or channel_id.')
     except discord.Forbidden:
-        await custom_ctx.send('I do not have permission to kick this user.')
+        await channel.send('I do not have permission to kick this user.')
     except discord.HTTPException as e:
-        await custom_ctx.send(f'Failed to kick the user. Error: {e}')
+        await channel.send(f'Failed to kick the user. Error: {e}')
 
 
 
