@@ -140,7 +140,7 @@ async def instructions(interaction: discord.Interaction):
 ------>1. you did not complete enough tasks to pass the threshold percentage you registered with
 ------>2. you did not write your tasks on time
 ------>3. you did not complete your previous penalty (You have to mark it as done)
-• you get a red card if you have 1 penalty previous week and you recieved a new one
+• you get a red card if you have 1 penalty previous week and you received a new one
 • Warning: getting a red card would ban you from using the bot
 • You get kicked once getting a red card if the server allows kicks from the bot
     '''
