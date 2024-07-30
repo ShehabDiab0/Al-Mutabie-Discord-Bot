@@ -114,7 +114,6 @@ class Penalties():
         # get all users having this guild_id and not is_banned in a list of ids
         subscribers = subscribers_access.get_subscribers(guild_id)
         for subscriber in subscribers:
-            # check if subscriber exists in the discord server
             bot_guild = self.bot.get_guild(int(guild_id)) 
             # check if the bot got kicked or the user left the server
             if bot_guild is None or bot_guild.get_member(int(subscriber.user_id)) is None: 
@@ -125,21 +124,22 @@ class Penalties():
             else:
                 previous_card = None
             card = self.check_user(subscriber, week_num - 1, previous_card)
-            if card:
-                is_yellow = 1
-                desc = subscriber.default_yellow_description
-                if previous_card and ((week_num - previous_card.week_number) <= 1):
-                    # red card
-                    is_yellow = 0
-                    if guild.allow_kicks:
-                        print('kick')
-                        self.bot.loop.create_task(kick(self.bot, subscriber.user_id, guild_id))
-                    desc = subscriber.default_red_description
-                    subscribers_access.ban_user(subscriber)
-                # add penalty in db
-                penalty = Penalty(description=desc, is_yellow=is_yellow, week_number=week_num, guild_id=guild_id, owner_id=subscriber.user_id, is_done=False)
-                self.bot.loop.create_task(send_card(self.bot, subscriber.user_id, guild_id, penalty))
-                penalties_access.add_penalty(penalty)
+            if not card:
+                continue
+            is_yellow = 1
+            desc = subscriber.default_yellow_description
+            if previous_card and ((week_num - previous_card.week_number) <= 1):
+                # red card
+                if guild.allow_kicks:
+                    print('kick')
+                    self.bot.loop.create_task(kick(self.bot, subscriber.user_id, guild_id))
+                is_yellow = 0
+                desc = subscriber.default_red_description
+                subscribers_access.ban_user(subscriber)
+            # add penalty in db
+            penalty = Penalty(description=desc, is_yellow=is_yellow, week_number=week_num, guild_id=guild_id, owner_id=subscriber.user_id, is_done=False)
+            self.bot.loop.create_task(send_card(self.bot, subscriber.user_id, guild_id, penalty))
+            penalties_access.add_penalty(penalty)
 
 
     # checks user weekly progress and returns true if he should receive a card
