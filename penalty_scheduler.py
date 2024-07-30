@@ -17,17 +17,19 @@ async def send_reminder(bot, guild_id: str):
     channel_id = int(get_channel_id(guild_id))
     # Fetch the channel object using the channel ID
     channel = bot.get_channel(channel_id)
-    if channel and user_ids:  # Check if both the channel and user were found
-        message = "A new week has started. \nSelf report your last week and add your new tasks.\n You have 2 days\n"
-        # Fetch each user object for mentioning using the user ID
-        for user_id in user_ids:
-            user = guild.get_member(user_id)
-            if user:
-                message += user.mention
-        # Send a message in the channel mentioning the user
-        await channel.send(message)
-    else:
+    if not (channel and user_ids):
         print("User or channel not found.")
+        return
+
+    message = "A new week has started. \nSelf report your last week and add your new tasks.\n You have 2 days\n"
+    # Fetch each user object for mentioning using the user ID
+    for user_id in user_ids:
+        user = guild.get_member(user_id)
+        if user:
+            message += user.mention
+    # Send a message in the channel mentioning the user
+    await channel.send(message)
+
 
 # send card
 async def send_card(bot, user_id: str, guild_id: str, penalty: Penalty):
