@@ -77,6 +77,10 @@ async def kick(bot, user_id: str, guild_id: str):
         if not member:
             await channel.send('Member not found.')
             return
+        
+        if guild.me.top_role <= member.top_role:
+            await channel.send(f"I cannot kick {member.mention} because their role is higher or equal to mine.")
+            return
         # Kick the member
         await member.kick(reason=reason)
         await channel.send(f'{member.mention} has been kicked for: {reason}')
