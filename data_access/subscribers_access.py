@@ -15,7 +15,8 @@ def subscribe_user(new_subscriber: Subscriber):
                          new_subscriber.guild_id,
                          new_subscriber.default_yellow_description,
                          new_subscriber.default_red_description,
-                         new_subscriber.threshold_percentage))
+                         new_subscriber.threshold_percentage,
+                         1 if new_subscriber.strict_mode else 0))
 
     connection.commit()
     cursor.close()
@@ -30,15 +31,16 @@ def get_subscriber(user_id, guild_id) -> Subscriber:
     subscriber_data = cursor.fetchone()
     connection.commit()
     cursor.close()
-    
+
     subscriber = Subscriber(user_id=subscriber_data[0],
                guild_id=subscriber_data[1],
-               default_red_description=subscriber_data[2], 
-               default_yellow_description=subscriber_data[3], 
-               threshold_percentage=subscriber_data[4], 
-               is_banned=subscriber_data[5])
+               default_red_description=subscriber_data[2],
+               default_yellow_description=subscriber_data[3],
+               threshold_percentage=subscriber_data[4],
+               is_banned=subscriber_data[5],
+               strict_mode=(True if subscriber_data[6] == 1 else False))
     return subscriber
-    
+
 
 def is_banned_user(user_id: str, guild_id: str) -> bool:
     cursor = connection.cursor()
@@ -80,7 +82,7 @@ def get_subscribers(guild_id: str) -> list[Subscriber]:
     output = cursor.fetchall()
     subscribers = []
     for subscriber in output:
-        subscribers.append(Subscriber(user_id=subscriber[0], guild_id=subscriber[1],default_red_description=subscriber[2], default_yellow_description=subscriber[3], threshold_percentage=subscriber[4], is_banned=subscriber[5]))
+        subscribers.append(Subscriber(user_id=subscriber[0], guild_id=subscriber[1],default_red_description=subscriber[2], default_yellow_description=subscriber[3], threshold_percentage=subscriber[4], is_banned=subscriber[5], strict_mode=(True if subscriber[6] == 1 else False)))
     connection.commit()
     cursor.close()
     return subscribers
@@ -135,5 +137,15 @@ def update_ban_status(user_id: str, guild_id: str, is_banned: bool):
                     SET is_banned = ?
                     WHERE global_user_id = ? AND guild_id = ?
                     ''', (is_banned, user_id, guild_id))
+    connection.commit()
+    cursor.close()
+
+def update_strict_mode(user_id: str, guild_id: str, on: bool):
+    cursor = connection.cursor()
+    cursor.execute(f'''
+                        UPDATE Subscribers
+                        SET strict_mode = ?
+                        WHERE global_user_id = ? AND guild_id = ?
+                        ''', (1 if on else 0, user_id, guild_id))
     connection.commit()
     cursor.close()

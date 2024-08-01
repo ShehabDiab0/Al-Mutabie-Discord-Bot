@@ -195,17 +195,29 @@ class RegisterationModal(Modal):
         self.default_yellow_card_input = RegisterationInput(placeholder="Write your default Yellow card description.", label="Default Yellow Card Description", required=True)
         self.default_red_card_input = RegisterationInput(placeholder="Write your default Red card description.", label="Default Red Card Description", required=True)
         self.threshold = RegisterationInput(placeholder="Write Your threshold percentage you want >= 50.0 and <= 100.0 (Default is 60.0)", label="Threshold Percentage", required=False)
+        self.strict_mode = RegisterationInput(
+            placeholder="Do You want to disable strict mode? if you disable it you will not be "
+                        "kicked out of the server if you didn't meet your red card instead, you will only be banned "
+                        "from the bot .... write \"Go Easy On Me\" If you want to disable it (it's on by default).",
+            label="Strict Mode", required=False)
         self.add_item(self.default_yellow_card_input)
         self.add_item(self.default_red_card_input)
         self.add_item(self.threshold)
+        self.add_item(self.strict_mode)
 
     async def on_submit(self, interaction: discord.Interaction):
         yellow_card_description = self.default_yellow_card_input.value
         red_card_description = self.default_red_card_input.value
         threshold = self.threshold.value
+        strict_mode = self.strict_mode.value
 
         if threshold == "":
             threshold = 60.0
+
+        if strict_mode == "Go Easy On Me":
+            strict_mode = False
+        else:
+            strict_mode = True
 
         if not helpers.is_float(threshold):
             await interaction.response.send_message("Please Enter a number >= 50.0 and <= 100.0 or leave it empty, (Default is 60.0)", ephemeral=True)
@@ -218,7 +230,7 @@ class RegisterationModal(Modal):
 
         user_id = str(interaction.user.id)
         guild_id = str(interaction.guild.id)
-        new_subscriber = Subscriber(user_id, guild_id, yellow_card_description, red_card_description, threshold)
+        new_subscriber = Subscriber(user_id, guild_id, yellow_card_description, red_card_description, strict_mode=strict_mode, threshold_percentage=threshold)
 
         subscribers_access.subscribe_user(new_subscriber)
         await interaction.response.send_message(

@@ -157,16 +157,22 @@ async def kick(user_id: str, guild_id: str):
             await custom_ctx.send('Member not found.')
             return
 
-        # Kick the member
-        await member.kick(reason=reason)
-        await custom_ctx.send(f'{member.mention} has been kicked for: {reason}')
+        subscriber = subscribers_access.get_subscriber(user_id=user_id)
+
+        # Kick or ban the member
+        if subscriber.strict_mode:
+            await member.kick(reason=reason)
+            await custom_ctx.send(f'{member.mention} has been kicked for: {reason}')
+        else:
+            subscribers_access.ban_user(subscriber=subscriber)
+            await custom_ctx.send(f'{member.mention} has been banned for: {reason}')
 
     except ValueError:
         print('Invalid guild_id, user_id, or channel_id.')
     except discord.Forbidden:
-        await custom_ctx.send('I do not have permission to kick this user.')
+        await custom_ctx.send('I do not have permission to kick/Ban this user.')
     except discord.HTTPException as e:
-        await custom_ctx.send(f'Failed to kick the user. Error: {e}')
+        await custom_ctx.send(f'Failed to kick/Ban the user. Error: {e}')
 
 
 #----------------------------penalties-------------------------------
@@ -306,6 +312,7 @@ async def instructions(interaction: discord.Interaction):
 17. [Server Admin Only] to change reminder channel use /set_reminder_channel (by default reminder channel is the server default channel) (use this by going to the channel u want to set and use this command)
 18. [Server Admin Only] to reset reminder channel to server default user /reset_reminder_channel
 19. [Server Admin Only] to unban a user to be able to use the bot again use /unban_user, Parameters: who
+20. [Server Admin Only] to toggle a user's strict mode /toggle_strict_mode, Parameters: who
 **Rules:**
 • Week starts & Reminders ==> Friday 00:00
 • Penalties ==> Sunday 00:00
@@ -315,7 +322,8 @@ async def instructions(interaction: discord.Interaction):
 ------>3. you did not complete your previous penalty (You have to mark it as done)
 • you get a red card if you have 1 penalty previous week and you recieved a new one
 • Warning: getting a red card would ban you from using the bot
-• You get kicked once getting a red card if the server allows kicks from the bot
+• You WILL be BANNED from using the bot once you get a red card
+• You WILL be KICKED from the server if you got red card and strict mode is enabled
     '''
     embed = discord.Embed(title=f'Instructions and Rules',
                               description=info,
