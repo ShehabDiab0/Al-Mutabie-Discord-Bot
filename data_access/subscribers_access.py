@@ -20,6 +20,7 @@ def subscribe_user(new_subscriber: Subscriber):
     connection.commit()
     cursor.close()
 
+# TODO: replace * with column names
 def get_subscriber(user_id, guild_id) -> Subscriber:
     cursor = connection.cursor()
     cursor.execute(f'''SELECT *

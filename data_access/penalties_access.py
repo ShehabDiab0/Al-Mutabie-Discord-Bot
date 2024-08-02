@@ -1,6 +1,7 @@
 from database import connection
 from models.subscriber import Subscriber
 from models.penalty import Penalty
+# TODO: replace SELECT (*) with column names
 
 def get_subscriber_penalty_history(subscriber: Subscriber) -> list[Penalty]:
     cursor = connection.cursor()

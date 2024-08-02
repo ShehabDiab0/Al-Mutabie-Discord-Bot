@@ -2,6 +2,7 @@ from database import connection
 from models.task import Task
 from models.subscriber import Subscriber
 from data_access import weeks_access
+# TODO: replace SELECT (*) with column names
 
 # Insert User Task into Database
 def add_task(new_task: Task):
