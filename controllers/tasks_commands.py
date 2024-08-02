@@ -198,6 +198,10 @@ class TasksCog(commands.Cog):
                 embed.set_thumbnail(url=str(member.avatar))
             all_tasks_embeds.append(embed)
 
+        while len(all_tasks_embeds) > 10:
+            await interaction.response.send_message(embeds=all_tasks_embeds[:10])
+            all_tasks_embeds = all_tasks_embeds[10:]
+
         await interaction.response.send_message(embeds=all_tasks_embeds)
 
     @app_commands.command(name="show_week_data")
