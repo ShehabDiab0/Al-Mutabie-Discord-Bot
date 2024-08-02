@@ -9,8 +9,8 @@ def subscribe_user(new_subscriber: Subscriber):
                     INSERT 
                     INTO 
                     Subscribers 
-                    (global_user_id, guild_id, default_yellow_penalty_description, default_red_penalty_description, threshold)
-                    VALUES (?, ?, ?, ?, ?)
+                    (global_user_id, guild_id, default_yellow_penalty_description, default_red_penalty_description, threshold, strict_mode)
+                    VALUES (?, ?, ?, ?, ?, ?)
                    ''', (new_subscriber.user_id,
                          new_subscriber.guild_id,
                          new_subscriber.default_yellow_description,
@@ -140,12 +140,12 @@ def update_ban_status(user_id: str, guild_id: str, is_banned: bool):
     connection.commit()
     cursor.close()
 
-def update_strict_mode(user_id: str, guild_id: str, on: bool):
+def update_strict_mode(user_id: str, guild_id: str, activate: bool):
     cursor = connection.cursor()
     cursor.execute(f'''
                         UPDATE Subscribers
                         SET strict_mode = ?
                         WHERE global_user_id = ? AND guild_id = ?
-                        ''', (1 if on else 0, user_id, guild_id))
+                        ''', (1 if activate else 0, user_id, guild_id))
     connection.commit()
     cursor.close()

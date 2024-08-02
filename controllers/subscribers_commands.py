@@ -123,7 +123,7 @@ class SubscribersCog(commands.Cog):
     @app_commands.describe(who="mention a user to toggle strict mode for")
     @app_commands.checks.has_permissions(administrator=True)
     @commands.guild_only()
-    async def toggle_strict_mode(self, interaction: discord.Interaction, who: Optional[str]):
+    async def toggle_strict_mode(self, interaction: discord.Interaction, who: str):
 
         user_info = await helpers.get_valid_user(interaction, who)
         if user_info is None:
@@ -131,10 +131,15 @@ class SubscribersCog(commands.Cog):
 
         guild_id, user_id = user_info
         subscriber = get_subscriber(guild_id=guild_id, user_id=user_id)
-        currently_on = subscriber.strict_mode
-        update_strict_mode(user_id, guild_id, on=not currently_on)
-        await interaction.response.send_message(f'Strict Mode is now {"Disabled" if currently_on else "Enabled"}')
+        current_state = subscriber.strict_mode
+        update_strict_mode(user_id, guild_id, activate=not current_state)
+        await interaction.response.send_message(f'Strict Mode is now {"Disabled" if current_state else "Enabled"} for {who}.')
 
+
+    @toggle_strict_mode.error
+    async def strict_mode_error_handle(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
+        if isinstance(error, app_commands.errors.MissingPermissions):
+            await interaction.response.send_message('You don\'t have permissions to use this command, better ask an Admin for help')
 
 async def setup(bot):
     await bot.add_cog(SubscribersCog(bot))

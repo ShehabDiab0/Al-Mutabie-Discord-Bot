@@ -196,9 +196,7 @@ class RegisterationModal(Modal):
         self.default_red_card_input = RegisterationInput(placeholder="Write your default Red card description.", label="Default Red Card Description", required=True)
         self.threshold = RegisterationInput(placeholder="Write Your threshold percentage you want >= 50.0 and <= 100.0 (Default is 60.0)", label="Threshold Percentage", required=False)
         self.strict_mode = RegisterationInput(
-            placeholder="Do You want to disable strict mode? if you disable it you will not be "
-                        "kicked out of the server if you didn't meet your red card instead, you will only be banned "
-                        "from the bot .... write \"Go Easy On Me\" If you want to disable it (it's on by default).",
+            placeholder="Write \"Go Easy On Me\" If you want to disable it (it's on by default).",
             label="Strict Mode", required=False)
         self.add_item(self.default_yellow_card_input)
         self.add_item(self.default_red_card_input)

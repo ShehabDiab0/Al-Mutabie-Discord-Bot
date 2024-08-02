@@ -157,15 +157,12 @@ async def kick(user_id: str, guild_id: str):
             await custom_ctx.send('Member not found.')
             return
 
-        subscriber = subscribers_access.get_subscriber(user_id=user_id)
+        subscriber = subscribers_access.get_subscriber(user_id=user_id, guild_id=guild_id)
 
         # Kick or ban the member
         if subscriber.strict_mode:
             await member.kick(reason=reason)
             await custom_ctx.send(f'{member.mention} has been kicked for: {reason}')
-        else:
-            subscribers_access.ban_user(subscriber=subscriber)
-            await custom_ctx.send(f'{member.mention} has been banned for: {reason}')
 
     except ValueError:
         print('Invalid guild_id, user_id, or channel_id.')
