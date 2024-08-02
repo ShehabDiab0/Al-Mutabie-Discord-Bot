@@ -42,7 +42,7 @@ class SubscribersCog(commands.Cog):
     @commands.guild_only()
     async def show_profile(self, interaction: discord.Interaction, who: Optional[str]):
         if not who:
-            who = f'<@{interaction.user.id}>'
+            who = interaction.user.mention
 
         user_info = await helpers.get_valid_user(interaction, who)
         if user_info is None:
@@ -86,7 +86,7 @@ class SubscribersCog(commands.Cog):
     @commands.guild_only()
     async def unban_user(self, interaction: discord.Interaction, who: Optional[str]):
         if not who:
-            who = f'<@{interaction.user.id}>'
+            who = interaction.user.mention
 
         user_info = await helpers.get_valid_user(interaction, who)
         if user_info is None:

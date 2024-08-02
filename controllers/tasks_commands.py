@@ -141,7 +141,7 @@ class TasksCog(commands.Cog):
             week_number = get_current_week()
 
         if not who:
-            who = f'<@{interaction.user.id}>'
+            who = interaction.user.mention
 
         user_info = await helpers.get_valid_user(interaction, who)
         if user_info is None:
