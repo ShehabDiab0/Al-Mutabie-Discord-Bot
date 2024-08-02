@@ -39,6 +39,8 @@ def run_bot():
 @bot.event
 async def on_ready():
     print("BOT IS RUNNING")
+    await bot.change_presence(activity=discord.CustomActivity("Use /help to know all the rules and commands"))
+
     await load_cogs()
     try:
         synced = await bot.tree.sync()
