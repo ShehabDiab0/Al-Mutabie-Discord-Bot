@@ -61,7 +61,8 @@ class PenaltiesCog(commands.Cog):
     async def penalty_history(self, interaction: discord.Interaction, who: Optional[str]):
         guild_id = str(interaction.guild.id)
         if not who:
-            who = f'<@{interaction.user.id}>'
+            who = interaction.user.mention
+
         user_info = await helpers.get_valid_user(interaction, who)
         # check if who was correct
         if not user_info:
@@ -78,9 +79,9 @@ class PenaltiesCog(commands.Cog):
             return
         message = f"Penalties for {member.mention}:\n"
         for penalty in penalties:
-            color = "red"
+            color = "🟥"
             if penalty.is_yellow:
-                color = "yellow"
+                color = "🟨"
             message += f"- Week {penalty.week_number}: {color} card, {penalty.description}\n"
         await interaction.response.send_message(message)
 
