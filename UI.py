@@ -192,8 +192,8 @@ class RegisterationInput(TextInput):
 class RegisterationModal(Modal):
     def __init__(self) -> None:
         super().__init__(title="Registeration")
-        self.default_yellow_card_input = RegisterationInput(placeholder="Write your default Yellow card description.", label="Default Yellow Card Description", required=True)
-        self.default_red_card_input = RegisterationInput(placeholder="Write your default Red card description.", label="Default Red Card Description", required=True)
+        self.default_yellow_card_input = RegisterationInput(placeholder="What's your penalty if you got a Yellow Card?", label="Default Yellow Card Description", required=True)
+        self.default_red_card_input = RegisterationInput(placeholder="What's your penalty if you got a Red Card?", label="Default Red Card Description", required=True)
         self.threshold = RegisterationInput(placeholder="Write Your threshold percentage you want >= 50.0 and <= 100.0 (Default is 60.0)", label="Threshold Percentage", required=False)
         self.add_item(self.default_yellow_card_input)
         self.add_item(self.default_red_card_input)
