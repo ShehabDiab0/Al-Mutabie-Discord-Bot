@@ -40,6 +40,7 @@ def convert_subscriber_profile_to_str(subscriber: Subscriber):
                 Default Red Card 🟥:\n {subscriber.default_red_description}\n                     
                 Default Completion Threshold: {subscriber.threshold_percentage}
                 Banned : {"🅱️" if subscriber.is_banned else "🟩" }
+                Strict Mode: {"Enabled 🟩" if subscriber.strict_mode else "Disabled 🅱️"}
             '''
 
 def convert_formatted_tasks_to_percentages(formatted_tasks: str) -> list[float]:

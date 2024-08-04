@@ -127,7 +127,7 @@ async def instructions(interaction: discord.Interaction):
 ------>3. you did not complete your previous penalty (You have to mark it as done)
 • you get a red card if you have 1 penalty previous week and you received a new one
 • Warning: getting a red card would ban you from using the bot
-• You get kicked once getting a red card if the server allows kicks from the bot
+• You get kicked once getting a red card if the server allows kicks from the bot (strict mode on)
 **Commands Description:**
 1. /register: To register to the bot
 2. To show someone Profile or your Profile use /show_profile, Parameters: who
@@ -148,6 +148,7 @@ async def instructions(interaction: discord.Interaction):
 17. [Server Admin Only] to change reminder channel use /set_reminder_channel (by default reminder channel is the server default channel) (use this by going to the channel u want to set and use this command)
 18. [Server Admin Only] to reset reminder channel to server default user /reset_reminder_channel
 19. [Server Admin Only] to unban a user to be able to use the bot again use /unban_user, Parameters: who
+20. [Server Admin Only] to toggle a user's strict mode /toggle_strict_mode, Parameters: who
     '''
     embed = discord.Embed(title=f'Instructions and Rules',
                               description=info,
