@@ -1,6 +1,7 @@
 from database import connection
 import datetime
 from constants import TIMEZONE
+# TODO: replace SELECT (*) with column names
 
 def get_current_week():
     cursor = connection.cursor()

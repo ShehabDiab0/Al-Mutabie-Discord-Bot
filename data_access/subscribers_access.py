@@ -1,6 +1,7 @@
 from database import connection
 from models.subscriber import Subscriber
 
+# TODO: replace SELECT (*) with column names
 
 def subscribe_user(new_subscriber: Subscriber):
     cursor = connection.cursor()

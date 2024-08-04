@@ -39,6 +39,8 @@ def run_bot():
 @bot.event
 async def on_ready():
     print("BOT IS RUNNING")
+    await bot.change_presence(activity=discord.CustomActivity("Use /help to know all the rules and commands"))
+
     await load_cogs()
     try:
         synced = await bot.tree.sync()
@@ -113,6 +115,19 @@ async def before_hourly_check():
 @commands.guild_only()
 async def instructions(interaction: discord.Interaction):
     info = '''
+**Rules:**
+• Week starts & Reminders ==> Friday 00:00
+• Penalties ==> Sunday 00:00
+• Completion Threshold Percentage ==> is the percentage of tasks you would like to finish each week (e.g., > 50% of tasks have to be done)
+• Yellow Card 🟨 ==> is a penalty you would like to do (preferably to motivate you) when you do not write your tasks or pass your threshold
+• Red Card 🟥 ==> same as Yellow Card but more strict and you get banned if you get it (you have to do it before contacting)
+• You get a penalty in 3 conditions (yellow then red):
+------>1. you did not complete enough tasks to pass the threshold percentage you registered with
+------>2. you did not write your tasks on time
+------>3. you did not complete your previous penalty (You have to mark it as done)
+• you get a red card if you have 1 penalty previous week and you received a new one
+• Warning: getting a red card would ban you from using the bot
+• You get kicked once getting a red card if the server allows kicks from the bot
 **Commands Description:**
 1. /register: To register to the bot
 2. To show someone Profile or your Profile use /show_profile, Parameters: who
@@ -133,16 +148,6 @@ async def instructions(interaction: discord.Interaction):
 17. [Server Admin Only] to change reminder channel use /set_reminder_channel (by default reminder channel is the server default channel) (use this by going to the channel u want to set and use this command)
 18. [Server Admin Only] to reset reminder channel to server default user /reset_reminder_channel
 19. [Server Admin Only] to unban a user to be able to use the bot again use /unban_user, Parameters: who
-**Rules:**
-• Week starts & Reminders ==> Friday 00:00
-• Penalties ==> Sunday 00:00
-• You get a penalty in 3 conditions (yellow then red):
------->1. you did not complete enough tasks to pass the threshold percentage you registered with
------->2. you did not write your tasks on time
------->3. you did not complete your previous penalty (You have to mark it as done)
-• you get a red card if you have 1 penalty previous week and you received a new one
-• Warning: getting a red card would ban you from using the bot
-• You get kicked once getting a red card if the server allows kicks from the bot
     '''
     embed = discord.Embed(title=f'Instructions and Rules',
                               description=info,

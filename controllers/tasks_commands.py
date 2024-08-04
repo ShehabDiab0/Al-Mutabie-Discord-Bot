@@ -141,7 +141,7 @@ class TasksCog(commands.Cog):
             week_number = get_current_week()
 
         if not who:
-            who = f'<@{interaction.user.id}>'
+            who = interaction.user.mention
 
         user_info = await helpers.get_valid_user(interaction, who)
         if user_info is None:
@@ -197,9 +197,10 @@ class TasksCog(commands.Cog):
             if member.avatar is not None:
                 embed.set_thumbnail(url=str(member.avatar))
             all_tasks_embeds.append(embed)
-
+        
+        channel = interaction.channel
         while len(all_tasks_embeds) > 10:
-            await interaction.response.send_message(embeds=all_tasks_embeds[:10])
+            await channel.send(embeds=all_tasks_embeds[:10])
             all_tasks_embeds = all_tasks_embeds[10:]
 
         await interaction.response.send_message(embeds=all_tasks_embeds)

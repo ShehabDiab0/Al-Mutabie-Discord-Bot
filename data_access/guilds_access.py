@@ -1,5 +1,6 @@
 from database import connection
 from models.guild import Guild
+# TODO: replace SELECT (*) with column names
 
 
 def add_guild(new_guild: Guild):

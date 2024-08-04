@@ -4,6 +4,7 @@ import discord
 from client import bot
 from data_access import subscribers_access
 import re
+import math
 
 def convert_tasks_to_str(tasks: list[Task]) -> str:
     if len(tasks) == 0:
@@ -49,10 +50,14 @@ def convert_formatted_tasks_to_percentages(formatted_tasks: str) -> list[float]:
     return completion_percentages
 
 
+# TODO: change it to to_float and throw exception
 def is_float(num: str) -> bool:
     try:
         float(num)
-        return True
+        if math.isfinite(float(num)):
+            return True
+        return False
+    
     except ValueError:
         return False
 
