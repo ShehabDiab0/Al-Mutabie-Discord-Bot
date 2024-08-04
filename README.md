@@ -13,7 +13,7 @@ Al-Mutabie-Discord-Bot is a to-do list bot designed to help you manage your week
 
 You can either invite the bot to your server or use it locally.
 
-### Invite the bot to your server! 🎉
+### Invite the bot to your server!
 Our bot is deployed on Amazon EC2 cloud server. You can get a link to add the bot to your server by [Contacting us](#contact-us-📬).
 
 ### Use it on your local computer with your own bot 💻
@@ -106,7 +106,7 @@ Contributions are welcomed!
 3. Work on your branch and test your work.
 4. Open a pull request.
 
-### Branch Naming Convention 📛
+### Branch Naming Convention
 
 Ex. `feat/take_break`
 1. Use a meaningful and descriptive token/label like `feat` at the start of the branch.
