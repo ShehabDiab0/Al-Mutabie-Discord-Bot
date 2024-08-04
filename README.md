@@ -1,4 +1,4 @@
-# Al-Mutabie-Discord-Bot 🚀
+# Al-Mutabie-Discord-Bot
 
 ## Overview
 
@@ -127,7 +127,7 @@ Examples:
 2. `refactor/self_report`: You are refactoring an existing feature `self_report` to make it better.
 3. `hotfix/self_report`: There is a bug or security vulnerability in `self_report` production code and it needs to be fixed ASAP.
 
-### Production Code 🚀
+### Production Code
 These might be `upcoming` changes in the branches:<br>
 `main`: This is the code for production that is well-tested and safe to use and deploy that people are using.<br>
 `development`: This is used for development and testing before merging to main.
