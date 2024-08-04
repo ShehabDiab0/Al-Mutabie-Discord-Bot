@@ -77,13 +77,17 @@ async def kick(bot, user_id: str, guild_id: str):
         if not member:
             await channel.send('Member not found.')
             return
-        
+
+        subscriber = subscribers_access.get_subscriber(user_id=user_id, guild_id=guild_id)
+
         if guild.me.top_role <= member.top_role:
             await channel.send(f"I cannot kick {member.mention} because their role is higher or equal to mine.")
             return
-        # Kick the member
-        await member.kick(reason=reason)
-        await channel.send(f'{member.mention} has been kicked for: {reason}')
+        # Kick or ban the member
+        if subscriber.strict_mode:
+            await member.kick(reason=reason)
+            await channel.send(f'{member.mention} has been kicked for: {reason}')
+
     except ValueError:
         print('Invalid guild_id, user_id, or channel_id.')
     except discord.Forbidden:
