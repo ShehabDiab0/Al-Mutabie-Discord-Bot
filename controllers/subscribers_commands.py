@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from discord import app_commands 
+from discord import app_commands
 from typing import Optional
 
 from models.subscriber import Subscriber
@@ -26,7 +26,7 @@ class SubscribersCog(commands.Cog):
 
         if not is_registered_guild(guild_id):
                 add_guild(new_guild)
-        
+
         if is_registered_user(user_id, guild_id):
             await interaction.response.send_message(
                 "You are already subscribed or cannot subscribe again as you are banned! (you can edit profile using /edit_profile command)",
@@ -47,7 +47,7 @@ class SubscribersCog(commands.Cog):
         user_info = await helpers.get_valid_user(interaction, who)
         if user_info is None:
             return
-        
+
         guild_id, user_id= user_info
         subscriber: Subscriber = get_subscriber(user_id, guild_id)
         formatted_profile = helpers.convert_subscriber_profile_to_str(subscriber)
@@ -59,7 +59,7 @@ class SubscribersCog(commands.Cog):
         if member.avatar is not None:
             embed.set_thumbnail(url=str(member.avatar))
         await interaction.response.send_message(embed=embed)
-        
+
     @app_commands.command(name="edit_profile")
     @commands.guild_only()
     async def edit_profile(self, interaction: discord.Interaction):
@@ -70,7 +70,7 @@ class SubscribersCog(commands.Cog):
             await interaction.response.send_message('You are not registered please register using /register',
                                                     ephemeral=True)
             return
-        
+
         if is_banned_user(user_id, guild_id):
             await interaction.response.send_message('Banned users are not allowed to edit their profile.',
                                                     ephemeral=True)
@@ -91,7 +91,7 @@ class SubscribersCog(commands.Cog):
         user_info = await helpers.get_valid_user(interaction, who)
         if user_info is None:
             return
-        
+
         guild_id, user_id= user_info
         update_ban_status(user_id, guild_id, is_banned=False)
         await interaction.response.send_message(f'{who} is Unbanned Successfully :^)')
@@ -119,6 +119,27 @@ class SubscribersCog(commands.Cog):
             message += f"{user.mention}"
         await interaction.response.send_message(message)
 
+    @app_commands.command(name='toggle_strict_mode')
+    @app_commands.describe(who="mention a user to toggle strict mode for")
+    @app_commands.checks.has_permissions(administrator=True)
+    @commands.guild_only()
+    async def toggle_strict_mode(self, interaction: discord.Interaction, who: str):
+
+        user_info = await helpers.get_valid_user(interaction, who)
+        if user_info is None:
+            return
+
+        guild_id, user_id = user_info
+        subscriber = get_subscriber(guild_id=guild_id, user_id=user_id)
+        current_state = subscriber.strict_mode
+        update_strict_mode(user_id, guild_id, activate=not current_state)
+        await interaction.response.send_message(f'Strict Mode is now {"Disabled" if current_state else "Enabled"} for {who}.')
+
+
+    @toggle_strict_mode.error
+    async def strict_mode_error_handle(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
+        if isinstance(error, app_commands.errors.MissingPermissions):
+            await interaction.response.send_message('You don\'t have permissions to use this command, better ask an Admin for help')
+
 async def setup(bot):
     await bot.add_cog(SubscribersCog(bot))
-

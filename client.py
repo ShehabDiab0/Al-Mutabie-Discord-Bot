@@ -148,6 +148,18 @@ async def instructions(interaction: discord.Interaction):
 17. [Server Admin Only] to change reminder channel use /set_reminder_channel (by default reminder channel is the server default channel) (use this by going to the channel u want to set and use this command)
 18. [Server Admin Only] to reset reminder channel to server default user /reset_reminder_channel
 19. [Server Admin Only] to unban a user to be able to use the bot again use /unban_user, Parameters: who
+20. [Server Admin Only] to toggle a user's strict mode /toggle_strict_mode, Parameters: who
+**Rules:**
+• Week starts & Reminders ==> Friday 00:00
+• Penalties ==> Sunday 00:00
+• You get a penalty in 3 conditions (yellow then red):
+------>1. you did not complete enough tasks to pass the threshold percentage you registered with
+------>2. you did not write your tasks on time
+------>3. you did not complete your previous penalty (You have to mark it as done)
+• you get a red card if you have 1 penalty previous week and you recieved a new one
+• Warning: getting a red card would ban you from using the bot
+• You WILL be BANNED from using the bot once you get a red card
+• You WILL be KICKED from the server if you got red card and strict mode is enabled
     '''
     embed = discord.Embed(title=f'Instructions and Rules',
                               description=info,
