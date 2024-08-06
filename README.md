@@ -36,7 +36,7 @@ Our bot is deployed on Amazon EC2 cloud server. You can get a link to add the bo
 
 4. Run the bot:
     ```bash
-    python bot.py
+    python main.py
     ```
 
 ## Usage & Guides 📖
