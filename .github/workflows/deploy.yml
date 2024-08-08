@@ -30,7 +30,7 @@ jobs:
       run: |
         # docker stop shehab-discord-al-mutabie
         # docker rm shehab-discord-al-mutabie
-        docker build -t shehab-discord:0.2 ./Al-Mutabie-Discord-Bot --no-cache
+        docker build -t shehab-discord:0.2 . --no-cache
         docker run -d --env-file .env -v $HOME/discord/data:/data --restart always --name shehab-discord-al-mutabie>
     # - name: Test with pytest
     #   run: |
