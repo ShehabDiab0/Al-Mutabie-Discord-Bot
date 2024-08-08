@@ -1,0 +1,37 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+
+name: Discord Deploy Runner
+
+on:
+  push:
+    branches: [ "main" ]
+  # pull_request:
+  #   branches: [ "main" ]
+
+# permissions:
+#   contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    # - uses: actions/checkout@v4
+    # - name: Set up Python 3.10
+    #   uses: actions/setup-python@v3
+    #   # with:
+      #   python-version: "3.10"
+    - name: setup_env
+      run: |
+        echo API_TOKEN=${{github.secrets.API_TOKEN}} >> .env
+    - name: deploy
+      run: |
+        docker stop shehab-discord-al-mutabie
+        docker rm shehab-discord-al-mutabie
+        docker build -t shehab-discord:0.2 ./Al-Mutabie-Discord-Bot --no-cache
+        docker run -d --env-file .env -v $HOME/discord/data:/data --restart always --name shehab-discord-al-mutabie>
+    # - name: Test with pytest
+    #   run: |
+    #     pytest
