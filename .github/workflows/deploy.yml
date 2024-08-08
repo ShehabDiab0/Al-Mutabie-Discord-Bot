@@ -25,7 +25,7 @@ jobs:
       #   python-version: "3.10"
     - name: setup_env
       run: |
-        echo API_TOKEN=${{github.secrets.API_TOKEN}} >> .env
+        echo API_TOKEN=${{ secrets.API_TOKEN }} >> .env
     - name: deploy
       run: |
         docker stop shehab-discord-al-mutabie
