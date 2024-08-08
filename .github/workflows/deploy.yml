@@ -28,8 +28,8 @@ jobs:
         echo API_TOKEN=${{github.secrets.API_TOKEN}} >> .env
     - name: deploy
       run: |
-        # docker stop shehab-discord-al-mutabie
-        # docker rm shehab-discord-al-mutabie
+        docker stop shehab-discord-al-mutabie
+        docker rm shehab-discord-al-mutabie
         ls -la
         docker build -t shehab-discord:0.2 . --no-cache
         docker run -d --env-file .env -v $HOME/discord/data:/data --restart always --name shehab-discord-al-mutabie shehab-discord:0.2
