@@ -224,14 +224,18 @@ class TasksCog(commands.Cog):
 
             sub_data[member.display_name] = total_progress
         
-        # Plotting the Histogram
-        fig, ax = plt.subplots()
-        ax.bar(sub_data.keys(), sub_data.values())
-        ax.set_xlabel('Users')
-        ax.set_ylabel('Total Progress')
+        
+        #
+        fig, ax = plt.subplots(figsize=(10, 10))
+        names, values = zip(*sorted(zip(sub_data.keys(), sub_data.values()), key=lambda x: x[1]))
+        bars = ax.barh(names, values, color=plt.cm.viridis(values))
+        ax.set_ylabel('Users')
+        ax.set_xlabel('Total Progress')
         ax.set_title(f'Week {week_number} Progress')
-        ax.set_ylim(0, 100)  # Set y-axis limit to 100
-        plt.xticks(rotation=45)
+        ax.set_xlim(0, 100)  # Set x-axis limit to 100
+        for bar in bars:
+            width = bar.get_width()
+            ax.text(width, bar.get_y() + bar.get_height() / 2, width, va='center')
         plt.tight_layout()
         plt.savefig('week_progress.png')
         plt.close()

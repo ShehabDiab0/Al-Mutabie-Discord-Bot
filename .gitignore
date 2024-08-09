@@ -164,4 +164,5 @@ cython_debug/
 
 *.db
 *.png
+test.ipynb
 last_run.json
