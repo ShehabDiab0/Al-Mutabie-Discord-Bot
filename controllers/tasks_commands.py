@@ -225,10 +225,9 @@ class TasksCog(commands.Cog):
             sub_data[member.display_name] = total_progress
         
         
-        #
         fig, ax = plt.subplots(figsize=(10, 10))
         names, values = zip(*sorted(zip(sub_data.keys(), sub_data.values()), key=lambda x: x[1]))
-        bars = ax.barh(names, values, color=plt.cm.viridis(values))
+        bars = ax.barh(names, values, color=plt.cm.viridis([int(value) for value in values]))
         ax.set_ylabel('Users')
         ax.set_xlabel('Total Progress')
         ax.set_title(f'Week {week_number} Progress')
