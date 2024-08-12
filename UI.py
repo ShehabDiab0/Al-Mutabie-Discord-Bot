@@ -171,7 +171,7 @@ class SelfReportModal(Modal):
 
         question_message = f"Do you want to enter the next page to edit tasks from {self.curr_idx+6} to {min(self.end_idx+5, len(self.tasks))}"
         if len(self.tasks) - self.end_idx == 1:
-            question_message = f"Do you want to edit the last task {self.curr_idx + 1}"
+            question_message = f"Do you want to edit the last task {self.end_idx + 1}"
 
         if len(failed_to_update) > 0:
             question_message += f"\nAlso Failed to update Tasks: {failed_to_update}"
