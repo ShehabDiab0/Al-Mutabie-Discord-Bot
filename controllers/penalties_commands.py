@@ -28,13 +28,17 @@ class PenaltiesCog(commands.Cog):
             await interaction.response.send_message(f"You have to register first before adding any tasks please use /register to register", ephemeral=True)
             return
         
-        if penalty:
-            penalty.is_done = True
-            # update penalty
-            update_subscriber_penalty(penalty)
-            await interaction.response.send_message(f"Penalty marked as done, Congratulations")
-        else:
+        if not penalty:
             await interaction.response.send_message(f"No penalty to mark as done", ephemeral=True)
+        if penalty.is_done:
+            await interaction.response.send_message(f"Penalty is already finished", ephemeral=True)
+            return
+        
+        penalty.is_done = True
+        # update penalty
+        update_subscriber_penalty(penalty)
+        await interaction.response.send_message(f"Penalty marked as done, Congratulations")
+            
 
 
     @app_commands.command(name="mention_penalized_users")
