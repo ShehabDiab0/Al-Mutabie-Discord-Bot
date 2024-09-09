@@ -91,8 +91,12 @@ class SubscribersCog(commands.Cog):
         user_info = await helpers.get_valid_user(interaction, who)
         if user_info is None:
             return
-
+        
         guild_id, user_id= user_info
+        if not is_banned_user(user_id, guild_id):
+            await interaction.response.send_message(f'{who} is not even banned xd')
+            return
+
         update_ban_status(user_id, guild_id, is_banned=False)
         await interaction.response.send_message(f'{who} is Unbanned Successfully :^)')
 
@@ -100,6 +104,7 @@ class SubscribersCog(commands.Cog):
     async def subscriber_error_handle(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.errors.MissingPermissions):
             await interaction.response.send_message('You don\'t have permissions to use this command.')
+    
     # TODO: Get Banned users
 
 

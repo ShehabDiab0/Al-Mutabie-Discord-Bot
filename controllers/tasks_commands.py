@@ -29,20 +29,11 @@ class TasksCog(commands.Cog):
 
 
     @app_commands.command(name="self_report")
-    @app_commands.describe(week="Type Tasks of which week")
     @commands.guild_only()
-    async def self_report(self,interaction: discord.Interaction, week: int):
-        user_id = interaction.user.id
-        guild_id = interaction.guild.id
-        subscriber = Subscriber(user_id, guild_id)
-        tasks = tasks_access.get_subscriber_tasks(subscriber, week)
-        
-        if not tasks:
-            await interaction.response.send_message(f"You have no tasks to report", ephemeral=True)
-            return
-        
-        modal = UI.SelfReportModal(tasks=tasks, curr_idx=0)
-        await interaction.response.send_modal(modal)
+    async def self_report(self,interaction: discord.Interaction):
+        curr_week = weeks_access.get_current_week()
+        weeks = [week for week in range(curr_week, curr_week - 2, -1)]
+        await interaction.response.send_message("Select Week to Self Report", view=UI.SelfReportView(weeks), ephemeral=True)
 
 
 

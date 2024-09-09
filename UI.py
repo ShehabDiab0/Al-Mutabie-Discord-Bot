@@ -7,6 +7,7 @@ from discord import app_commands
 import helpers
 from data_access import tasks_access
 from data_access import subscribers_access
+from data_access import weeks_access
 from models.subscriber import Subscriber
 
 class SingleTaskDropDown(Select):
@@ -20,6 +21,7 @@ class SingleTaskDropDown(Select):
     async def callback(self, interaction: discord.Interaction):
         self.modal.selected_value = self.values[0]
         await interaction.response.send_modal(self.modal)
+
 class MultiTaskDropDown(Select):
     def __init__(self, tasks, btn) -> None:
         super().__init__(placeholder="Select Task",
@@ -104,14 +106,59 @@ class UpdateTaskModal(Modal):
         else:
             await interaction.response.send_message("No Changes Made", ephemeral=True)
         
-# Bonjour
 class UpdateTaskView(View):
     def __init__(self, tasks) -> None:
         super().__init__()
         self.tasks = tasks
         self.modal = UpdateTaskModal(tasks)
-        self.select = SingleTaskDropDown(self.tasks,self.modal)
+        self.select = SingleTaskDropDown(self.tasks, self.modal)
         self.add_item(self.select)
+
+
+# Template if we would like to implement other self report for previous weeks
+# class WeekChoiceModal(Modal):
+#     def __init__(self, tasks, curr_idx):
+#         super().__init__(title="Self Report Week Choice")
+#         self.add_item(TextInput(label=f"Week Number to Self Report",
+#                                 placeholder=f"Write any Week number From 1 to {weeks_access.get_current_week()}",
+#                                 style=discord.TextStyle.short,
+#                                 required=True))
+
+#     async def on_submit(self, interaction: discord.Interaction):
+#         week_num = self.children[0]
+#         view = View()
+#         yes_button = button("Yes!") # TO BE CREATED IF NEEDED
+#         no_button = button("No!") # TO BE CREATED IF NEEDED
+#         await interaction.response.send_message(f"Are you sure you want to Report tasks of Week {week_num}", view=view, ephemeral=True)
+
+class WeeksDropDown(Select):
+    def __init__(self, weeks: list[int]) -> None:
+        super().__init__(placeholder="Select Week",
+                         options=[SelectOption(label=f'Week {week}', value=week) for week in weeks],
+                         min_values=1,
+                         max_values=1)
+        self.options[0].label += ' (Current Week)'
+        self.options[1].label += ' (Last Week)'
+        # self.options.append(SelectOption(label='Other', value=0))
+
+    async def callback(self, interaction: discord.Interaction):
+        week_num = int(self.values[0])
+        # if week_num == 0:
+        # choose a week
+        #     await interaction.response.send_modal()
+        #     return
+        
+        user_id = interaction.user.id
+        guild_id = interaction.guild.id
+        subscriber = Subscriber(user_id, guild_id)
+        tasks = tasks_access.get_subscriber_tasks(subscriber, week_num)
+        
+        if not tasks:
+            await interaction.response.send_message(f"You have no tasks to report", ephemeral=True)
+            return
+        
+        await interaction.response.send_modal(SelfReportModal(tasks=tasks, curr_idx=0))
+
 
 class SelfReportButton(Button):
     def __init__(self, label, tasks, curr_idx) -> None:
@@ -165,7 +212,7 @@ class SelfReportModal(Modal):
         # modals only allow 5 text fields, so we need to ask if the used wants to continue or not
         view = View()
         next_button = SelfReportButton("Next ➡️", self.tasks, self.end_idx)
-        previous_button = SelfReportButton("⬅️ Previous", self.tasks, self.curr_idx)
+        previous_button = SelfReportButton("⬅️ Prev", self.tasks, self.curr_idx)
         view.add_item(previous_button)
         view.add_item(next_button)
 
@@ -176,6 +223,14 @@ class SelfReportModal(Modal):
         if len(failed_to_update) > 0:
             question_message += f"\nAlso Failed to update Tasks: {failed_to_update}"
         await interaction.response.send_message(question_message, view=view, ephemeral=True)
+
+
+class SelfReportView(View):
+    def __init__(self, weeks: list[int]) -> None:
+        super().__init__()
+        self.select = WeeksDropDown(weeks)
+        self.add_item(self.select)
+
 
 class RegisterationInput(TextInput):
     def __init__(self, placeholder, label, required=False) -> None:
