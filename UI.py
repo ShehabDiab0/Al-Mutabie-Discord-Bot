@@ -291,6 +291,30 @@ class RegisterationModal(Modal):
             ephemeral=True
         )
 
+class ColorModeDropDown(Select):
+    def __init__(self) -> None:
+        super().__init__(placeholder="Select Week",
+                         options=[SelectOption(label=f'Default Mode', value="dfm"),
+                                  SelectOption(label=f'Highlight Mode', value=f'hlm'),
+                                  SelectOption(label=f'Font Color Mode', value=f'fcm'),
+                                  SelectOption(label=f'Strike Mode', value=f'skm'),
+                                  SelectOption(label=f'Shifted Strike Mode', value=f'ssm'),
+                                  ],
+                         min_values=1,
+                         max_values=1)
+
+    async def callback(self, interaction: discord.Interaction):
+        user_id = interaction.user.id
+        guild_id = interaction.guild.id
+        new_color_mode = self.values[0]
+        subscribers_access.update_color_mode(user_id, guild_id, new_color_mode)
+
+        await interaction.response.send_message(f"Color Mode Updated :^)", ephemeral=True)
+
+class ColorModeView(View):
+    def __init__(self) -> None:
+        super().__init__()
+        self.add_item(ColorModeDropDown())
 
 class EditProfileModal(Modal):
     def __init__(self) -> None:
