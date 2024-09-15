@@ -39,8 +39,7 @@ def get_subscriber(user_id, guild_id) -> Subscriber:
                default_yellow_description=subscriber_data[3],
                threshold_percentage=subscriber_data[4],
                is_banned=subscriber_data[5],
-               strict_mode=(True if subscriber_data[6] == 1 else False),
-               color_mode=subscriber[7])
+               strict_mode=(True if subscriber_data[6] == 1 else False))
     return subscriber
 
 
@@ -84,14 +83,7 @@ def get_subscribers(guild_id: str) -> list[Subscriber]:
     output = cursor.fetchall()
     subscribers = []
     for subscriber in output:
-        subscribers.append(Subscriber(user_id=subscriber[0],
-                                      guild_id=subscriber[1],
-                                      default_red_description=subscriber[2],
-                                      default_yellow_description=subscriber[3],
-                                      threshold_percentage=subscriber[4],
-                                      is_banned=subscriber[5],
-                                      strict_mode=(True if subscriber[6] == 1 else False),
-                                      color_mode=subscriber[7]))
+        subscribers.append(Subscriber(user_id=subscriber[0], guild_id=subscriber[1],default_red_description=subscriber[2], default_yellow_description=subscriber[3], threshold_percentage=subscriber[4], is_banned=subscriber[5], strict_mode=(True if subscriber[6] == 1 else False)))
     connection.commit()
     cursor.close()
     return subscribers
@@ -158,26 +150,3 @@ def update_strict_mode(user_id: str, guild_id: str, activate: bool):
                         ''', (1 if activate else 0, user_id, guild_id))
     connection.commit()
     cursor.close()
-
-def update_color_mode(user_id: str, guild_id: str, color_mode: str):
-    cursor = connection.cursor()
-    cursor.execute(f'''
-                        UPDATE Subscribers
-                        SET color_mode = ?
-                        WHERE global_user_id = ? AND guild_id = ?
-                        ''', (color_mode, user_id, guild_id))
-    connection.commit()
-    cursor.close()
-
-def get_subscriber_color_mode(user_id, guild_id) -> Subscriber:
-    cursor = connection.cursor()
-    cursor.execute(f'''SELECT color_mode
-                    From 
-                    Subscribers
-                    WHERE global_user_id = ? AND guild_id = ?''',
-                    (user_id, guild_id))
-    subscriber_data = cursor.fetchone()
-    connection.commit()
-    cursor.close()
-
-    return subscriber_data[0]

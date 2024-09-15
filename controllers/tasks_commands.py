@@ -15,7 +15,7 @@ from database import connection
 from data_access import tasks_access
 from data_access.weeks_access import get_current_week
 from data_access import weeks_access
-from data_access.subscribers_access import is_banned_user, is_registered_user, get_subscribers, get_subscriber_color_mode
+from data_access.subscribers_access import is_banned_user, is_registered_user, get_subscribers
 import helpers
 import UI
 
@@ -141,7 +141,7 @@ class TasksCog(commands.Cog):
         guild_id, user_id= user_info
         subscriber: Subscriber = Subscriber(user_id, guild_id)
         tasks = tasks_access.get_subscriber_tasks(subscriber, week_number)
-        formatted_tasks = helpers.convert_tasks_to_str(tasks, get_subscriber_color_mode(user_id, guild_id))
+        formatted_tasks = helpers.convert_tasks_to_str(tasks)
 
         member = interaction.guild.get_member(int(user_id))
         if not member:
@@ -175,7 +175,7 @@ class TasksCog(commands.Cog):
         all_tasks_embeds = []
         for subscriber in subscribers:
             tasks = tasks_access.get_subscriber_tasks(subscriber, week_number)
-            formatted_tasks = helpers.convert_tasks_to_str(tasks, subscriber.color_mode)
+            formatted_tasks = helpers.convert_tasks_to_str(tasks)
 
             member = interaction.guild.get_member(int(subscriber.user_id))
             if not member:

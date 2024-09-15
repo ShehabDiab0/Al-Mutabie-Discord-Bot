@@ -146,9 +146,5 @@ class SubscribersCog(commands.Cog):
         if isinstance(error, app_commands.errors.MissingPermissions):
             await interaction.response.send_message('You don\'t have permissions to use this command, better ask an Admin for help')
 
-    @app_commands.command(name='change_color_mode')
-    async def change_show_tasks_color(self, interaction: discord.Interaction):
-        await interaction.response.send_message("Select Color Mode", view=UI.ColorModeView(), ephemeral=True)
-        
 async def setup(bot):
     await bot.add_cog(SubscribersCog(bot))
