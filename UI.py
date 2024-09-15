@@ -293,7 +293,7 @@ class RegisterationModal(Modal):
 
 class ColorModeDropDown(Select):
     def __init__(self) -> None:
-        super().__init__(placeholder="Select Week",
+        super().__init__(placeholder="Select Color Mode",
                          options=[SelectOption(label=f'Default Mode', value="dfm"),
                                   SelectOption(label=f'Highlight Mode', value=f'hlm'),
                                   SelectOption(label=f'Font Color Mode', value=f'fcm'),
