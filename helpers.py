@@ -6,15 +6,92 @@ from data_access import subscribers_access
 import re
 import math
 
-def convert_tasks_to_str(tasks: list[Task]) -> str:
+def convert_tasks_to_str(tasks: list[Task], color_mode: str = 'dfm') -> str:
     if len(tasks) == 0:
         return "Empty! متخازل"
     
+    tasks.sort(key=lambda task: task.completion_percentage)
+    if color_mode == 'hlm':
+        return get_colored_tasks_hlm(tasks)
+    if color_mode == 'fcm':
+        return get_colored_tasks_fcm(tasks)
+    if color_mode == 'skm':
+        return get_colored_tasks_skm(tasks)
+    if color_mode == 'ssm':
+        return get_colored_tasks_ssm(tasks)
+    
+    # dfm
+    return get_colored_tasks_dfm(tasks)
+
+# default color mode
+def get_colored_tasks_dfm(tasks):
+    formatted_tasks = '\n'
+    for i, task in enumerate(tasks):
+            formatted_tasks += f'{i + 1}- {task.description} - [{task.completion_percentage}]\n'
+
+    total_progress = get_total_progress(tasks)
+    formatted_tasks += f'\n`Total Progress: {"💯" if total_progress == 100 else total_progress}`\n'
+
+    return formatted_tasks
+
+# Highlight Color Mode
+def get_colored_tasks_hlm(tasks):
+    formatted_tasks = '```diff\n'
+    for i, task in enumerate(tasks):
+        if task.completion_percentage == 100:
+            formatted_tasks += f'+ {task.description} ✅\n'
+        elif task.completion_percentage == 0:
+            formatted_tasks += f'- {i + 1}- {task.description} - [{task.completion_percentage}]\n'
+        else:
+            formatted_tasks += f'{i + 1}- {task.description} - [{task.completion_percentage}]\n'
+
+    total_progress = get_total_progress(tasks)
+    formatted_tasks += f'``` ```Total Progress: {"💯" if total_progress == 100 else total_progress}```\n'
+
+    return formatted_tasks
+
+# Font Color Mode
+def get_colored_tasks_fcm(tasks):
+    formatted_tasks = '```md\n'
+    for i, task in enumerate(tasks):
+        if task.completion_percentage == 100:
+            formatted_tasks += f'> {task.description} ✅\n'
+        elif task.completion_percentage >= 50:
+            formatted_tasks += f'# {i + 1}- {task.description} - [{task.completion_percentage}]\n'
+        else:
+            formatted_tasks += f'{i + 1}- {task.description} - [{task.completion_percentage}]\n'
+
+    total_progress = get_total_progress(tasks)
+    formatted_tasks += f'``` ```Total Progress: {"💯" if total_progress == 100 else total_progress}```\n'
+
+    return formatted_tasks
+
+# Strike Color Mode
+def get_colored_tasks_skm(tasks):
     formatted_tasks = ''
     for i, task in enumerate(tasks):
-        formatted_tasks += f'{i + 1}- {task.description} - [{task.completion_percentage}]\n'
-    formatted_tasks += f'\n Total Progress: {get_total_progress(tasks)}'
-    
+        if task.completion_percentage == 100:
+            formatted_tasks += f'~~{task.description}~~ ✅\n'
+        else:
+            formatted_tasks += f'{i + 1}- {task.description} - [{task.completion_percentage}]\n'
+
+    total_progress = get_total_progress(tasks)
+    formatted_tasks += f'\n`Total Progress: {"💯" if total_progress == 100 else total_progress}`\n'
+
+    return formatted_tasks
+
+# Shifted Strike Color Mode
+def get_colored_tasks_ssm(tasks):
+    formatted_tasks = ''
+    for i, task in enumerate(tasks):
+        if task.completion_percentage == 100:
+            formatted_tasks += f'> ~~{task.description}~~ ✅\n'
+        else:
+            formatted_tasks += f'{i + 1}- {task.description} - [{task.completion_percentage}]\n'
+
+    total_progress = get_total_progress(tasks)
+    formatted_tasks += f'\n`Total Progress: {"💯" if total_progress == 100 else total_progress}`\n'
+
     return formatted_tasks
 
 def get_total_progress(tasks: list[Task]) -> float:
