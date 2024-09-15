@@ -180,7 +180,7 @@ class SelfReportModal(Modal):
         self.formatted_text = helpers.convert_tasks_to_self_report(tasks)
 
         for idx, task in enumerate(tasks[curr_idx:self.end_idx]):
-            label_task = f'{task.description if len(task.description) < 29 else (task.description[:29] + "..")} {round(task.completion_percentage, 2)}'
+            label_task = f'{task.description if len(task.description) < 26 else (task.description[:26] + "..")} {round(task.completion_percentage, 2)}'
             # self.add_item(TextInput(label=f"Task {curr_idx+idx+1}, Write a float number between 1-100", placeholder=f"{task.description}", custom_id=str(curr_idx+idx), style=discord.TextStyle.short))
             self.add_item(TextInput(label=f"Task {curr_idx+idx+1}: {label_task}",
                                     placeholder=f"Write a float number between 1-100",
