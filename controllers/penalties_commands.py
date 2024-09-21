@@ -62,12 +62,12 @@ class PenaltiesCog(commands.Cog):
     @app_commands.command(name="penalty_history")
     @app_commands.describe(who="mention a user to show their Penalty History")
     @commands.guild_only()
-    async def penalty_history(self, interaction: discord.Interaction, who: Optional[str]):
+    async def penalty_history(self, interaction: discord.Interaction, who: Optional[discord.Member]):
         guild_id = str(interaction.guild.id)
         if not who:
-            who = interaction.user.mention
+            who = interaction.user
 
-        user_info = await helpers.get_valid_user(interaction, who)
+        user_info = await helpers.get_valid_user(interaction, who.mention)
         # check if who was correct
         if not user_info:
             return
