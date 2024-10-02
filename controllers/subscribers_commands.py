@@ -40,11 +40,11 @@ class SubscribersCog(commands.Cog):
     @app_commands.command(name="show_profile")
     @app_commands.describe(who="mention a user to Show their Profile")
     @commands.guild_only()
-    async def show_profile(self, interaction: discord.Interaction, who: Optional[str]):
+    async def show_profile(self, interaction: discord.Interaction, who: Optional[discord.Member]):
         if not who:
-            who = interaction.user.mention
+            who = interaction.user
 
-        user_info = await helpers.get_valid_user(interaction, who)
+        user_info = await helpers.get_valid_user(interaction, who.mention)
         if user_info is None:
             return
 
@@ -84,21 +84,21 @@ class SubscribersCog(commands.Cog):
     @app_commands.describe(who="mention a user to unban")
     @app_commands.checks.has_permissions(administrator=True)
     @commands.guild_only()
-    async def unban_user(self, interaction: discord.Interaction, who: Optional[str]):
+    async def unban_user(self, interaction: discord.Interaction, who: Optional[discord.Member]):
         if not who:
-            who = interaction.user.mention
+            who = interaction.user
 
-        user_info = await helpers.get_valid_user(interaction, who)
+        user_info = await helpers.get_valid_user(interaction, who.mention)
         if user_info is None:
             return
         
         guild_id, user_id= user_info
         if not is_banned_user(user_id, guild_id):
-            await interaction.response.send_message(f'{who} is not even banned xd')
+            await interaction.response.send_message(f'{who.mention} is not even banned xd')
             return
 
         update_ban_status(user_id, guild_id, is_banned=False)
-        await interaction.response.send_message(f'{who} is Unbanned Successfully :^)')
+        await interaction.response.send_message(f'{who.mention} is Unbanned Successfully :^)')
 
     @unban_user.error
     async def subscriber_error_handle(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
@@ -128,9 +128,9 @@ class SubscribersCog(commands.Cog):
     @app_commands.describe(who="mention a user to toggle strict mode for")
     @app_commands.checks.has_permissions(administrator=True)
     @commands.guild_only()
-    async def toggle_strict_mode(self, interaction: discord.Interaction, who: str):
+    async def toggle_strict_mode(self, interaction: discord.Interaction, who: discord.Member):
 
-        user_info = await helpers.get_valid_user(interaction, who)
+        user_info = await helpers.get_valid_user(interaction, who.mention)
         if user_info is None:
             return
 
@@ -138,7 +138,7 @@ class SubscribersCog(commands.Cog):
         subscriber = get_subscriber(guild_id=guild_id, user_id=user_id)
         current_state = subscriber.strict_mode
         update_strict_mode(user_id, guild_id, activate=not current_state)
-        await interaction.response.send_message(f'Strict Mode is now {"Disabled" if current_state else "Enabled"} for {who}.')
+        await interaction.response.send_message(f'Strict Mode is now {"Disabled" if current_state else "Enabled"} for {who.mention}.')
 
 
     @toggle_strict_mode.error
