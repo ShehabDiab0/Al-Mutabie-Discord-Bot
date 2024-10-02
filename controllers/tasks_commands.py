@@ -19,7 +19,6 @@ from data_access.subscribers_access import is_banned_user, is_registered_user, g
 import helpers
 import UI
 
-import io
 import datetime
 import client
 import matplotlib.pyplot as plt
@@ -228,11 +227,9 @@ class TasksCog(commands.Cog):
             width = bar.get_width()
             ax.text(width, bar.get_y() + bar.get_height() / 2, width, va='center')
         plt.tight_layout()
-        image = io.BytesIO()
-        plt.savefig(image)
+        plt.savefig('week_progress.png')
         plt.close()
-        image.seek(0)
-        file = discord.File(image, filename='week_progress.png')
+        file = discord.File('week_progress.png')
         await interaction.response.send_message(files=[file])
         
     
