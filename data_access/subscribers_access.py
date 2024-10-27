@@ -40,7 +40,7 @@ def get_subscriber(user_id, guild_id) -> Subscriber:
                threshold_percentage=subscriber_data[4],
                is_banned=subscriber_data[5],
                strict_mode=(True if subscriber_data[6] == 1 else False),
-               color_mode=subscriber[7])
+               color_mode=subscriber_data[7])
     return subscriber
 
 
