@@ -125,14 +125,14 @@ def convert_tasks_to_self_report(tasks: list[Task]) -> str:
 def convert_subscriber_profile_to_str(subscriber: Subscriber):
     return  f'''
                 ```Default Penalties```
-                `Default Yellow Card` 🟨\n `{subscriber.default_yellow_description}`\n                   
-                `Default Red Card` 🟥\n `{subscriber.default_red_description}`                    
+                Default Yellow Card 🟨\n `{subscriber.default_yellow_description}`\n                   
+                Default Red Card 🟥\n `{subscriber.default_red_description}`                   
                 
                 ```Profile Properties```
-                `Default Completion Threshold`: `{subscriber.threshold_percentage}`
-                `Banned`: {"🅱️" if subscriber.is_banned else "`Not Banned` 🟩" }
-                `Strict Mode`: {"`Enabled` 🟩" if subscriber.strict_mode else "`Disabled` 🟥"}
-                `Color Mode`: `{get_color_mode_name(subscriber.color_mode)}`
+                Default Completion Threshold:       `{subscriber.threshold_percentage}`
+                Banned:                             `{"🅱️" if subscriber.is_banned else "Not Banned 🟩" }`
+                Strict Mode:                        `{"Enabled 🟩" if subscriber.strict_mode else "Disabled 🟥"}`
+                Color Mode:                         `{get_color_mode_name(subscriber.color_mode)}`
             '''
 
 def convert_formatted_tasks_to_percentages(formatted_tasks: str) -> list[float]:
